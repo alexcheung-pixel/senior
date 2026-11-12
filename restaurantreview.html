@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HKDSE Restaurant Review Master (S5 English)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Google Fonts: Inter & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+          },
+          colors: {
+            dse: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom utility animations and scrollbars */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+    }
+    .tile-btn {
+      transition: all 0.15s ease-in-out;
+      touch-action: manipulation;
+    }
+    .tile-btn:active {
+      transform: scale(0.96);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    /* Gamification Animations */
+    @keyframes floatUpFade {
+      0% { opacity: 1; transform: translateY(0) scale(0.95); }
+      50% { opacity: 1; transform: translateY(-18px) scale(1.05); }
+      100% { opacity: 0; transform: translateY(-34px) scale(1); }
+    }
+    .xp-float {
+      animation: floatUpFade 1.2s ease-out forwards;
+    }
+    @keyframes speakingPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.22); }
+    }
+    .speaking-active {
+      animation: speakingPulse 0.6s infinite ease-in-out;
+      background-color: #4f46e5 !important;
+      color: #ffffff !important;
+    }
+    .confetti-piece {
+      position: fixed;
+      width: 9px;
+      height: 9px;
+      top: -12px;
+      z-index: 9999;
+      pointer-events: none;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- APP NAVIGATION HEADER -->
+  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-indigo-500/30">
+          5*
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight tracking-tight text-white flex items-center gap-2">
+            HKDSE Review Craft 
+            <span class="bg-indigo-500/30 text-indigo-300 text-xs px-2 py-0.5 rounded border border-indigo-400/30">S4–S5 Quest</span>
+          </h1>
+          <p class="text-xs text-slate-400">Master Paper 2 Part A: Restaurant Review Writing</p>
+        </div>
+      </div>
+
+      <!-- Gamification HUD -->
+      <div class="flex items-center gap-2 sm:gap-3 bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-xl">
+        <!-- Level & XP Bar -->
+        <div class="flex flex-col min-w-[115px] sm:min-w-[140px]">
+          <div class="flex items-center justify-between text-[11px] font-bold">
+            <span id="hud-level-badge" class="text-amber-400 flex items-center gap-1">
+              <i class="fa-solid fa-crown"></i> Lv.1 Rookie
+            </span>
+            <span id="hud-xp-text" class="text-slate-300">0 / 100 XP</span>
+          </div>
+          <div class="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden mt-1">
+            <div id="hud-xp-bar" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Streak Counter -->
+        <div class="flex items-center gap-1 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-700" title="Correct Answer Streak">
+          <span class="text-sm">🔥</span>
+          <span id="hud-streak" class="text-xs font-extrabold text-orange-400">0</span>
+        </div>
+
+        <!-- Badges Modal Trigger -->
+        <button onclick="openBadgesModal()" class="flex items-center gap-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 px-2.5 py-1 rounded-lg text-xs font-bold transition">
+          <i class="fa-solid fa-medal text-amber-400"></i>
+          <span id="hud-badge-count">0/5</span>
+        </button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto text-sm">
+        <button onclick="switchTab('model')" id="tab-model" class="tab-btn px-3 py-2 rounded-lg font-medium flex items-center gap-2 whitespace-nowrap bg-indigo-600 text-white">
+          <i class="fa-solid fa-file-signature"></i> 1. Model Review
+        </button>
+        <button onclick="switchTab('vocab')" id="tab-vocab" class="tab-btn px-3 py-2 rounded-lg font-medium flex items-center gap-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-book-bookmark"></i> 2. Vocabulary
+        </button>
+        <button onclick="switchTab('grammar')" id="tab-grammar" class="tab-btn px-3 py-2 rounded-lg font-medium flex items-center gap-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-puzzle-piece"></i> 3. Sentence Rearrange
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: MODEL REVIEW EXPLORER               -->
+    <!-- ========================================== -->
+    <section id="section-model" class="tab-content space-y-6">
+      
+      <!-- Top Overview Banner -->
+      <div class="bg-gradient-to-r from-indigo-700 via-indigo-600 to-purple-700 text-white p-6 rounded-2xl shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 bg-white/10 text-indigo-100 text-xs px-3 py-1 rounded-full backdrop-blur-md mb-2">
+              <i class="fa-solid fa-award"></i> DSE Level 5 Exemplar Analysis
+            </div>
+            <h2 class="text-2xl font-bold">Dim Sum One Review Breakdown</h2>
+            <p class="text-indigo-100 text-sm mt-1 max-w-2xl">
+              Learn how high-scoring candidates organize content into clear sections: <span class="underline">Introduction</span>, <span class="underline">Food</span>, <span class="underline">Service</span>, <span class="underline">Environment</span>, and <span class="underline">Conclusion</span>.
+            </p>
+          </div>
+          <div class="bg-white/10 p-3 rounded-xl border border-white/10 text-center flex-shrink-0">
+            <span class="block text-xs text-indigo-200 uppercase font-semibold">Target Word Count</span>
+            <span class="text-2xl font-black">~250-300</span>
+            <span class="block text-xs text-indigo-200">words</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Grid: Review Left, Annotations Right -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Interactive Model Review Text -->
+        <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
+              <i class="fa-solid fa-utensils text-indigo-600"></i> Sample Review Text
+            </h3>
+            <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">
+              Click highlighted structures
+            </span>
+          </div>
+
+          <!-- Restaurant Metadata Header Box -->
+          <div class="bg-indigo-50/70 p-4 rounded-xl border border-indigo-100 text-base space-y-1.5">
+            <p><strong class="text-indigo-950">Name:</strong> Dim Sum One</p>
+            <p><strong class="text-indigo-950">Cuisine:</strong> Chinese Dim Sum (廣式點心)</p>
+            <p><strong class="text-indigo-950">Best for:</strong> Families & Friends (家庭與朋友聚會)</p>
+          </div>
+
+          <!-- Review Paragraphs with Structural Markers -->
+          <div class="prose prose-slate max-w-none space-y-4 text-base sm:text-lg text-slate-700 leading-loose">
+            
+            <!-- Paragraph 1: Intro -->
+            <p class="p-3.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200">
+              <span class="inline-block bg-indigo-100 text-indigo-800 text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded mr-1.5">Intro</span>
+              <mark class="bg-amber-100 text-amber-900 px-1 py-0.5 rounded cursor-pointer hover:bg-amber-200" onclick="highlightStructure(1)">
+                Situated in the bustling district of Mong Kok, Dim Sum One is an immensely popular dining hotspot
+              </mark> 
+              that is truly amazing and definitely worth a try! 
+              <mark class="bg-blue-100 text-blue-900 px-1 py-0.5 rounded cursor-pointer hover:bg-blue-200" onclick="highlightStructure(2)">
+                Not only does it offer delicious food and great service, but it also boasts remarkably affordable prices
+              </mark>, drawing crowds of locals and tourists alike.
+            </p>
+
+            <!-- Paragraph 2: Food -->
+            <p class="p-3.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200">
+              <span class="inline-block bg-emerald-100 text-emerald-800 text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded mr-1.5">Food</span>
+              The restaurant serves some of the finest dim sum in Hong Kong, with dishes presented so artfully that you almost hesitate to eat them. Two specific standouts showcase their kitchen's quality: the signature fried rice is cooked to a rich golden hue reminiscent of royal dishes in an imperial palace, while the pork bun features a crispy outer crust stuffed with savory-sweet sour pork.
+            </p>
+
+            <!-- Paragraph 3: Service -->
+            <p class="p-3.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200">
+              <span class="inline-block bg-purple-100 text-purple-800 text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded mr-1.5">Service</span>
+              The service is equally worthy of praise. While visitors often lament the poor service in local eateries, the polite staff here will change their minds. 
+              <mark class="bg-emerald-100 text-emerald-900 px-1 py-0.5 rounded cursor-pointer hover:bg-emerald-200" onclick="highlightStructure(3)">
+                Instead of merely taking orders, the servers actively ask about diners' flavor preferences
+              </mark> to give tailored recommendations; 
+              <mark class="bg-purple-100 text-purple-900 px-1 py-0.5 rounded cursor-pointer hover:bg-purple-200" onclick="highlightStructure(4)">
+                had I not sought their guidance, I would not have discovered their wonderful signature pork bun
+              </mark>!
+            </p>
+
+            <!-- Paragraph 4: Dining Environment -->
+            <p class="p-3.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200">
+              <span class="inline-block bg-rose-100 text-rose-800 text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded mr-1.5">Environment</span>
+              However, the dining environment has room for improvement. Although ornate artwork adorns every corner, the physical space is small, forcing diners to sit cramped together in a tight room. 
+              <mark class="bg-rose-100 text-rose-900 px-1 py-0.5 rounded cursor-pointer hover:bg-rose-200" onclick="highlightStructure(5)">
+                Consequently, ambient noise bounces off the walls, making it difficult to hear family members or friends speaking across the table
+              </mark>.
+            </p>
+
+            <!-- Paragraph 5: Conclusion -->
+            <p class="p-3.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200">
+              <span class="inline-block bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded mr-1.5">Conclusion</span>
+              All in all, 
+              <mark class="bg-orange-100 text-orange-900 px-1 py-0.5 rounded cursor-pointer hover:bg-orange-200" onclick="highlightStructure(6)">
+                despite the cramped, noisy setting, the dining experience offers fantastic value at around $350 for a full meal for four
+              </mark>. 
+              <mark class="bg-teal-100 text-teal-900 px-1 py-0.5 rounded cursor-pointer hover:bg-teal-200" onclick="highlightStructure(7)">
+                With splendid service and high-quality dishes, there is literally no reason not to give Dim Sum One a try
+              </mark>!
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: Targeted Structure Focus Panel -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 sticky top-20">
+            <h3 class="font-bold text-slate-800 flex items-center justify-between text-lg mb-3">
+              <span><i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i> Key Target Structures</span>
+              <span class="text-xs text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">DSE Formula</span>
+            </h3>
+
+            <p class="text-sm text-slate-600 mb-4">
+              Click on any sentence structure card below to see how it operates in the exam essay:
+            </p>
+
+            <!-- Structure Selector List -->
+            <div id="structure-card-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+              <!-- Dynamically Populated via JS -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: VOCABULARY BANK & GAP FILL PRACTICE -->
+    <!-- ========================================== -->
+    <section id="section-vocab" class="tab-content hidden space-y-6">
+      
+      <!-- Section Header -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-book-open-reader text-indigo-600"></i>
+              Topic Vocabulary Bank & Interactive Gap Fill
+            </h2>
+            <p class="text-slate-600 text-base mt-1">
+              Essential HKDSE adjectives and nouns with Traditional Chinese (繁體中文) meanings.
+            </p>
+          </div>
+
+          <!-- Category Selector Buttons -->
+          <div class="flex flex-wrap items-center gap-2 bg-slate-100 p-1.5 rounded-xl self-start md:self-auto">
+            <button onclick="filterVocabCategory('food')" id="cat-btn-food" class="cat-btn px-3.5 py-2 rounded-lg text-sm font-bold transition bg-white text-indigo-600 shadow-sm">
+              🍲 Food 食物
+            </button>
+            <button onclick="filterVocabCategory('taste')" id="cat-btn-taste" class="cat-btn px-3.5 py-2 rounded-lg text-sm font-bold transition text-slate-600 hover:text-slate-900">
+              👅 Taste of Food 食物味道
+            </button>
+            <button onclick="filterVocabCategory('service')" id="cat-btn-service" class="cat-btn px-3.5 py-2 rounded-lg text-sm font-bold transition text-slate-600 hover:text-slate-900">
+              💁 Service 服務
+            </button>
+            <button onclick="filterVocabCategory('env')" id="cat-btn-env" class="cat-btn px-3.5 py-2 rounded-lg text-sm font-bold transition text-slate-600 hover:text-slate-900">
+              🪑 Environment 用餐環境
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vocabulary Word Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="vocab-cards-grid">
+        <!-- Dynamically injected via JS -->
+      </div>
+
+      <!-- Interactive Gap Filling Practice Section -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
+          <div>
+            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+              <i class="fa-solid fa-pen-to-square text-emerald-600"></i> 
+              Vocabulary Gap Filling Challenge
+            </h3>
+            <p class="text-sm text-slate-600 mt-0.5">Select a word in each sentence for instant feedback (+15 XP per correct answer).</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="gapfill-set-badge" class="text-sm font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full">
+              Set 1
+            </span>
+            <span id="gapfill-score" class="text-sm font-bold bg-emerald-100 text-emerald-800 px-3.5 py-1 rounded-full">
+              Score: 0 / 5
+            </span>
+            <button onclick="requestNewGapFillSet()" id="btn-new-gapfill" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-white text-sm font-bold rounded-xl shadow-sm transition flex items-center gap-1.5">
+              <i class="fa-solid fa-arrows-rotate"></i> Generate Another Set
+            </button>
+          </div>
+        </div>
+
+        <!-- Exercise Container -->
+        <div id="gapfill-container" class="space-y-4">
+          <!-- Dynamically Injected -->
+        </div>
+
+        <div class="flex justify-between items-center pt-2">
+          <button onclick="resetGapFillQuiz()" class="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-semibold rounded-xl transition">
+            <i class="fa-solid fa-rotate-left mr-1"></i> Reset Answers
+          </button>
+          <button onclick="checkGapFillQuiz()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-check"></i> Check All Answers
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: SENTENCE REARRANGEMENT EXERCISES   -->
+    <!-- ========================================== -->
+    <section id="section-grammar" class="tab-content hidden space-y-6">
+      
+      <!-- Top Controls Card -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Structure Master</span>
+            <h2 class="text-xl font-bold text-slate-800">Sentence Rearrangement (重組句子練習)</h2>
+            <p class="text-sm text-slate-600 mt-1">
+              Select a key structure below. Reorder the scrambled tiles into grammatically correct sentences.
+            </p>
+          </div>
+
+          <!-- Dynamic Generation Trigger -->
+          <div class="flex items-center gap-2">
+            <button onclick="requestNewSentenceSet()" id="btn-generate-ai" class="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-md hover:opacity-95 transition flex items-center gap-2">
+              <i class="fa-solid fa-arrows-rotate"></i> Try a New Set
+            </button>
+          </div>
+        </div>
+
+        <!-- Structure Selector Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2" id="structure-selector-pills">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Current Structure Rule Explanation Banner -->
+      <div id="active-structure-banner" class="bg-indigo-900 text-white p-5 rounded-2xl shadow-md space-y-1">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- 5-Sentence Drill Container -->
+      <div id="sentence-drills-container" class="space-y-6">
+        <!-- 5 Sentences Injected via JS -->
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- BADGES & ACHIEVEMENTS MODAL -->
+  <div id="badges-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-trophy text-amber-500"></i> Student Achievements & Badges
+        </h3>
+        <button onclick="closeBadgesModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="bg-indigo-50 p-3.5 rounded-xl border border-indigo-100 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-indigo-900" id="modal-rank-title">Rank: Level 1 Rookie Critic</p>
+          <p class="text-[11px] text-indigo-700">Earn XP by pronouncing words, completing gap-fills, and solving sentence puzzles!</p>
+        </div>
+        <span id="modal-total-xp" class="text-sm font-black text-indigo-700 bg-white px-3 py-1.5 rounded-lg shadow-2xs">0 XP</span>
+      </div>
+      <div id="badges-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[320px] overflow-y-auto pr-1">
+        <!-- Populated dynamically -->
+      </div>
+      <div class="flex justify-end pt-2">
+        <button onclick="closeBadgesModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl">
+          Back to Learning
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-12 border-t border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 text-center space-y-2">
+      <p class="font-semibold text-slate-300">HKDSE English Paper 2 Writing Masterclass • Secondary 5 Targeted App</p>
+      <p>Designed for low-proficiency students to build confidence in writing high-level restaurant reviews.</p>
+    </div>
+  </footer>
+
+  <!-- CUSTOM TOAST / NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    /* ==========================================================================
+       1. DATA STRUCTURES & DATA BANKS
+       ========================================================================== */
+
+    // 7 Target Sentence Structures
+    const STRUCTURES_DATA = [
+      {
+        id: 1,
+        title: "Structure 1: Location & Hotspot",
+        pattern: "Situated in [Location], [Restaurant] is an immensely popular dining hotspot.",
+        zhMeaning: "坐落於[地點]，[餐廳]是一個極受歡迎的餐飲熱點。",
+        purpose: "Opening Hook (引言開首)",
+        example: "Situated in Mong Kok, Dim Sum One is an immensely popular dining hotspot.",
+        tip: "Use 'Situated in' (過去分詞作前置修飾語) at the very start of your review to immediately show high language proficiency."
+      },
+      {
+        id: 2,
+        title: "Structure 2: Double Value Inversion",
+        pattern: "Not only does it [verb], but it also [verb]...",
+        zhMeaning: "它不僅[提供美食]，還[擁有實惠價格]...",
+        purpose: "Dual Praise (雙重讚賞倒裝句)",
+        example: "Not only does it offer delicious food, but it also boasts remarkably affordable prices.",
+        tip: "Remember inverted word order: 'Not only does + subject + base verb...'. NEVER say 'Not only it offers'."
+      },
+      {
+        id: 3,
+        title: "Structure 3: Service Action Contrast",
+        pattern: "Instead of [verb-ing], [subject] [verb]...",
+        zhMeaning: "侍應並沒有[生硬地點餐]，而是[熱心為我們推介]...",
+        purpose: "Service Praise (服務態度對比)",
+        example: "Instead of merely taking orders, the servers actively ask about diners' flavor preferences.",
+        tip: "Use 'Instead of + V-ing' to contrast common poor service with exceptional proactive staff."
+      },
+      {
+        id: 4,
+        title: "Structure 4: Recommendation Inversion",
+        pattern: "Had I not [asked...], I would not have [discovered...]",
+        zhMeaning: "要是我沒有[詢問店員]，我便不會[品嚐到招牌菜]...",
+        purpose: "Conditional Reflection (第三條件句倒裝)",
+        example: "Had I not sought their guidance, I would not have discovered their wonderful pork bun!",
+        tip: "Replaces 'If I had not...'. High-impact grammar marker for DSE Level 5!"
+      },
+      {
+        id: 5,
+        title: "Structure 5: Environmental Concern",
+        pattern: "..., making it difficult to...",
+        zhMeaning: "……使人難以……",
+        purpose: "Constructive Criticism (表達環境問題)",
+        example: "Consequently, ambient noise bounces off the walls, making it difficult to hear family members.",
+        tip: "Use participle phrase ', making it difficult to + base verb' to smoothly state the negative impact."
+      },
+      {
+        id: 6,
+        title: "Structure 6: Value Assessment",
+        pattern: "Despite [flaw], [meal] offers fantastic value at around...",
+        zhMeaning: "儘管[有缺點]，[餐飲]在約[價格]的價位下性價比極高。",
+        purpose: "Value Summary (總結性價比)",
+        example: "Despite the cramped, noisy setting, the dining experience offers fantastic value at around $350 for four.",
+        tip: "Use 'Despite + noun phrase' to show contrast before giving a strong value-for-money verdict."
+      },
+      {
+        id: 7,
+        title: "Structure 7: Strong Recommendation",
+        pattern: "With [strengths], there is literally no reason not to give ... a try.",
+        zhMeaning: "憑藉[優點]，絕對沒有理由不嘗試……",
+        purpose: "Final Call to Action (最後強烈推介)",
+        example: "With splendid service and high-quality dishes, there is literally no reason not to give Dim Sum One a try!",
+        tip: "Double negative 'no reason not to' creates an enthusiastic, persuasive closing statement."
+      }
+    ];
+
+    // Bilingual Vocabulary Bank (S4-friendly words with clear sentences)
+    const VOCAB_DATA = {
+      food: [
+        { word: "portion", type: "noun", zh: "份量", desc: "Amount of food served", ex: "The portion was generous enough for two hungry students." },
+        { word: "flavor", type: "noun", zh: "味道 / 風味", desc: "The taste of food or drink", ex: "The chicken soup has a rich and savory flavor." },
+        { word: "crust", type: "noun", zh: "酥皮 / 外皮", desc: "The crisp outer layer of baked food", ex: "The egg tart has a golden and flaky crust." },
+        { word: "crispy", type: "adj-pos", zh: "香脆的", desc: "Pleasantly thin, dry, and crunchy", ex: "The fried chicken skin was perfectly crispy." },
+        { word: "juicy", type: "adj-pos", zh: "多汁的", desc: "Full of tasty juice", ex: "The steamed pork dumplings were tender and juicy." },
+        { word: "tender", type: "adj-pos", zh: "嫩滑的", desc: "Soft and easy to chew", ex: "The beef brisket was cooked until it was extremely tender." },
+        { word: "piping-hot", type: "adj-pos", zh: "熱騰騰的", desc: "Very hot when served", ex: "The waiter brought piping-hot dim sum baskets to our table." },
+        { word: "oily", type: "adj-neg", zh: "油膩的", desc: "Containing too much cooking oil", ex: "The fried noodles were disappointing because they were too oily." },
+        { word: "tasteless", type: "adj-neg", zh: "淡而無味的", desc: "Having almost no flavor", ex: "The vegetable soup was watery and completely tasteless." }
+      ],
+      taste: [
+        { word: "savory", type: "adj-pos", zh: "鹹香可口的", desc: "Pleasantly rich and tasty, not sweet", ex: "The roasted duck had a rich and savory flavor." },
+        { word: "spicy", type: "adj-pos", zh: "香辣的", desc: "Having a strong, hot taste from chili or spices", ex: "The Sichuan noodles were wonderfully spicy and full of aroma." },
+        { word: "sweet", type: "adj-pos", zh: "香甜的", desc: "Having a pleasant taste like sugar or honey", ex: "The mango pudding was naturally sweet and refreshing." },
+        { word: "sour", type: "adj-pos", zh: "酸的 / 酸甜開胃的", desc: "Having a sharp, fresh taste like lemon", ex: "The lemon tart tasted slightly sour but very refreshing." },
+        { word: "salty", type: "adj-neg", zh: "過鹹的", desc: "Tasting too strongly of salt", ex: "We drank plenty of water because the soup was too salty." },
+        { word: "bitter", type: "adj-neg", zh: "苦澀的", desc: "Having a sharp, unpleasant taste like dark coffee", ex: "The strong black tea tasted slightly bitter at the end." },
+        { word: "bland", type: "adj-neg", zh: "平淡無味的", desc: "Having very little taste or seasoning", ex: "Without any soy sauce, the steamed rice rolls were quite bland." },
+        { word: "tangy", type: "adj-pos", zh: "酸爽可口的", desc: "Having a lively, sharp, and pleasant taste", ex: "The fresh passionfruit drink was cool, fruity, and tangy." },
+        { word: "creamy", type: "adj-pos", zh: "香滑濃郁的", desc: "Smooth, rich, and soft like cream", ex: "The corn soup was thick, warm, and wonderfully creamy." },
+        { word: "mouth-watering", type: "adj-pos", zh: "令人垂涎的", desc: "Tasting or smelling so good it makes you hungry", ex: "The chef served a plate of mouth-watering barbecued pork." }
+      ],
+      service: [
+        { word: "recommendation", type: "noun", zh: "建議 / 推介", desc: "Advice on what dish to choose", ex: "We ordered the pork bun following the waiter's recommendation." },
+        { word: "attitude", type: "noun", zh: "態度", desc: "The way staff behave toward guests", ex: "The young server had a very warm and welcoming attitude." },
+        { word: "polite", type: "adj-pos", zh: "有禮貌的", desc: "Having good manners", ex: "All the staff members were nice, polite, and smiling." },
+        { word: "helpful", type: "adj-pos", zh: "樂於助人的", desc: "Ready to give useful assistance", ex: "The helpful waitress explained every dish on the menu." },
+        { word: "friendly", type: "adj-pos", zh: "友善的", desc: "Kind and pleasant to talk to", ex: "The friendly owner chatted with our family after dinner." },
+        { word: "attentive", type: "adj-pos", zh: "體貼細心的", desc: "Paying close attention to customers", ex: "Our attentive server refilled our teapot every ten minutes." },
+        { word: "rude", type: "adj-neg", zh: "粗魯無禮的", desc: "Impolite or bad-mannered", ex: "Tourists often complain about rude staff in busy local shops." },
+        { word: "slow", type: "adj-neg", zh: "緩慢的", desc: "Taking too much time", ex: "The service was terribly slow during the lunch rush hour." }
+      ],
+      env: [
+        { word: "decor", type: "noun", zh: "裝修 / 佈置", desc: "The style of decoration inside", ex: "The café features modern wooden decor and soft lights." },
+        { word: "atmosphere", type: "noun", zh: "氣氛", desc: "The mood or feeling of a place", ex: "This small bakery has a relaxed and happy atmosphere." },
+        { word: "space", type: "noun", zh: "空間", desc: "Empty area for moving or sitting", ex: "There was very little space between the dining tables." },
+        { word: "cramped", type: "adj-neg", zh: "狹窄擁擠的", desc: "Too small with not enough room", ex: "Diners were cramped into a tiny room at the back." },
+        { word: "noisy", type: "adj-neg", zh: "吵鬧的", desc: "Full of loud sounds", ex: "The dining hall was so noisy that we could barely hear each other." },
+        { word: "spacious", type: "adj-pos", zh: "寬敞的", desc: "Large with plenty of room", ex: "The new restaurant on the second floor is bright and spacious." },
+        { word: "cozy", type: "adj-pos", zh: "溫馨舒適的", desc: "Warm, comfortable, and pleasant", ex: "It is a cozy corner shop ideal for chatting with friends." },
+        { word: "clean", type: "adj-pos", zh: "乾淨整潔的", desc: "Free from dirt or mess", ex: "The tables, floor, and tableware were spotless and clean." }
+      ]
+    };
+
+    // Multi-Set Vocabulary Gap Fill Database (S4-friendly sentences with full-sentence Chinese meaning)
+    const GAPFILL_SETS = {
+      food: [
+        [
+          { id: 1, sentence: "The fried chicken wings have a golden, _____ skin that crunches when you bite.", sentenceZh: "炸雞翼有一層金黃色的_____外皮，咬下去時會發出清脆的聲音。", answer: "crispy", options: ["crispy", "oily", "tasteless"] },
+          { id: 2, sentence: "We did not finish the fried rice because it was far too _____ and heavy.", sentenceZh: "我們沒有吃完這碟炒飯，因為它實在太_____而且讓人覺得很膩。", answer: "oily", options: ["tender", "oily", "fresh"] },
+          { id: 3, sentence: "The beef stew was cooked slowly until the meat became soft and _____.", sentenceZh: "這道燉牛肉經過慢火烹調，直到肉質變得軟熟而且_____。", answer: "tender", options: ["tender", "tasteless", "crispy"] },
+          { id: 4, sentence: "The soup had no salt or spices at all, making it completely _____.", sentenceZh: "這碗湯完全沒有加鹽或香料，喝起來簡直_____。", answer: "tasteless", options: ["juicy", "piping-hot", "tasteless"] },
+          { id: 5, sentence: "The steamed buns arrived _____ straight from the kitchen steamer.", sentenceZh: "蒸包剛從廚房蒸籠拿出來，送到桌上時還是_____。", answer: "piping-hot", options: ["piping-hot", "oily", "tasteless"] }
+        ],
+        [
+          { id: 1, sentence: "One large bowl of noodles has a huge _____ that can easily feed two people.", sentenceZh: "一大碗麵的_____非常十足，足夠讓兩個人吃飽。", answer: "portion", options: ["portion", "crust", "flavor"] },
+          { id: 2, sentence: "The mango pudding has a sweet and refreshing tropical _____.", sentenceZh: "這款芒果布甸帶有香甜又清新的熱帶水果_____。", answer: "flavor", options: ["crust", "flavor", "portion"] },
+          { id: 3, sentence: "When I bit into the warm pork dumpling, _____ meat soup burst out.", sentenceZh: "當我咬開熱暖的豬肉餃子時，_____的肉汁隨即湧出來。", answer: "juicy", options: ["juicy", "tasteless", "oily"] },
+          { id: 4, sentence: "The pineapple bun is famous for its sweet, crunchy top _____.", sentenceZh: "菠蘿包以其香甜鬆脆的頂部_____而聞名。", answer: "crust", options: ["crust", "flavor", "portion"] },
+          { id: 5, sentence: "Every dish is made with _____ seafood bought from the morning market.", sentenceZh: "每道菜都是用早上從街市買回來的_____海鮮烹製而成。", answer: "fresh", options: ["oily", "fresh", "tasteless"] }
+        ]
+      ],
+      taste: [
+        [
+          { id: 1, sentence: "We needed extra water after dinner because the soy sauce chicken was too _____.", sentenceZh: "晚飯後我們需要多喝水，因為那道豉油雞實在太_____了。", answer: "salty", options: ["salty", "sweet", "creamy"] },
+          { id: 2, sentence: "The mushroom soup was thick, smooth, and wonderfully _____.", sentenceZh: "這碗蘑菇湯濃稠順滑，口感非常_____。", answer: "creamy", options: ["bitter", "creamy", "sour"] },
+          { id: 3, sentence: "Without any salt or spices, the boiled vegetables tasted very _____.", sentenceZh: "沒有加任何鹽或調味料，這些水煮蔬菜吃起來非常_____。", answer: "bland", options: ["spicy", "bland", "savory"] },
+          { id: 4, sentence: "The curry beef brisket was quite _____, so chili lovers will enjoy it.", sentenceZh: "這道咖喱牛腩相當_____，所以喜歡吃辣的人一定會喜歡。", answer: "spicy", options: ["spicy", "sweet", "bland"] },
+          { id: 5, sentence: "The chef brought out a plate of _____ roasted pork that smelled amazing.", sentenceZh: "廚師端出一盤香氣撲鼻、_____的叉燒。", answer: "mouth-watering", options: ["bitter", "mouth-watering", "salty"] }
+        ],
+        [
+          { id: 1, sentence: "The fresh lime soda was cool, bright, and pleasantly _____.", sentenceZh: "這杯新鮮青檸梳打冰涼清爽，味道_____開胃。", answer: "tangy", options: ["tangy", "bland", "bitter"] },
+          { id: 2, sentence: "The red bean dessert was warm and _____, making a great end to our meal.", sentenceZh: "這碗紅豆沙溫熱_____，為我們這頓飯畫上完美的句號。", answer: "sweet", options: ["salty", "sweet", "sour"] },
+          { id: 3, sentence: "The herb tea was boiled for too long and left a _____ taste in my mouth.", sentenceZh: "這杯涼茶煲得太久，喝完後嘴裡留下一股_____的味道。", answer: "bitter", options: ["creamy", "savory", "bitter"] },
+          { id: 4, sentence: "The meat pie had a rich, _____ filling full of herbs and mushrooms.", sentenceZh: "這個肉批有著濃郁_____的餡料，裡面充滿了香草和蘑菇。", answer: "savory", options: ["savory", "sour", "bland"] },
+          { id: 5, sentence: "Green apples and fresh lemons have a naturally _____ flavor.", sentenceZh: "青蘋果和新鮮檸檬都帶有天然_____的味道。", answer: "sour", options: ["creamy", "sour", "salty"] }
+        ]
+      ],
+      service: [
+        [
+          { id: 1, sentence: "The waiter was very _____ and always said 'please' and 'thank you'.", sentenceZh: "那位侍應非常_____，總是把「唔該」和「多謝」掛在嘴邊。", answer: "polite", options: ["rude", "polite", "slow"] },
+          { id: 2, sentence: "We tried the signature curry fish balls based on the chef's _____.", sentenceZh: "我們根據廚師的_____，點了這道招牌咖喱魚蛋。", answer: "recommendation", options: ["attitude", "recommendation", "service"] },
+          { id: 3, sentence: "Our _____ waitress noticed our empty glasses and brought water right away.", sentenceZh: "我們那位_____的女侍應留意到我們的水杯空了，立刻過來添水。", answer: "attentive", options: ["attentive", "rude", "slow"] },
+          { id: 4, sentence: "Nobody likes visiting a shop where the staff have a bad _____.", sentenceZh: "沒有人喜歡光顧職員_____惡劣的店舖。", answer: "attitude", options: ["recommendation", "attitude", "polite"] },
+          { id: 5, sentence: "We waited forty minutes for our drinks because the service was so _____.", sentenceZh: "我們等了四十分鐘飲品才送到，因為這裡的服務實在太_____了。", answer: "slow", options: ["helpful", "friendly", "slow"] }
+        ],
+        [
+          { id: 1, sentence: "The _____ staff helped my grandmother carry her heavy bag to the table.", sentenceZh: "那位_____的職員幫我祖母把沉重的手袋拿到餐桌旁。", answer: "helpful", options: ["rude", "helpful", "slow"] },
+          { id: 2, sentence: "The cashier shouted at customers, which was extremely _____.", sentenceZh: "收銀員對顧客大聲呼喝，這種行為極之_____。", answer: "rude", options: ["friendly", "polite", "rude"] },
+          { id: 3, sentence: "Everyone at the café was warm and _____, making us feel right at home.", sentenceZh: "這間咖啡店的每個人都熱情又_____，讓我們感到賓至如歸。", answer: "friendly", options: ["friendly", "slow", "rude"] },
+          { id: 4, sentence: "Thank you for your wonderful _____ on which dessert to order!", sentenceZh: "多謝你關於點哪款甜品的精彩_____！", answer: "recommendation", options: ["attitude", "recommendation", "slow"] },
+          { id: 5, sentence: "An _____ server checks on guests regularly without being asked.", sentenceZh: "一位_____的侍應不用客人開口，也會定時留意客人的需要。", answer: "attentive", options: ["rude", "slow", "attentive"] }
+        ]
+      ],
+      env: [
+        [
+          { id: 1, sentence: "Because the tea house was tiny, customers felt very _____ at their tables.", sentenceZh: "因為這間茶餐廳面積細小，顧客坐在餐桌旁感到非常_____。", answer: "cramped", options: ["spacious", "cramped", "cozy"] },
+          { id: 2, sentence: "The restaurant was so _____ that I had to shout to talk to my friend.", sentenceZh: "這間餐廳實在太_____了，我必須大聲喊叫才能和朋友交談。", answer: "noisy", options: ["noisy", "clean", "spacious"] },
+          { id: 3, sentence: "The dining area is bright and _____, with plenty of room for baby strollers.", sentenceZh: "用餐區明亮又_____，有充足的空間擺放嬰兒車。", answer: "spacious", options: ["cramped", "noisy", "spacious"] },
+          { id: 4, sentence: "Warm yellow lamps and soft sofas give the café a _____ feeling.", sentenceZh: "溫暖的黃色燈光和柔軟的沙發給這間咖啡店帶來一種_____的感覺。", answer: "cozy", options: ["cozy", "noisy", "cramped"] },
+          { id: 5, sentence: "The open kitchen looks very tidy and _____, so diners feel safe eating there.", sentenceZh: "開放式廚房看起來非常整齊_____，所以食客在這裡用餐感到很安心。", answer: "clean", options: ["clean", "noisy", "cramped"] }
+        ],
+        [
+          { id: 1, sentence: "Beautiful Chinese paintings and wooden lanterns are part of the _____.", sentenceZh: "精美的中國水墨畫和木製燈籠都是餐廳_____的一部分。", answer: "decor", options: ["space", "decor", "noisy"] },
+          { id: 2, sentence: "Soft jazz music creates a peaceful and relaxing _____ for dinner.", sentenceZh: "柔和的爵士樂為晚餐營造出寧靜放鬆的_____。", answer: "atmosphere", options: ["atmosphere", "cramped", "clean"] },
+          { id: 3, sentence: "There was barely enough _____ to pull out my chair without hitting the wall.", sentenceZh: "這裡幾乎沒有足夠的_____讓我拉開椅子而不撞到牆壁。", answer: "space", options: ["decor", "space", "cozy"] },
+          { id: 4, sentence: "Unlike crowded street stalls, this hotel buffet hall is huge and _____.", sentenceZh: "與擁擠的街邊大排檔不同，這間酒店的自助餐大廳既寬大又_____。", answer: "spacious", options: ["spacious", "cramped", "noisy"] },
+          { id: 5, sentence: "We enjoyed a quiet afternoon tea in this warm, _____ little book café.", sentenceZh: "我們在這間溫暖、_____的小型書店咖啡館享受了一頓寧靜的下午茶。", answer: "cozy", options: ["noisy", "cramped", "cozy"] }
+        ]
+      ]
+    };
+
+    // Base Pre-built Offline Sentence Rearrangement Bank (5 items per structure)
+    const REARRANGE_BANK = {
+      1: [
+        { scrambled: ["Situated in Mong Kok,", "this noodle shop", "is an immensely popular", "dining hotspot."], correct: "Situated in Mong Kok, this noodle shop is an immensely popular dining hotspot.", hintZh: "坐落於旺角，這家麵店是一個極受歡迎的餐飲熱點。" },
+        { scrambled: ["Situated in Wan Chai,", "Dim Sum One", "is an immensely popular", "dining hotspot."], correct: "Situated in Wan Chai, Dim Sum One is an immensely popular dining hotspot.", hintZh: "坐落於灣仔，Dim Sum One是一個極受歡迎的餐飲熱點。" },
+        { scrambled: ["Situated in Central,", "this French bistro", "is an immensely popular", "dining hotspot."], correct: "Situated in Central, this French bistro is an immensely popular dining hotspot.", hintZh: "坐落於中環，這家法式小館是一個極受歡迎的餐飲熱點。" },
+        { scrambled: ["Situated in Shatin,", "the local café", "is an immensely popular", "dining hotspot."], correct: "Situated in Shatin, the local café is an immensely popular dining hotspot.", hintZh: "坐落於沙田，這家本地咖啡館是一個極受歡迎的餐飲熱點。" },
+        { scrambled: ["Situated near the coast,", "this seafood eatery", "is an immensely popular", "dining hotspot."], correct: "Situated near the coast, this seafood eatery is an immensely popular dining hotspot.", hintZh: "坐落於海岸附近，這家海鮮餐館是一個極受歡迎的餐飲熱點。" }
+      ],
+      2: [
+        { scrambled: ["Not only does it", "serve delicious dim sum,", "but it also offers", "cheap prices."], correct: "Not only does it serve delicious dim sum, but it also offers cheap prices.", hintZh: "它不僅提供美味的點心，還提供便宜的價格。" },
+        { scrambled: ["Not only does it", "provide great service,", "but it also boasts", "fresh ingredients."], correct: "Not only does it provide great service, but it also boasts fresh ingredients.", hintZh: "它不僅提供優質的服務，還擁有新鮮的食材。" },
+        { scrambled: ["Not only does it", "cook tasty noodles,", "but it also gives", "generous portions."], correct: "Not only does it cook tasty noodles, but it also gives generous portions.", hintZh: "它不僅煮出美味的麵條，還給予足夠的份量。" },
+        { scrambled: ["Not only does it", "feature beautiful decor,", "but it also plays", "relaxing music."], correct: "Not only does it feature beautiful decor, but it also plays relaxing music.", hintZh: "它不僅具有美麗的裝修，還播放放鬆的音樂。" },
+        { scrambled: ["Not only does it", "attract local foodies,", "but it also welcomes", "foreign tourists."], correct: "Not only does it attract local foodies, but it also welcomes foreign tourists.", hintZh: "它不僅吸引本地美食家，還歡迎外國遊客。" }
+      ],
+      3: [
+        { scrambled: ["Instead of ignoring us,", "the polite waiter", "actively recommended", "the signature dish."], correct: "Instead of ignoring us, the polite waiter actively recommended the signature dish.", hintZh: "禮貌的侍應並沒有無視我們，而是積極推介招牌菜。" },
+        { scrambled: ["Instead of rushing diners,", "the friendly staff", "patiently explained", "the menu choices."], correct: "Instead of rushing diners, the friendly staff patiently explained the menu choices.", hintZh: "友善的職員並沒有催促食客，而是耐心地解釋菜單選擇。" },
+        { scrambled: ["Instead of merely taking orders,", "the servers asked", "about our preferences", "first."], correct: "Instead of merely taking orders, the servers asked about our preferences first.", hintZh: "侍應並沒有生硬地點餐，而是先詢問我們的喜好。" },
+        { scrambled: ["Instead of serving cold tea,", "they offered", "piping-hot jasmine tea", "immediately."], correct: "Instead of serving cold tea, they offered piping-hot jasmine tea immediately.", hintZh: "他們沒有提供冷茶，而是立即送上熱騰騰的茉莉花茶。" },
+        { scrambled: ["Instead of charging extra fees,", "the restaurant provided", "free desserts", "for everyone."], correct: "Instead of charging extra fees, the restaurant provided free desserts for everyone.", hintZh: "餐廳沒有收取額外費用，而是為大家提供免費甜品。" }
+      ],
+      4: [
+        { scrambled: ["Had I not sought", "their advice,", "I would not have tried", "the crispy pork bun."], correct: "Had I not sought their advice, I would not have tried the crispy pork bun.", hintZh: "要是我沒有尋求他們的建議，我便不會嘗試酥脆叉燒包。" },
+        { scrambled: ["Had I not asked", "the waiter,", "I would not have ordered", "the signature beef."], correct: "Had I not asked the waiter, I would not have ordered the signature beef.", hintZh: "要是我沒有詢問侍應，我便不會點選招牌牛肉。" },
+        { scrambled: ["Had I not read", "the good reviews,", "I would not have visited", "this tiny café."], correct: "Had I not read the good reviews, I would not have visited this tiny café.", hintZh: "要是我沒有閱讀好評，我便不會光顧這家小咖啡館。" },
+        { scrambled: ["Had I not booked", "a table early,", "I would not have gotten", "a window seat."], correct: "Had I not booked a table early, I would not have gotten a window seat.", hintZh: "要是我沒有提早訂座，我便不會拿到靠窗座位。" },
+        { scrambled: ["Had I not listened", "to my friend,", "I would not have discovered", "this hidden gem."], correct: "Had I not listened to my friend, I would not have discovered this hidden gem.", hintZh: "要是我沒有聽朋友的勸告，我便不會發現這間寶藏餐廳。" }
+      ],
+      5: [
+        { scrambled: ["The dining room", "is very noisy,", "making it difficult to", "talk with my family."], correct: "The dining room is very noisy, making it difficult to talk with my family.", hintZh: "飯廳非常吵鬧，使人難以與家人交談。" },
+        { scrambled: ["The restaurant room", "is extremely cramped,", "making it difficult to", "sit comfortably."], correct: "The restaurant room is extremely cramped, making it difficult to sit comfortably.", hintZh: "餐廳空間非常擁擠，使人難以坐得舒適。" },
+        { scrambled: ["The ambient music", "was too loud,", "making it difficult to", "hear the waiter."], correct: "The ambient music was too loud, making it difficult to hear the waiter.", hintZh: "背景音樂太響亮，使人難以聽清侍應說話。" },
+        { scrambled: ["The seating area", "is dimly lit,", "making it difficult to", "read the menu."], correct: "The seating area is dimly lit, making it difficult to read the menu.", hintZh: "座位區域燈光暗淡，使人難以閱讀菜單。" },
+        { scrambled: ["The queue outside", "was endlessly long,", "making it difficult to", "get a table quickly."], correct: "The queue outside was endlessly long, making it difficult to get a table quickly.", hintZh: "門外長龍不斷，使人難以迅速拿到座位。" }
+      ],
+      6: [
+        { scrambled: ["Despite the noisy setting,", "the dining experience", "offers fantastic value", "at around $350 for four."], correct: "Despite the noisy setting, the dining experience offers fantastic value at around $350 for four.", hintZh: "儘管環境吵鬧，四人餐約$350的價格性價比極高。" },
+        { scrambled: ["Despite the small space,", "the set lunch", "offers fantastic value", "at around $80 per person."], correct: "Despite the small space, the set lunch offers fantastic value at around $80 per person.", hintZh: "儘管空間狹小，每人約$80的午市套餐性價比極高。" },
+        { scrambled: ["Despite the long wait,", "the seafood feast", "offers fantastic value", "at around $200 per head."], correct: "Despite the long wait, the seafood feast offers fantastic value at around $200 per head.", hintZh: "儘管等候時間長，每人約$200的海鮮盛宴性價比極高。" },
+        { scrambled: ["Despite the simple decor,", "the hotpot meal", "offers fantastic value", "at around $150 each."], correct: "Despite the simple decor, the hotpot meal offers fantastic value at around $150 each.", hintZh: "儘管裝修簡單，每人約$150火鍋套餐性價比極高。" },
+        { scrambled: ["Despite the crowd,", "this dinner set", "offers fantastic value", "at around $400 for a family."], correct: "Despite the crowd, this dinner set offers fantastic value at around $400 for a family.", hintZh: "儘管擁擠，家庭晚飯套餐約$400性價比極高。" }
+      ],
+      7: [
+        { scrambled: ["With splendid service", "and high-quality dishes,", "there is literally no reason", "not to give Dim Sum One a try."], correct: "With splendid service and high-quality dishes, there is literally no reason not to give Dim Sum One a try.", hintZh: "憑藉優質服務與高質菜式，絕對沒有理由不嘗試Dim Sum One。" },
+        { scrambled: ["With polite staff", "and delicious noodles,", "there is literally no reason", "not to give this eatery a try."], correct: "With polite staff and delicious noodles, there is literally no reason not to give this eatery a try.", hintZh: "憑藉禮貌職員與美味麵條，絕對沒有理由不嘗試這間小館。" },
+        { scrambled: ["With cheap prices", "and fresh dim sum,", "there is literally no reason", "not to give this place a try."], correct: "With cheap prices and fresh dim sum, there is literally no reason not to give this place a try.", hintZh: "憑藉實惠價格與新鮮點心，絕對沒有理由不嘗試這個地方。" },
+        { scrambled: ["With cozy environment", "and juicy dumplings,", "there is literally no reason", "not to give Sushi Hero a try."], correct: "With cozy environment and juicy dumplings, there is literally no reason not to give Sushi Hero a try.", hintZh: "憑藉舒適環境與多汁餃子，絕對沒有理由不嘗試Sushi Hero。" },
+        { scrambled: ["With great hospitality", "and rich tea choices,", "there is literally no reason", "not to give this café a try."], correct: "With great hospitality and rich tea choices, there is literally no reason not to give this café a try.", hintZh: "憑藉熱情款待與豐富茶飲選擇，絕對沒有理由不嘗試這家咖啡館。" }
+      ]
+    };
+
+    /* ==========================================================================
+       2. STATE MANAGEMENT & GAMIFICATION ENGINE
+       ========================================================================== */
+
+    let currentTab = 'model';
+    let currentVocabCat = 'food';
+    let activeStructureId = 1;
+    let currentGapFillSetIndex = 0;
+    let activeGapFillQuestions = [];
+    let gapFillStatus = {};
+    let gapFillFirstTryDone = {};
+    let gapFillSetCelebrated = false;
+    
+    // Sentence Reordering state
+    let activeSentenceSet = [];
+    let userScrambleState = {};
+
+    // Gamification Configuration
+    const LEVELS = [
+      { level: 1, title: "Rookie", fullTitle: "Level 1 Rookie Critic", minXP: 0, maxXP: 100 },
+      { level: 2, title: "Explorer", fullTitle: "Level 2 Food Explorer", minXP: 100, maxXP: 250 },
+      { level: 3, title: "Reviewer", fullTitle: "Level 3 Review Writer", minXP: 250, maxXP: 450 },
+      { level: 4, title: "Contender", fullTitle: "Level 4 DSE Contender", minXP: 450, maxXP: 700 },
+      { level: 5, title: "5** Master", fullTitle: "Level 5 5** Master Critic", minXP: 700, maxXP: 1000 }
+    ];
+
+    const BADGES = [
+      { id: "first_step", name: "First Step 初試啼聲", desc: "Earn your first XP in the review quest.", icon: "fa-star", color: "text-amber-500" },
+      { id: "pronunciation_pro", name: "Pronunciation Pro 發音達人", desc: "Listen to 5 vocabulary pronunciations.", icon: "fa-volume-high", color: "text-indigo-500" },
+      { id: "structure_explorer", name: "Structure Explorer 句式探索者", desc: "Inspect 3 Level 5 structures in the Model Review.", icon: "fa-compass", color: "text-blue-500" },
+      { id: "vocab_ace", name: "Vocabulary Ace 詞彙大師", desc: "Score 5/5 on a Vocabulary Gap-Filling set.", icon: "fa-book-open", color: "text-emerald-500" },
+      { id: "sentence_architect", name: "Sentence Architect 造句建築師", desc: "Solve 5 Sentence Rearrangement puzzles.", icon: "fa-puzzle-piece", color: "text-purple-500" }
+    ];
+
+    const gameState = {
+      xp: 0,
+      streak: 0,
+      unlockedBadges: new Set(),
+      awardedItems: new Set(),
+      spokenWords: new Set(),
+      inspectedStructures: new Set(),
+      solvedSentencesCount: 0
+    };
+
+    function getCurrentLevelInfo() {
+      let current = LEVELS[0];
+      for (const lvl of LEVELS) {
+        if (gameState.xp >= lvl.minXP) {
+          current = lvl;
+        }
+      }
+      return current;
+    }
+
+    function updateGamificationHUD() {
+      const lvl = getCurrentLevelInfo();
+      const levelBadge = document.getElementById('hud-level-badge');
+      const xpText = document.getElementById('hud-xp-text');
+      const xpBar = document.getElementById('hud-xp-bar');
+      const streakEl = document.getElementById('hud-streak');
+      const badgeCountEl = document.getElementById('hud-badge-count');
+
+      if (levelBadge) {
+        levelBadge.innerHTML = `<i class="fa-solid fa-crown"></i> Lv.${lvl.level} ${lvl.title}`;
+      }
+      if (xpText) {
+        xpText.innerText = `${gameState.xp} / ${lvl.maxXP} XP`;
+      }
+      if (xpBar) {
+        const range = lvl.maxXP - lvl.minXP;
+        const progress = Math.min(100, Math.max(0, ((gameState.xp - lvl.minXP) / range) * 100));
+        xpBar.style.width = `${progress}%`;
+      }
+      if (streakEl) {
+        streakEl.innerText = gameState.streak;
+      }
+      if (badgeCountEl) {
+        badgeCountEl.innerText = `${gameState.unlockedBadges.size}/${BADGES.length}`;
+      }
+    }
+
+    function showFloatingXP(amount, reason) {
+      const badge = document.createElement('div');
+      badge.className = 'xp-float fixed top-16 right-6 z-50 bg-amber-500 text-slate-950 font-black text-xs px-3 py-1.5 rounded-full shadow-lg pointer-events-none flex items-center gap-1';
+      badge.innerHTML = `<i class="fa-solid fa-bolt"></i> +${amount} XP • ${reason}`;
+      document.body.appendChild(badge);
+      setTimeout(() => badge.remove(), 1250);
+    }
+
+    function awardXP(amount, reason, uniqueKey = null) {
+      if (uniqueKey) {
+        if (gameState.awardedItems.has(uniqueKey)) return;
+        gameState.awardedItems.add(uniqueKey);
+      }
+
+      const prevLevel = getCurrentLevelInfo().level;
+      gameState.xp += amount;
+      const newLevel = getCurrentLevelInfo();
+
+      unlockBadge('first_step');
+      showFloatingXP(amount, reason);
+      updateGamificationHUD();
+
+      if (newLevel.level > prevLevel) {
+        triggerConfetti();
+        showToast(`🎉 Level Up! You reached ${newLevel.fullTitle}!`, 'success');
+      }
+    }
+
+    function incrementStreak() {
+      gameState.streak += 1;
+      updateGamificationHUD();
+    }
+
+    function resetStreak() {
+      gameState.streak = 0;
+      updateGamificationHUD();
+    }
+
+    function unlockBadge(badgeId) {
+      if (gameState.unlockedBadges.has(badgeId)) return;
+      const badge = BADGES.find(b => b.id === badgeId);
+      if (!badge) return;
+
+      gameState.unlockedBadges.add(badgeId);
+      updateGamificationHUD();
+      showToast(`🏅 Badge Unlocked: ${badge.name}!`, 'success');
+    }
+
+    function openBadgesModal() {
+      const modal = document.getElementById('badges-modal');
+      const rankTitle = document.getElementById('modal-rank-title');
+      const totalXp = document.getElementById('modal-total-xp');
+      const list = document.getElementById('badges-list-container');
+      const lvl = getCurrentLevelInfo();
+
+      if (rankTitle) rankTitle.innerText = `Rank: ${lvl.fullTitle}`;
+      if (totalXp) totalXp.innerText = `${gameState.xp} XP`;
+
+      if (list) {
+        list.innerHTML = BADGES.map(b => {
+          const unlocked = gameState.unlockedBadges.has(b.id);
+          return `
+            <div class="p-3 rounded-xl border ${unlocked ? 'bg-amber-50/70 border-amber-300' : 'bg-slate-50 border-slate-200 opacity-60'} flex items-start gap-3">
+              <div class="w-9 h-9 rounded-lg ${unlocked ? 'bg-white shadow-xs' : 'bg-slate-200'} flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid ${b.icon} ${unlocked ? b.color : 'text-slate-400'}"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <p class="text-xs font-bold text-slate-800">${b.name}</p>
+                  ${unlocked ? '<span class="text-[10px] font-bold text-emerald-600">✓</span>' : ''}
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">${b.desc}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeBadgesModal() {
+      const modal = document.getElementById('badges-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function triggerConfetti() {
+      const colors = ['#6366f1', '#f59e0b', '#10b981', '#ec4899', '#3b82f6'];
+      for (let i = 0; i < 45; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = `${1.8 + Math.random() * 1.5}s`;
+        piece.style.animationDelay = `${Math.random() * 0.3}s`;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 3600);
+      }
+    }
+
+    /* ==========================================================================
+       3. NAVIGATION & TAB SWITCHING
+       ========================================================================== */
+
+    function switchTab(tabName) {
+      currentTab = tabName;
+
+      // Toggle section visibility
+      document.querySelectorAll('.tab-content').forEach(sec => {
+        sec.classList.add('hidden');
+      });
+      const activeSection = document.getElementById(`section-${tabName}`);
+      if (activeSection) {
+        activeSection.classList.remove('hidden');
+      }
+
+      // Toggle navigation button active states
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('text-slate-300', 'hover:bg-slate-800', 'hover:text-white');
+      });
+      const activeBtn = document.getElementById(`tab-${tabName}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800', 'hover:text-white');
+        activeBtn.classList.add('bg-indigo-600', 'text-white');
+      }
+
+      playAudioCue('click');
+    }
+
+    /* ==========================================================================
+       4. MODULE 1: MODEL REVIEW EXPLORER
+       ========================================================================== */
+
+    function renderStructureCards(selectedId = 1) {
+      const container = document.getElementById('structure-card-container');
+      if (!container) return;
+
+      container.innerHTML = STRUCTURES_DATA.map(st => {
+        const isSelected = st.id === selectedId;
+        return `
+          <div id="struct-card-${st.id}" onclick="highlightStructure(${st.id})"
+               class="p-4 rounded-xl border transition cursor-pointer space-y-2 ${
+                 isSelected
+                   ? 'border-indigo-500 bg-indigo-50/70 ring-2 ring-indigo-500/20 shadow-xs'
+                   : 'border-slate-200 bg-slate-50/60 hover:bg-slate-50 hover:border-indigo-300'
+               }">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-sm font-extrabold text-indigo-700">${st.title}</span>
+              <span class="text-xs font-semibold bg-white text-slate-600 px-2.5 py-0.5 rounded-full border border-slate-200">
+                ${st.purpose}
+              </span>
+            </div>
+            <p class="text-sm sm:text-base font-bold text-slate-800 font-mono bg-white px-3 py-2 rounded-lg border border-slate-200/80">
+              ${st.pattern}
+            </p>
+            <p class="text-sm text-slate-700">${st.zhMeaning}</p>
+            <div class="text-xs sm:text-sm text-amber-800 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200/70 leading-relaxed">
+              <i class="fa-solid fa-star text-amber-500 mr-1"></i> <strong>Exam Tip:</strong> ${st.tip}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+// ... existing code ... -->
+    function renderVocabCards(cat) {
+      const grid = document.getElementById('vocab-cards-grid');
+      if (!grid) return;
+
+      const items = VOCAB_DATA[cat] || [];
+      grid.innerHTML = items.map(item => {
+        let typeBadge = '';
+        if (item.type === 'noun') {
+          typeBadge = `<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Noun 名詞</span>`;
+        } else if (item.type === 'adj-pos') {
+          typeBadge = `<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Positive Adj 正面形容詞</span>`;
+        } else {
+          typeBadge = `<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">Negative Adj 負面形容詞</span>`;
+        }
+
+        return `
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:border-indigo-300 transition flex flex-col justify-between space-y-3">
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5">
+                  <button onclick="speakWord('${escapeQuotes(item.word)}', this)"
+                          title="Listen to pronunciation"
+                          class="w-9 h-9 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center transition flex-shrink-0">
+                    <i class="fa-solid fa-volume-high text-sm"></i>
+                  </button>
+                  <h4 class="font-extrabold text-lg sm:text-xl text-slate-900">${item.word}</h4>
+                </div>
+                ${typeBadge}
+              </div>
+              <p class="text-base font-bold text-indigo-700 pl-11">${item.zh}</p>
+              <p class="text-sm text-slate-600 pl-11">${item.desc}</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 text-sm sm:text-base text-slate-700 leading-relaxed">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Example Sentence:</span>
+              "${highlightWordInSentence(item.ex, item.word)}"
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+// ... existing code ... -->
+    function renderGapFillQuiz() {
+      const container = document.getElementById('gapfill-container');
+      const exercises = activeGapFillQuestions;
+      gapFillStatus = {};
+      gapFillFirstTryDone = {};
+      gapFillSetCelebrated = false;
+
+      container.innerHTML = exercises.map((ex, idx) => `
+        <div id="gap-card-${idx}" class="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-3 transition-colors">
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-bold text-slate-600">Question ${idx + 1} of 5</span>
+            <span class="text-xs text-indigo-600 font-medium">Auto-checks when you select a word</span>
+          </div>
+
+          <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed">
+            ${ex.sentence.replace('_____', `
+              <select id="gap-select-${idx}" onchange="checkSingleGapFill(${idx})" class="inline-block mx-1 px-2.5 py-1.5 text-sm sm:text-base font-bold bg-white border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-colors">
+                <option value="">-- select word --</option>
+                ${ex.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+              </select>
+            `)}
+          </p>
+          ${ex.sentenceZh ? `
+            <p class="text-sm sm:text-base text-slate-700 bg-white px-3.5 py-2 rounded-lg border border-slate-200/80 leading-relaxed">
+              <i class="fa-solid fa-language text-indigo-500 mr-1.5"></i> ${ex.sentenceZh}
+            </p>
+          ` : ''}
+          <div id="gap-feedback-${idx}" class="text-sm font-bold hidden"></div>
+        </div>
+      `).join('');
+
+      document.getElementById('gapfill-score').innerText = `Score: 0 / 5`;
+    }
+// ... existing code ... -->
+    function renderStructureSelectorPills() {
+      const container = document.getElementById('structure-selector-pills');
+      container.innerHTML = STRUCTURES_DATA.map(st => `
+        <button onclick="changeActiveStructure(${st.id})" 
+                id="pill-struct-${st.id}"
+                class="pill-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition border ${
+                  st.id === activeStructureId 
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' 
+                    : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+                }">
+          Structure ${st.id}
+        </button>
+      `).join('');
+    }
+
+    function changeActiveStructure(id) {
+      activeStructureId = id;
+      renderStructureSelectorPills();
+      loadSentenceSet(id);
+    }
+
+    function loadSentenceSet(structureId) {
+      const stMeta = STRUCTURES_DATA.find(s => s.id === structureId);
+      
+      // Update Structure Rule Banner
+      const banner = document.getElementById('active-structure-banner');
+      banner.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-bold uppercase tracking-wider text-indigo-300">${stMeta.title}</span>
+          <span class="text-xs sm:text-sm bg-indigo-800 text-indigo-200 px-2.5 py-0.5 rounded">5 Sentences Drill</span>
+        </div>
+        <h3 class="text-lg sm:text-xl font-bold">${stMeta.pattern}</h3>
+        <p class="text-sm sm:text-base text-indigo-200 leading-relaxed">${stMeta.zhMeaning} • <em>${stMeta.tip}</em></p>
+      `;
+
+      // Get 5 sentences from offline bank
+      const bank = REARRANGE_BANK[structureId] || REARRANGE_BANK[1];
+      activeSentenceSet = JSON.parse(JSON.stringify(bank)); // deep copy 5 items
+
+      // Reset user state
+      userScrambleState = {};
+      activeSentenceSet.forEach((item, idx) => {
+        // Fisher-Yates shuffle scrambled pieces
+        const shuffled = [...item.scrambled].sort(() => Math.random() - 0.5);
+        userScrambleState[idx] = {
+          pool: shuffled,
+          placed: []
+        };
+      });
+
+      renderSentenceDrills();
+    }
+
+    function renderSentenceDrills() {
+      const container = document.getElementById('sentence-drills-container');
+      
+      container.innerHTML = activeSentenceSet.map((item, sIdx) => {
+        const state = userScrambleState[sIdx];
+
+        return `
+          <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+              <span class="text-sm font-extrabold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md">
+                Sentence ${sIdx + 1} of 5
+              </span>
+              <span class="text-sm sm:text-base text-slate-700 font-medium">
+                <i class="fa-solid fa-language text-indigo-500 mr-1.5"></i> ${item.hintZh}
+              </span>
+            </div>
+
+            <!-- Answer Dropzone Bay -->
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Sentence Assembly Bay:</label>
+              <div id="dropzone-${sIdx}" class="min-h-[62px] p-3 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 flex flex-wrap gap-2.5 items-center transition">
+                ${state.placed.length === 0 ? '<span class="text-sm text-slate-400 italic">Click words below to arrange sentence...</span>' : ''}
+                ${state.placed.map((text, pIdx) => `
+                  <button onclick="removeTileFromPlaced(${sIdx}, ${pIdx})" 
+                          class="tile-btn bg-indigo-600 text-white text-sm sm:text-base font-semibold px-3.5 py-2 rounded-lg shadow-sm flex items-center gap-1.5 hover:bg-indigo-700">
+                    <span>${text}</span>
+                    <i class="fa-solid fa-xmark text-xs opacity-75"></i>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Available Words Pool Bay -->
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Available Word Blocks:</label>
+              <div class="flex flex-wrap gap-2.5 min-h-[44px]">
+                ${state.pool.map((text, poolIdx) => `
+                  <button onclick="addTileToPlaced(${sIdx}, ${poolIdx})" 
+                          class="tile-btn bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-sm sm:text-base font-semibold px-3.5 py-2 rounded-lg shadow-2xs">
+                    ${text}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Sentence Feedback & Actions -->
+            <div class="flex items-center justify-between pt-2">
+              <button onclick="resetSentence(${sIdx})" class="text-sm text-slate-500 hover:text-slate-800 font-semibold underline">
+                Clear Selection
+              </button>
+              
+              <div class="flex items-center gap-2">
+                <button onclick="checkSingleSentence(${sIdx})" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-xs transition">
+                  Check Sentence ${sIdx + 1}
+                </button>
+              </div>
+            </div>
+
+            <div id="sentence-feedback-${sIdx}" class="text-sm sm:text-base font-bold hidden p-3 rounded-xl leading-relaxed"></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function highlightStructure(id) {
+      renderStructureCards(id);
+      const card = document.getElementById(`struct-card-${id}`);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      playAudioCue('click');
+      gameState.inspectedStructures.add(id);
+      awardXP(10, "Structure Explored", `inspect-struct-${id}`);
+
+      if (gameState.inspectedStructures.size >= 3) {
+        unlockBadge('structure_explorer');
+      }
+    }
+
+    /* ==========================================================================
+       5. MODULE 2: VOCABULARY BANK & GAP FILL CHALLENGE
+       ========================================================================== */
+
+    function highlightWordInSentence(sentence, word) {
+      const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escaped})`, 'gi');
+      return sentence.replace(regex, '<strong class="text-rose-600 font-extrabold">$1</strong>');
+    }
+
+    function speakWord(word, btnEl) {
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(word);
+          utterance.lang = 'en-GB';
+          utterance.rate = 0.9;
+
+          if (btnEl) {
+            btnEl.classList.add('speaking-active');
+            utterance.onend = () => btnEl.classList.remove('speaking-active');
+            utterance.onerror = () => btnEl.classList.remove('speaking-active');
+          }
+
+          window.speechSynthesis.speak(utterance);
+        } else {
+          showToast("Audio pronunciation is not supported in this browser.", "warning");
+        }
+      } catch (e) {
+        if (btnEl) btnEl.classList.remove('speaking-active');
+      }
+
+      gameState.spokenWords.add(word.toLowerCase());
+      awardXP(5, "Pronunciation Practice", `speak-${word.toLowerCase()}`);
+      if (gameState.spokenWords.size >= 5) {
+        unlockBadge('pronunciation_pro');
+      }
+    }
+
+    function filterVocabCategory(cat) {
+      currentVocabCat = cat;
+
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+        btn.classList.add('text-slate-600', 'hover:text-slate-900');
+      });
+
+      const activeBtn = document.getElementById(`cat-btn-${cat}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-600', 'hover:text-slate-900');
+        activeBtn.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+      }
+
+      renderVocabCards(cat);
+      loadGapFillSet(cat, 0);
+      renderGapFillQuiz();
+    }
+
+    function renderVocabCards(cat) {
+      const grid = document.getElementById('vocab-cards-grid');
+      if (!grid) return;
+
+      const items = VOCAB_DATA[cat] || [];
+      grid.innerHTML = items.map(item => {
+        let typeBadge = '';
+        if (item.type === 'noun') {
+          typeBadge = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Noun 名詞</span>`;
+        } else if (item.type === 'adj-pos') {
+          typeBadge = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Positive Adj 正面形容詞</span>`;
+        } else {
+          typeBadge = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">Negative Adj 負面形容詞</span>`;
+        }
+
+        return `
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 hover:border-indigo-300 transition flex flex-col justify-between space-y-3">
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <button onclick="speakWord('${escapeQuotes(item.word)}', this)"
+                          title="Listen to pronunciation"
+                          class="w-8 h-8 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center transition flex-shrink-0">
+                    <i class="fa-solid fa-volume-high text-xs"></i>
+                  </button>
+                  <h4 class="font-extrabold text-base text-slate-900">${item.word}</h4>
+                </div>
+                ${typeBadge}
+              </div>
+              <p class="text-sm font-bold text-indigo-700 pl-10">${item.zh}</p>
+              <p class="text-xs text-slate-500 pl-10">${item.desc}</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 text-xs text-slate-700 leading-relaxed">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Example Sentence:</span>
+              "${highlightWordInSentence(item.ex, item.word)}"
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadGapFillSet(cat, setIndex = 0) {
+      const sets = GAPFILL_SETS[cat] || GAPFILL_SETS.food;
+      currentGapFillSetIndex = setIndex % sets.length;
+      activeGapFillQuestions = JSON.parse(JSON.stringify(sets[currentGapFillSetIndex]));
+
+      const badge = document.getElementById('gapfill-set-badge');
+      if (badge) {
+        badge.innerText = `Set ${currentGapFillSetIndex + 1}`;
+      }
+    }
+
+    function renderGapFillQuiz() {
+      const container = document.getElementById('gapfill-container');
+      const exercises = activeGapFillQuestions;
+      gapFillStatus = {};
+      gapFillFirstTryDone = {};
+      gapFillSetCelebrated = false;
+
+      container.innerHTML = exercises.map((ex, idx) => `
+        <div id="gap-card-${idx}" class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5 transition-colors">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-slate-500">Question ${idx + 1} of 5</span>
+            <span class="text-[11px] text-indigo-600 font-medium">Auto-checks when you select a word</span>
+          </div>
+
+          <p class="text-sm font-medium text-slate-800 leading-relaxed">
+            ${ex.sentence.replace('_____', `
+              <select id="gap-select-${idx}" onchange="checkSingleGapFill(${idx})" class="inline-block mx-1 p-1.5 text-xs font-bold bg-white border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-colors">
+                <option value="">-- select word --</option>
+                ${ex.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+              </select>
+            `)}
+          </p>
+          ${ex.sentenceZh ? `
+            <p class="text-xs text-slate-600 bg-white px-3 py-1.5 rounded-lg border border-slate-200/80">
+              <i class="fa-solid fa-language text-indigo-500 mr-1"></i> ${ex.sentenceZh}
+            </p>
+          ` : ''}
+          <div id="gap-feedback-${idx}" class="text-xs font-bold hidden"></div>
+        </div>
+      `).join('');
+
+      document.getElementById('gapfill-score').innerText = `Score: 0 / 5`;
+    }
+
+    function updateGapFillScoreDisplay() {
+      const correctCount = Object.values(gapFillStatus).filter(status => status === 'correct').length;
+      document.getElementById('gapfill-score').innerText = `Score: ${correctCount} / 5`;
+
+      if (correctCount === 5 && !gapFillSetCelebrated) {
+        gapFillSetCelebrated = true;
+        triggerConfetti();
+        unlockBadge('vocab_ace');
+        showToast(`🌟 Perfect 5/5! You mastered this vocabulary set!`, 'success');
+      }
+    }
+
+    function checkSingleGapFill(idx, silent = false) {
+      const ex = activeGapFillQuestions[idx];
+      const select = document.getElementById(`gap-select-${idx}`);
+      const card = document.getElementById(`gap-card-${idx}`);
+      const feedback = document.getElementById(`gap-feedback-${idx}`);
+      const userAns = select ? select.value : '';
+
+      if (!ex || !select || !feedback) return;
+
+      // Reset styling classes
+      select.classList.remove('border-indigo-300', 'bg-white', 'border-emerald-500', 'bg-emerald-50', 'text-emerald-900', 'border-rose-500', 'bg-rose-50', 'text-rose-900');
+      card.classList.remove('border-slate-200', 'bg-slate-50', 'border-emerald-300', 'bg-emerald-50/40', 'border-rose-300', 'bg-rose-50/40');
+      feedback.classList.remove('hidden', 'text-emerald-600', 'text-rose-600');
+
+      if (!userAns) {
+        gapFillStatus[idx] = null;
+        select.classList.add('border-indigo-300', 'bg-white');
+        card.classList.add('border-slate-200', 'bg-slate-50');
+        feedback.classList.add('hidden');
+        updateGapFillScoreDisplay();
+        return;
+      }
+
+      if (userAns === ex.answer) {
+        gapFillStatus[idx] = 'correct';
+        select.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-900');
+        card.classList.add('border-emerald-300', 'bg-emerald-50/40');
+        feedback.classList.add('text-emerald-600');
+        feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Correct! Well done.`;
+
+        if (!gapFillFirstTryDone[idx]) {
+          incrementStreak();
+          gapFillFirstTryDone[idx] = true;
+        }
+        awardXP(15, "Vocab Match", `gap-${currentVocabCat}-${currentGapFillSetIndex}-${idx}`);
+        if (!silent) playAudioCue('success');
+      } else {
+        gapFillStatus[idx] = 'wrong';
+        select.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-900');
+        card.classList.add('border-rose-300', 'bg-rose-50/40');
+        feedback.classList.add('text-rose-600');
+        feedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Not quite. Correct answer: <strong class="text-rose-700">${ex.answer}</strong>`;
+
+        resetStreak();
+        gapFillFirstTryDone[idx] = true;
+        if (!silent) playAudioCue('wrong');
+      }
+
+      updateGapFillScoreDisplay();
+    }
+
+    function checkGapFillQuiz() {
+      const exercises = activeGapFillQuestions;
+      exercises.forEach((_, idx) => {
+        checkSingleGapFill(idx, true);
+      });
+
+      const correctCount = Object.values(gapFillStatus).filter(status => status === 'correct').length;
+      playAudioCue(correctCount === 5 ? 'success' : 'click');
+
+      if (correctCount < 5) {
+        showToast(`Quiz checked! You scored ${correctCount}/5`, 'info');
+      }
+    }
+
+    function resetGapFillQuiz() {
+      renderGapFillQuiz();
+      showToast("Quiz reset.", "info");
+    }
+
+    async function requestNewGapFillSet() {
+      const btn = document.getElementById('btn-new-gapfill');
+      const vocabWords = (VOCAB_DATA[currentVocabCat] || []).map(v => v.word);
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+
+      try {
+        const systemPrompt = `You are a Hong Kong Secondary 4 English teacher. Create 5 simple, natural fill-in-the-blank restaurant review sentences for low-proficiency S4 students, along with the Traditional Chinese translation of each full sentence (keeping _____ for the blank in the Chinese translation as well).`;
+        const userPrompt = `Create 5 gap-fill sentences for the category "${currentVocabCat}" using words from this list: [${vocabWords.join(', ')}]. Each item must include the English sentence with "_____", the Traditional Chinese translation of the full sentence with "_____", the exact answer, and 3 simple options.`;
+
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        const payload = {
+          contents: [{ parts: [{ text: userPrompt }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "ARRAY",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  sentence: { type: "STRING", description: "English sentence containing _____ for the blank" },
+                  sentenceZh: { type: "STRING", description: "Traditional Chinese translation of the full sentence with _____ for the blank" },
+                  answer: { type: "STRING" },
+                  options: { type: "ARRAY", items: { type: "STRING" } }
+                },
+                required: ["sentence", "sentenceZh", "answer", "options"]
+              }
+            }
+          }
+        };
+
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(`API Status ${res.status}`);
+
+        const result = await res.json();
+        const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!jsonText) throw new Error("Empty API text");
+
+        const parsed = JSON.parse(jsonText);
+        if (Array.isArray(parsed) && parsed.length >= 5) {
+          currentGapFillSetIndex++;
+          activeGapFillQuestions = parsed.slice(0, 5).map((q, i) => ({
+            id: i + 1,
+            sentence: q.sentence,
+            sentenceZh: q.sentenceZh,
+            answer: q.answer,
+            options: q.options.sort(() => Math.random() - 0.5)
+          }));
+          document.getElementById('gapfill-set-badge').innerText = `AI Set #${currentGapFillSetIndex + 1}`;
+          renderGapFillQuiz();
+          showToast("Brand new S4 gap-fill set generated!", "success");
+        } else {
+          throw new Error("Insufficient generated items");
+        }
+      } catch (err) {
+        // Offline multi-set rotation fallback
+        const nextIdx = currentGapFillSetIndex + 1;
+        loadGapFillSet(currentVocabCat, nextIdx);
+        // Shuffle options on each load so it feels fresh
+        activeGapFillQuestions.forEach(q => {
+          q.options = [...q.options].sort(() => Math.random() - 0.5);
+        });
+        renderGapFillQuiz();
+        showToast("Loaded a new practice set!", "success");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> Generate Another Set`;
+      }
+    }
+
+    /* ==========================================================================
+       6. MODULE 3: SENTENCE REARRANGEMENT LOGIC (5 SENTENCES PER SET)
+       ========================================================================== */
+
+    function renderStructureSelectorPills() {
+      const container = document.getElementById('structure-selector-pills');
+      container.innerHTML = STRUCTURES_DATA.map(st => `
+        <button onclick="changeActiveStructure(${st.id})" 
+                id="pill-struct-${st.id}"
+                class="pill-btn px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition border ${
+                  st.id === activeStructureId 
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' 
+                    : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+                }">
+          Structure ${st.id}
+        </button>
+      `).join('');
+    }
+
+    function changeActiveStructure(id) {
+      activeStructureId = id;
+      renderStructureSelectorPills();
+      loadSentenceSet(id);
+    }
+
+    function loadSentenceSet(structureId) {
+      const stMeta = STRUCTURES_DATA.find(s => s.id === structureId);
+      
+      // Update Structure Rule Banner
+      const banner = document.getElementById('active-structure-banner');
+      banner.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-300">${stMeta.title}</span>
+          <span class="text-xs bg-indigo-800 text-indigo-200 px-2 py-0.5 rounded">5 Sentences Drill</span>
+        </div>
+        <h3 class="text-lg font-bold">${stMeta.pattern}</h3>
+        <p class="text-xs text-indigo-200">${stMeta.zhMeaning} • <em>${stMeta.tip}</em></p>
+      `;
+
+      // Get 5 sentences from offline bank
+      const bank = REARRANGE_BANK[structureId] || REARRANGE_BANK[1];
+      activeSentenceSet = JSON.parse(JSON.stringify(bank)); // deep copy 5 items
+
+      // Reset user state
+      userScrambleState = {};
+      activeSentenceSet.forEach((item, idx) => {
+        // Fisher-Yates shuffle scrambled pieces
+        const shuffled = [...item.scrambled].sort(() => Math.random() - 0.5);
+        userScrambleState[idx] = {
+          pool: shuffled,
+          placed: []
+        };
+      });
+
+      renderSentenceDrills();
+    }
+
+    function renderSentenceDrills() {
+      const container = document.getElementById('sentence-drills-container');
+      
+      container.innerHTML = activeSentenceSet.map((item, sIdx) => {
+        const state = userScrambleState[sIdx];
+
+        return `
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between border-b pb-2">
+              <span class="text-xs font-extrabold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
+                Sentence ${sIdx + 1} of 5
+              </span>
+              <span class="text-xs text-slate-500 font-medium">
+                <i class="fa-solid fa-language text-indigo-500 mr-1"></i> ${item.hintZh}
+              </span>
+            </div>
+
+            <!-- Answer Dropzone Bay -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Your Sentence Assembly Bay:</label>
+              <div id="dropzone-${sIdx}" class="min-h-[56px] p-2.5 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 flex flex-wrap gap-2 items-center transition">
+                ${state.placed.length === 0 ? '<span class="text-xs text-slate-400 italic">Click words below to arrange sentence...</span>' : ''}
+                ${state.placed.map((text, pIdx) => `
+                  <button onclick="removeTileFromPlaced(${sIdx}, ${pIdx})" 
+                          class="tile-btn bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1 hover:bg-indigo-700">
+                    <span>${text}</span>
+                    <i class="fa-solid fa-xmark text-[10px] opacity-75"></i>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Available Words Pool Bay -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Available Word Blocks:</label>
+              <div class="flex flex-wrap gap-2 min-h-[40px]">
+                ${state.pool.map((text, poolIdx) => `
+                  <button onclick="addTileToPlaced(${sIdx}, ${poolIdx})" 
+                          class="tile-btn bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-2xs">
+                    ${text}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Sentence Feedback & Actions -->
+            <div class="flex items-center justify-between pt-2">
+              <button onclick="resetSentence(${sIdx})" class="text-xs text-slate-500 hover:text-slate-800 font-semibold underline">
+                Clear Selection
+              </button>
+              
+              <div class="flex items-center gap-2">
+                <button onclick="checkSingleSentence(${sIdx})" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-xs transition">
+                  Check Sentence ${sIdx + 1}
+                </button>
+              </div>
+            </div>
+
+            <div id="sentence-feedback-${sIdx}" class="text-xs font-bold hidden p-2.5 rounded-lg"></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addTileToPlaced(sentenceIdx, poolIdx) {
+      const state = userScrambleState[sentenceIdx];
+      const word = state.pool.splice(poolIdx, 1)[0];
+      state.placed.push(word);
+      playAudioCue('click');
+      renderSentenceDrills();
+    }
+
+    function removeTileFromPlaced(sentenceIdx, placedIdx) {
+      const state = userScrambleState[sentenceIdx];
+      const word = state.placed.splice(placedIdx, 1)[0];
+      state.pool.push(word);
+      playAudioCue('click');
+      renderSentenceDrills();
+    }
+
+    function resetSentence(sentenceIdx) {
+      const orig = activeSentenceSet[sentenceIdx];
+      const shuffled = [...orig.scrambled].sort(() => Math.random() - 0.5);
+      userScrambleState[sentenceIdx] = {
+        pool: shuffled,
+        placed: []
+      };
+      const fb = document.getElementById(`sentence-feedback-${sentenceIdx}`);
+      if (fb) fb.classList.add('hidden');
+      renderSentenceDrills();
+    }
+
+    function checkSingleSentence(sentenceIdx) {
+      const item = activeSentenceSet[sentenceIdx];
+      const state = userScrambleState[sentenceIdx];
+      const userFullString = state.placed.join(' ').trim();
+      const targetString = item.correct.trim();
+
+      const fb = document.getElementById(`sentence-feedback-${sentenceIdx}`);
+      fb.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+
+      if (userFullString === targetString) {
+        fb.classList.add('bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-200');
+        fb.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Perfect! Correct structure: <strong>${item.correct}</strong>`;
+        playAudioCue('success');
+        incrementStreak();
+        const uniqueKey = `rearrange-${activeStructureId}-${item.correct}`;
+        if (!gameState.awardedItems.has(uniqueKey)) {
+          gameState.solvedSentencesCount++;
+          awardXP(20, "Sentence Solved", uniqueKey);
+          if (gameState.solvedSentencesCount >= 5) {
+            unlockBadge('sentence_architect');
+          }
+        }
+      } else {
+        fb.classList.add('bg-rose-50', 'text-rose-800', 'border', 'border-rose-200');
+        fb.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> Not quite right yet. Keep rearranging!<br><span class="font-normal text-slate-600">Correct Target: ${item.correct}</span>`;
+        playAudioCue('wrong');
+        resetStreak();
+      }
+    }
+
+    /* ==========================================================================
+       7. AI GENERATION: "TRY A NEW SET" VIA GEMINI API (WITH OFFLINE FALLBACK)
+       ========================================================================== */
+
+    async function requestNewSentenceSet() {
+      const btn = document.getElementById('btn-generate-ai');
+      const stMeta = STRUCTURES_DATA.find(s => s.id === activeStructureId);
+      
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating 5 Fresh Sentences...`;
+
+      showToast("Generating a brand new set of 5 sentences...", "info");
+
+      try {
+        // System instructions & prompt for Gemini 3 Flash Preview API
+        const systemPrompt = `You are a Secondary 5 HKDSE English teacher. Generate 5 simple, distinct scrambled sentence exercises for HK students using a specific target structure. Format MUST be JSON matching the required schema.`;
+        const userPrompt = `Generate 5 brand new simplified sentences for HK Secondary 5 students using Target Structure Pattern ${activeStructureId}: "${stMeta.pattern}". Context: Restaurant Review. Include Traditional Chinese translations.`;
+
+        const apiKey = ""; // Canvas provides runtime key
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        const payload = {
+          contents: [{ parts: [{ text: userPrompt }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "ARRAY",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  scrambled: { 
+                    type: "ARRAY", 
+                    items: { type: "STRING" },
+                    description: "3 to 4 scrambled chunk phrases"
+                  },
+                  correct: { type: "STRING" },
+                  hintZh: { type: "STRING" }
+                },
+                required: ["scrambled", "correct", "hintZh"]
+              }
+            }
+          }
+        };
+
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(`API Error: ${res.status}`);
+
+        const result = await res.json();
+        const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (!jsonText) throw new Error("Invalid API response format");
+
+        const parsedData = JSON.parse(jsonText);
+
+        if (Array.isArray(parsedData) && parsedData.length >= 5) {
+          activeSentenceSet = parsedData.slice(0, 5);
+          showToast("New AI-generated sentence set loaded!", "success");
+        } else {
+          throw new Error("Data length insufficient");
+        }
+
+      } catch (err) {
+        console.warn("API Call unavailable or throttled. Using offline dynamic generator fallback:", err);
+        
+        // Fallback Generator: Shuffle and vary the offline bank dynamically
+        const bank = REARRANGE_BANK[activeStructureId] || REARRANGE_BANK[1];
+        activeSentenceSet = bank.map(item => ({
+          scrambled: [...item.scrambled].sort(() => Math.random() - 0.5),
+          correct: item.correct,
+          hintZh: item.hintZh + " (New Random Set)"
+        })).sort(() => Math.random() - 0.5);
+
+        showToast("New sentence set generated!", "success");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> Try a New Set`;
+        
+        // Reset state & render
+        userScrambleState = {};
+        activeSentenceSet.forEach((item, idx) => {
+          userScrambleState[idx] = {
+            pool: [...item.scrambled],
+            placed: []
+          };
+        });
+        renderSentenceDrills();
+      }
+    }
+
+    /* ==========================================================================
+       8. UTILITY & AUDIO FEEDBACK FUNCTIONS
+       ========================================================================== */
+
+    function generateTransformedSentences() {
+      const name = document.getElementById('input-rest-name').value.trim() || 'Noodle Master';
+      const loc = document.getElementById('input-rest-loc').value.trim() || 'Causeway Bay';
+      const dish = document.getElementById('input-rest-dish').value.trim() || 'beef noodles';
+
+      const outputsContainer = document.getElementById('transformed-outputs');
+
+      const transformations = [
+        {
+          patternId: 1,
+          title: "1. Hook Location Sentence",
+          result: `Situated in ${loc}, ${name} is an immensely popular dining hotspot.`,
+          zh: `坐落於${loc}，${name}是一個極受歡迎的餐飲熱點。`
+        },
+        {
+          patternId: 2,
+          title: "2. Inverted Praise Sentence",
+          result: `Not only does ${name} serve delicious ${dish}, but it also offers remarkably affordable prices.`,
+          zh: `${name}不僅提供美味的${dish}，還提供極其實惠的價格。`
+        },
+        {
+          patternId: 3,
+          title: "3. Proactive Service Sentence",
+          result: `Instead of merely taking orders, the servers at ${name} actively recommended their signature ${dish}.`,
+          zh: `${name}的侍應並沒有生硬地點餐，而是主動推介他們的招牌${dish}。`
+        },
+        {
+          patternId: 4,
+          title: "4. Conditional Recommendation",
+          result: `Had I not sought the staff's advice at ${name}, I would not have discovered their fantastic ${dish}!`,
+          zh: `要是我沒有尋求${name}職員的建議，我便不會發現他們絕妙的${dish}！`
+        },
+        {
+          patternId: 6,
+          title: "5. Value for Money Assessment",
+          result: `Despite the crowded seating in ${loc}, the dining experience at ${name} offers fantastic value at around $100 per person.`,
+          zh: `儘管在${loc}的座位擁擠，${name}的用餐體驗人均約$100，性價比極高。`
+        },
+        {
+          patternId: 7,
+          title: "6. Final Call to Action",
+          result: `With splendid service and mouth-watering ${dish}, there is literally no reason not to give ${name} a try!`,
+          zh: `憑藉優質服務與令人垂涎的${dish}，絕對沒有理由不嘗試${name}！`
+        }
+      ];
+
+      outputsContainer.innerHTML = transformations.map(item => `
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md">${item.title}</span>
+            <button onclick="copyTextToClipboard('${escapeQuotes(item.result)}')" class="text-xs font-semibold text-slate-500 hover:text-indigo-600 transition">
+              <i class="fa-regular fa-copy mr-1"></i> Copy
+            </button>
+          </div>
+          <p class="text-sm font-bold text-slate-800 font-mono bg-slate-50 p-3 rounded-xl border border-slate-200">
+            "${item.result}"
+          </p>
+          <p class="text-xs text-slate-500"><i class="fa-solid fa-language text-indigo-500 mr-1"></i> ${item.zh}</p>
+        </div>
+      `).join('');
+    }
+
+    /* ==========================================================================
+       9. UTILITY & AUDIO FEEDBACK FUNCTIONS
+       ========================================================================== */
+
+    function copyTextToClipboard(text) {
+      const dummy = document.createElement("textarea");
+      document.body.appendChild(dummy);
+      dummy.value = text;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+      showToast("Copied to clipboard!", "success");
+    }
+
+    function escapeQuotes(str) {
+      return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const bg = type === 'success' 
+        ? 'bg-emerald-800 text-white' 
+        : type === 'warning' 
+        ? 'bg-amber-800 text-white' 
+        : 'bg-slate-900 text-white';
+
+      toast.className = `${bg} px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2 pointer-events-auto transition-all transform duration-300 translate-y-2 opacity-0`;
+      toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${msg}`;
+
+      container.appendChild(toast);
+
+      // Animate in
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      // Remove after 3s
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Web Audio API Synthesizer Sound Effects (No external audio links)
+    function playAudioCue(type) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+
+        if (type === 'click') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(400, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.05);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.05);
+        } else if (type === 'success') {
+          const now = ctx.currentTime;
+          [523.25, 659.25, 783.99].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.linearRampToValueAtTime(0.01, now + idx * 0.08 + 0.15);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.15);
+          });
+        } else if (type === 'wrong') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(120, ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.15);
+        }
+      } catch (e) {
+        // Audio context muted or suppressed
+      }
+    }
+
+    /* ==========================================================================
+       10. APPLICATION INITIALIZATION
+       ========================================================================== */
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderStructureCards(1);
+      filterVocabCategory('food');
+      renderStructureSelectorPills();
+      loadSentenceSet(1);
+      updateGamificationHUD();
+    });
+  </script>
+</body>
+</html>

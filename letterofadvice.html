@@ -1,0 +1,2512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HKDSE S4 Letter of Advice Mastery Studio</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & Inter for crisp readability -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    h1, h2, h3, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* 3D Flashcard Flip Animation */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    /* Highlighted Essay Patterns */
+    .pattern-chip {
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border-bottom-width: 3px;
+      padding: 1px 4px;
+      border-radius: 6px;
+    }
+    .pattern-chip:hover {
+      filter: brightness(0.95);
+      transform: translateY(-1px);
+    }
+    .pattern-active {
+      ring: 2px;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.35);
+    }
+
+    /* Speaking Soundwave Animation */
+    @keyframes soundBar {
+      0%, 100% { height: 6px; }
+      50% { height: 20px; }
+    }
+    .speaking-bar {
+      animation: soundBar 0.55s ease-in-out infinite;
+    }
+    .speaking-bar:nth-child(2) { animation-delay: 0.15s; }
+    .speaking-bar:nth-child(3) { animation-delay: 0.3s; }
+
+    /* Pop & Shake Animations */
+    @keyframes popIn {
+      0% { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop {
+      animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .animate-shake {
+      animation: shake 0.35s ease-in-out;
+    }
+
+    /* Confetti Particles */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      z-index: 9999;
+      pointer-events: none;
+      animation: confettiFall 2.6s linear forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-indigo-200 selection:text-indigo-900">
+
+  <!-- Top Gamified Navigation & HUD -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- Brand -->
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-md shadow-indigo-200">
+            <i class="fa-solid fa-feather-pointed text-xl"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">HKDSE Advice Studio</h1>
+              <span class="hidden sm:inline-block text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">S4 Form 4</span>
+            </div>
+            <p class="text-xs text-slate-500 font-medium">2022 Paper 2 Part B Q3 • Letter of Advice</p>
+          </div>
+        </div>
+
+        <!-- Gamification Stats HUD -->
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <!-- Rank & XP Pill -->
+          <div class="flex items-center gap-2.5 bg-slate-100 border border-slate-200 rounded-2xl px-3.5 py-1.5">
+            <div class="w-8 h-8 rounded-xl bg-amber-400 text-amber-950 font-extrabold flex items-center justify-center text-sm shadow-inner" id="hud-level">
+              1
+            </div>
+            <div class="min-w-[105px] sm:min-w-[130px]">
+              <div class="flex justify-between items-center text-xs font-bold">
+                <span id="hud-rank" class="text-slate-700">DSE Novice</span>
+                <span id="hud-xp-text" class="text-indigo-600">0 / 100 XP</span>
+              </div>
+              <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden mt-1">
+                <div id="hud-xp-bar" class="h-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Streak Counter -->
+          <div class="flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded-2xl font-bold text-sm" title="Current Answer Streak">
+            <i class="fa-solid fa-fire text-orange-500 text-base"></i>
+            <span id="hud-streak">0</span>
+          </div>
+
+          <!-- Badges Modal Trigger -->
+          <button onclick="openBadgesModal()" class="flex items-center gap-1.5 bg-violet-50 hover:bg-violet-100 border border-violet-200 text-violet-700 px-3 py-2 rounded-2xl font-bold text-sm transition cursor-pointer" title="View Your Achievements">
+            <i class="fa-solid fa-trophy text-amber-500"></i>
+            <span class="hidden md:inline">Badges</span>
+            <span id="hud-badge-count" class="bg-violet-600 text-white text-xs px-1.5 py-0.5 rounded-full">0/6</span>
+          </button>
+
+          <!-- Audio FX Mute Toggle -->
+          <button onclick="toggleSoundFx()" id="sound-toggle-btn" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer" title="Toggle Sound Effects">
+            <i class="fa-solid fa-volume-high" id="sound-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 Learning Mode Tabs -->
+      <nav class="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-3 pt-2 border-t border-slate-100" role="tablist">
+        <button onclick="switchTab('sample')" id="tab-sample" class="nav-tab flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition cursor-pointer bg-indigo-600 text-white shadow-sm">
+          <i class="fa-solid fa-book-open"></i>
+          <span>1. Sample & Patterns</span>
+        </button>
+        <button onclick="switchTab('jumble')" id="tab-jumble" class="nav-tab flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200">
+          <i class="fa-solid fa-puzzle-piece"></i>
+          <span>2. Sentence Jumble</span>
+        </button>
+        <button onclick="switchTab('flashcards')" id="tab-flashcards" class="nav-tab flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>3. Vocab Flashcards</span>
+        </button>
+        <button onclick="switchTab('vocabquiz')" id="tab-vocabquiz" class="nav-tab flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200">
+          <i class="fa-solid fa-spell-check"></i>
+          <span>4. Vocab Gap-Fill</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Toast Notification Banner -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 1: SAMPLE WRITING & INTERACTIVE PATTERN HIGHLIGHTER           -->
+    <!-- ===================================================================== -->
+    <section id="section-sample" class="space-y-6 animate-pop">
+      <!-- Intro Banner -->
+      <div class="bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="space-y-2 max-w-3xl">
+            <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full">
+              <i class="fa-solid fa-star text-amber-300"></i> Level 5** Model Essay
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold">2022 DSE Letter of Advice: Annotated Model</h2>
+            <p class="text-indigo-100 text-base sm:text-lg leading-relaxed">
+              Read Chris Wong's reply to Kam. Click on any <span class="underline decoration-amber-300 decoration-2 font-bold">highlighted sentence pattern</span> or <span class="underline decoration-emerald-300 decoration-2 font-bold">key vocabulary phrase</span> to inspect how to score high in DSE Paper 2!
+            </p>
+          </div>
+          <button onclick="speakSampleEssay()" id="btn-read-essay" class="self-start md:self-center shrink-0 flex items-center gap-2.5 bg-white text-indigo-700 hover:bg-indigo-50 font-extrabold px-5 py-3.5 rounded-2xl shadow-md transition cursor-pointer">
+            <i class="fa-solid fa-volume-high text-lg"></i>
+            <span>Listen to Letter</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Legend Bar -->
+      <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-sm font-bold text-slate-600 mr-1"><i class="fa-solid fa-highlighter mr-1 text-indigo-600"></i> Highlight Filter:</span>
+          <button onclick="setHighlightFilter('all')" id="filter-all" class="filter-btn px-3.5 py-1.5 rounded-xl text-sm font-bold bg-slate-900 text-white cursor-pointer">All Highlights</button>
+          <button onclick="setHighlightFilter('structure')" id="filter-structure" class="filter-btn px-3.5 py-1.5 rounded-xl text-sm font-bold bg-amber-100 text-amber-900 border border-amber-300 cursor-pointer">7 Sentence Structures</button>
+          <button onclick="setHighlightFilter('vocab')" id="filter-vocab" class="filter-btn px-3.5 py-1.5 rounded-xl text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 cursor-pointer">23 Key Vocabulary</button>
+        </div>
+        <div class="text-xs sm:text-sm font-semibold text-slate-500">
+          Patterns Explored: <span id="patterns-explored-count" class="text-indigo-600 font-extrabold">0</span> (+5 XP each)
+        </div>
+      </div>
+
+      <!-- Two-Column Reader + Pattern Inspector -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left: Annotated Letter Card -->
+        <article class="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-9 border border-slate-200 shadow-sm space-y-5 text-lg sm:text-xl leading-relaxed text-slate-800" id="annotated-letter-container">
+          <!-- Populated dynamically by JS with clickable spans -->
+        </article>
+
+        <!-- Right: Sticky Inspector Panel -->
+        <aside class="lg:col-span-4 lg:sticky lg:top-28 space-y-4">
+          <div class="bg-white rounded-3xl p-6 border-2 border-indigo-100 shadow-md" id="pattern-inspector-card">
+            <div class="flex items-center gap-2 text-indigo-600 font-extrabold text-sm uppercase tracking-wider mb-2">
+              <i class="fa-solid fa-magnifying-glass-chart"></i>
+              <span>Writing Pattern Inspector</span>
+            </div>
+            <div id="inspector-content" class="space-y-4">
+              <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 text-slate-700">
+                <p class="font-bold text-indigo-900 text-lg mb-1">Tap any highlighted phrase!</p>
+                <p class="text-base leading-relaxed">Click on any colored phrase in the letter on the left to see its grammar formula, meaning, pronunciation, and DSE exam tip.</p>
+              </div>
+              <div class="space-y-2">
+                <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Letter Structure Map:</h4>
+                <ul class="text-sm space-y-2 text-slate-600">
+                  <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold text-slate-800">Para 1</span> Empathy + Clear Stance + Writer Persona</li>
+                  <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold text-slate-800">Para 2</span> Practical & Financial Realities</li>
+                  <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold text-slate-800">Para 3</span> Personal Story & Financial Buffer</li>
+                  <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold text-slate-800">Para 4</span> Reframing Promotion as Stepping Stone</li>
+                  <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold text-slate-800">Para 5</span> Reassurance about Age ("Never too late")</li>
+                  <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold text-slate-800">Para 6</span> Encouraging Summary & Sign-off</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Jump to Practice -->
+          <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-5 text-white shadow-md flex items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-emerald-200">Ready to practice?</p>
+              <p class="font-extrabold text-lg">Master the 7 Sentence Patterns</p>
+            </div>
+            <button onclick="switchTab('jumble')" class="bg-white text-emerald-700 hover:bg-emerald-50 font-extrabold px-4 py-2.5 rounded-xl shadow cursor-pointer shrink-0">
+              Start <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 2: 7 SENTENCE STRUCTURES JUMBLE-UP (10 QUESTIONS EACH)        -->
+    <!-- ===================================================================== -->
+    <section id="section-jumble" class="hidden space-y-6 animate-pop">
+      <!-- Structure Selector Pills -->
+      <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Sentence Structure Builder</h2>
+            <p class="text-slate-600 text-base sm:text-lg">Choose 1 of the 7 DSE patterns. Arrange the word blocks to build each short sentence (10 questions per set).</p>
+          </div>
+          <div class="text-sm font-bold bg-indigo-50 text-indigo-700 px-4 py-2 rounded-2xl border border-indigo-100 self-start">
+            Mastered Sets: <span id="jumble-sets-completed">0</span> / 7
+          </div>
+        </div>
+
+        <!-- 7 Structure Buttons -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="structure-selector-grid">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Active Jumble Exercise Arena -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-indigo-100 shadow-md space-y-6" id="jumble-arena">
+        <!-- Header & Formula Guide -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="jumble-structure-badge" class="px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-indigo-100 text-indigo-700">Structure 1 of 7</span>
+              <span id="jumble-progress-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700">Question 1 / 10</span>
+            </div>
+            <h3 id="jumble-structure-title" class="text-2xl sm:text-3xl font-extrabold text-slate-900">Concession + Stance</h3>
+            <p id="jumble-structure-formula" class="text-lg sm:text-xl font-bold text-indigo-600 bg-indigo-50 inline-block px-3.5 py-1.5 rounded-xl border border-indigo-100">
+              While + [Clause 1], [Main Advice].
+            </p>
+          </div>
+
+          <!-- Progress Dots (10 Questions) -->
+          <div class="flex items-center gap-1.5 flex-wrap" id="jumble-dots">
+            <!-- 10 dots rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Hint / Meaning Prompt -->
+        <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-400 text-amber-950 flex items-center justify-center shrink-0 font-bold">
+              <i class="fa-solid fa-lightbulb"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-amber-800">Sentence Goal / Clue</p>
+              <p id="jumble-clue-text" class="text-lg sm:text-xl font-bold text-slate-800">Show empathy first, then advise waiting.</p>
+            </div>
+          </div>
+          <button onclick="speakJumbleHint()" class="self-start sm:self-center flex items-center gap-2 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold px-3.5 py-2 rounded-xl text-sm transition cursor-pointer">
+            <i class="fa-solid fa-volume-high"></i>
+            <span>Hear Target</span>
+          </button>
+        </div>
+
+        <!-- Answer Drop Zone (Constructed Sentence) -->
+        <div class="space-y-2">
+          <label class="text-sm font-bold uppercase tracking-wider text-slate-500 block">Your Sentence (Tap tiles below to add, tap here to remove):</label>
+          <div id="jumble-answer-zone" class="min-h-[88px] p-4 rounded-2xl bg-slate-50 border-2 border-dashed border-indigo-300 flex flex-wrap items-center gap-3 transition-all">
+            <span class="text-slate-400 text-lg sm:text-xl italic select-none" id="jumble-placeholder">Tap the word tiles below in the right order...</span>
+          </div>
+        </div>
+
+        <!-- Scrambled Word Bank -->
+        <div class="space-y-2">
+          <label class="text-sm font-bold uppercase tracking-wider text-slate-500 block">Word Tiles:</label>
+          <div id="jumble-word-bank" class="min-h-[80px] p-4 rounded-2xl bg-indigo-50/40 border border-indigo-100 flex flex-wrap items-center gap-3">
+            <!-- Large interactive tiles rendered here -->
+          </div>
+        </div>
+
+        <!-- Immediate Feedback Box -->
+        <div id="jumble-feedback" class="hidden rounded-2xl p-5 border-2"></div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+          <div class="flex items-center gap-2.5">
+            <button onclick="resetCurrentJumble()" id="btn-jumble-reset" class="px-5 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base sm:text-lg transition cursor-pointer">
+              <i class="fa-solid fa-rotate-left mr-1.5"></i> Clear
+            </button>
+            <button onclick="giveJumbleFirstWordHint()" id="btn-jumble-hint" class="px-5 py-3.5 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-base sm:text-lg transition cursor-pointer">
+              <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Next Word Hint
+            </button>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button onclick="checkJumbleAnswer()" id="btn-jumble-check" class="px-7 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-lg sm:text-xl shadow-md shadow-indigo-200 transition cursor-pointer">
+              Check Answer <i class="fa-solid fa-check ml-1.5"></i>
+            </button>
+            <button onclick="nextJumbleQuestion()" id="btn-jumble-next" class="hidden px-7 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-lg sm:text-xl shadow-md shadow-emerald-200 transition cursor-pointer">
+              Next Sentence <i class="fa-solid fa-arrow-right ml-1.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Set Completion Card (Hidden until 10/10 finished) -->
+      <div id="jumble-complete-card" class="hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-8 text-white text-center space-y-5 shadow-xl">
+        <div class="w-20 h-20 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center text-4xl mx-auto shadow-lg">
+          <i class="fa-solid fa-award"></i>
+        </div>
+        <h3 class="text-3xl sm:text-4xl font-extrabold" id="jumble-complete-title">Structure Mastered!</h3>
+        <p class="text-indigo-100 text-xl max-w-xl mx-auto" id="jumble-complete-score">You scored 10 / 10 on this sentence structure!</p>
+        <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+          <button onclick="generateNewJumbleSet()" class="px-7 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-extrabold text-lg sm:text-xl shadow-lg transition cursor-pointer">
+            <i class="fa-solid fa-shuffle mr-2"></i> Generate a New Set of 10 Questions
+          </button>
+          <button onclick="selectNextStructure()" class="px-7 py-4 rounded-2xl bg-white/15 hover:bg-white/25 text-white font-extrabold text-lg sm:text-xl border border-white/30 transition cursor-pointer">
+            Try Next Structure <i class="fa-solid fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 3: VOCABULARY FLASHCARDS (23 ITEMS + FEMALE NATURAL VOICE)    -->
+    <!-- ===================================================================== -->
+    <section id="section-flashcards" class="hidden space-y-6 animate-pop">
+      <!-- Top Controls & Voice Selector -->
+      <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">DSE Vocabulary Flashcards (23 Key Phrases)</h2>
+          <p class="text-slate-600 text-base sm:text-lg">Click the speaker button to hear natural female pronunciation. Tap the card to flip for meaning & example!</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Female Voice Picker -->
+          <div class="flex items-center gap-2 bg-rose-50 border border-rose-200 px-3.5 py-2 rounded-2xl">
+            <i class="fa-solid fa-headset text-rose-600"></i>
+            <label for="voice-select" class="text-xs font-bold text-rose-900 uppercase">Voice:</label>
+            <select id="voice-select" onchange="onVoiceSelectChange()" class="bg-transparent text-sm font-bold text-rose-950 focus:outline-none max-w-[190px] cursor-pointer">
+              <option value="">Natural Female (Auto)</option>
+            </select>
+          </div>
+
+          <!-- Mastery Counter -->
+          <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-2 rounded-2xl font-extrabold text-sm sm:text-base">
+            <i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i>
+            Mastered: <span id="fc-mastered-count">0</span> / 23
+          </div>
+        </div>
+      </div>
+
+      <!-- Flashcard Stage -->
+      <div class="max-w-3xl mx-auto space-y-5">
+        <!-- Progress Bar -->
+        <div class="flex items-center justify-between text-sm font-bold text-slate-600 px-1">
+          <span>Card <span id="fc-index-label" class="text-indigo-600 font-extrabold text-base">1</span> of 23</span>
+          <div class="flex items-center gap-2">
+            <button onclick="shuffleFlashcards()" class="text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 cursor-pointer">
+              <i class="fa-solid fa-shuffle"></i> Shuffle Deck
+            </button>
+          </div>
+        </div>
+
+        <!-- 3D Flip Card -->
+        <div class="perspective-1000 w-full h-[380px] sm:h-[410px] cursor-pointer" onclick="flipFlashcard()">
+          <div id="flashcard-inner" class="relative w-full h-full transform-style-3d">
+
+            <!-- FRONT OF CARD -->
+            <div class="absolute inset-0 backface-hidden bg-white rounded-3xl border-2 border-indigo-100 shadow-xl p-6 sm:p-10 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span id="fc-level-tag" class="px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider bg-indigo-100 text-indigo-700">
+                  Level 1 • Core Vocab
+                </span>
+                <span id="fc-mastered-badge" class="hidden px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-700">
+                  <i class="fa-solid fa-check mr-1"></i> Mastered
+                </span>
+              </div>
+
+              <!-- Large Target Vocabulary & Speaker Button -->
+              <div class="text-center space-y-5 my-auto">
+                <h3 id="fc-front-word" class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                  share your dilemma
+                </h3>
+
+                <div class="flex items-center justify-center gap-3">
+                  <button onclick="event.stopPropagation(); speakCurrentFlashcard(false)" class="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold text-lg sm:text-xl px-6 py-3.5 rounded-2xl shadow-lg shadow-indigo-200 transition cursor-pointer">
+                    <i class="fa-solid fa-volume-high text-xl"></i>
+                    <span>Listen</span>
+                    <span id="fc-wave-front" class="hidden items-end gap-1 h-5 ml-1">
+                      <span class="w-1 bg-amber-300 rounded-full speaking-bar"></span>
+                      <span class="w-1 bg-amber-300 rounded-full speaking-bar"></span>
+                      <span class="w-1 bg-amber-300 rounded-full speaking-bar"></span>
+                    </span>
+                  </button>
+
+                  <button onclick="event.stopPropagation(); speakCurrentFlashcard(true)" class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base px-4 py-3.5 rounded-2xl transition cursor-pointer" title="Listen Slowly">
+                    <i class="fa-solid fa-turtle"></i>
+                    <span>Slow</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="text-center text-slate-400 font-semibold text-sm sm:text-base">
+                <i class="fa-solid fa-rotate mr-1.5"></i> Tap anywhere on card to flip for meaning & example
+              </div>
+            </div>
+
+            <!-- BACK OF CARD -->
+            <div class="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl border-2 border-indigo-500/40 shadow-xl p-6 sm:p-10 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span id="fc-back-pos" class="px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
+                  Verb Phrase
+                </span>
+                <button onclick="event.stopPropagation(); speakCurrentFlashcard(false)" class="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer" title="Pronounce Word">
+                  <i class="fa-solid fa-volume-high text-lg"></i>
+                </button>
+              </div>
+
+              <div class="space-y-4 my-auto">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wider text-indigo-300 mb-1">Meaning</p>
+                  <p id="fc-back-meaning" class="text-2xl sm:text-3xl font-extrabold text-white leading-snug">
+                    Tell someone about a difficult choice you have to make.
+                  </p>
+                  <p id="fc-back-chinese" class="text-lg sm:text-xl font-bold text-amber-300 mt-1">
+                    分享你的兩難處境
+                  </p>
+                </div>
+
+                <div class="bg-white/10 rounded-2xl p-4 border border-white/10 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-300">Simple Example Sentence</span>
+                    <button onclick="event.stopPropagation(); speakExampleSentence()" class="text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 px-3 py-1 rounded-lg flex items-center gap-1.5 cursor-pointer">
+                      <i class="fa-solid fa-volume-high"></i> Hear Sentence
+                    </button>
+                  </div>
+                  <p id="fc-back-example" class="text-lg sm:text-xl font-semibold text-slate-100 leading-relaxed">
+                    "Thank you for writing in to share your dilemma with me."
+                  </p>
+                </div>
+              </div>
+
+              <div class="text-center text-indigo-300/80 font-semibold text-sm">
+                <i class="fa-solid fa-rotate mr-1.5"></i> Tap card to flip back
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Flashcard Navigation & Mastery Controls -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <button onclick="prevFlashcard()" class="px-5 py-3.5 rounded-2xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-800 font-extrabold text-base sm:text-lg shadow-sm transition cursor-pointer">
+            <i class="fa-solid fa-chevron-left mr-1.5"></i> Previous
+          </button>
+
+          <button onclick="toggleMasteredFlashcard()" id="btn-fc-master" class="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base sm:text-lg shadow-md shadow-emerald-200 transition cursor-pointer">
+            <i class="fa-solid fa-check-circle mr-1.5"></i> Mark as Mastered (+10 XP)
+          </button>
+
+          <button onclick="nextFlashcard()" class="px-5 py-3.5 rounded-2xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-800 font-extrabold text-base sm:text-lg shadow-sm transition cursor-pointer">
+            Next <i class="fa-solid fa-chevron-right ml-1.5"></i>
+          </button>
+        </div>
+
+        <!-- Mini All-23 Quick Jump Grid -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+          <p class="text-sm font-bold text-slate-600 uppercase tracking-wider">Quick Jump (Click any word to study & hear):</p>
+          <div class="flex flex-wrap gap-2" id="fc-quick-pills">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 4: LEVELLED VOCABULARY GAP-FILLING (4 OPTIONS + REGENERATE)   -->
+    <!-- ===================================================================== -->
+    <section id="section-vocabquiz" class="hidden space-y-6 animate-pop">
+      <!-- Level Selection Header -->
+      <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Vocabulary Gap-Fill Challenge</h2>
+            <p class="text-slate-600 text-base sm:text-lg">Read the simple sentence and pick the best phrase from 4 choices. Click the speaker to hear any phrase!</p>
+          </div>
+          <div class="text-sm font-bold bg-emerald-50 text-emerald-700 px-4 py-2 rounded-2xl border border-emerald-200 self-start">
+            Levels Cleared: <span id="vq-levels-cleared">0</span> / 3
+          </div>
+        </div>
+
+        <!-- 3 Level Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="vq-level-selector">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Active Gap-Fill Quiz Card -->
+      <div class="max-w-4xl mx-auto bg-white rounded-3xl p-6 sm:p-9 border-2 border-indigo-100 shadow-md space-y-6" id="vq-quiz-card">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span id="vq-level-badge" class="px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider bg-indigo-100 text-indigo-700">Level 1: Core Foundations</span>
+            <span id="vq-q-counter" class="px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold bg-slate-100 text-slate-700">Question 1 / 8</span>
+          </div>
+          <div class="text-base font-extrabold text-indigo-600">
+            Score: <span id="vq-current-score">0</span>
+          </div>
+        </div>
+
+        <!-- Simple Gap-Fill Sentence (Large Font) -->
+        <div class="bg-slate-50 rounded-2xl p-6 sm:p-8 border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Fill in the blank:</span>
+            <button onclick="speakCurrentGapSentence()" class="inline-flex items-center gap-2 bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold px-3.5 py-1.5 rounded-xl text-sm shadow-xs transition cursor-pointer">
+              <i class="fa-solid fa-volume-high"></i>
+              <span>Listen to Sentence</span>
+            </button>
+          </div>
+          <p id="vq-sentence-display" class="text-2xl sm:text-3xl font-bold text-slate-900 leading-relaxed">
+            Thank you for writing to <span class="inline-block min-w-[180px] border-b-4 border-indigo-500 text-indigo-600 text-center px-2">________</span> with me.
+          </p>
+          <p id="vq-chinese-hint" class="text-base sm:text-lg font-medium text-slate-500">
+            Clue: 分享你的兩難處境
+          </p>
+        </div>
+
+        <!-- 4 Multiple Choice Options (Large Font + Speaker on each option!) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5" id="vq-options-grid">
+          <!-- 4 large buttons rendered by JS -->
+        </div>
+
+        <!-- Explanation Feedback -->
+        <div id="vq-feedback" class="hidden rounded-2xl p-5 border-2 text-base sm:text-lg"></div>
+
+        <!-- Next Button -->
+        <div class="flex justify-end pt-2">
+          <button onclick="nextVocabQuestion()" id="btn-vq-next" class="hidden px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-lg sm:text-xl shadow-md shadow-indigo-200 transition cursor-pointer">
+            Next Question <i class="fa-solid fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Level Completion Card -->
+      <div id="vq-complete-card" class="hidden max-w-3xl mx-auto bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 rounded-3xl p-8 text-white text-center space-y-5 shadow-xl">
+        <div class="w-20 h-20 rounded-full bg-amber-300 text-amber-950 flex items-center justify-center text-4xl mx-auto shadow-lg">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <h3 class="text-3xl sm:text-4xl font-extrabold" id="vq-complete-title">Level Complete!</h3>
+        <p class="text-emerald-50 text-xl" id="vq-complete-summary">Great job! You answered 8 / 8 correctly.</p>
+        <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+          <button onclick="generateNewVocabQuizSet()" class="px-7 py-4 rounded-2xl bg-amber-300 hover:bg-amber-200 text-amber-950 font-extrabold text-lg sm:text-xl shadow-lg transition cursor-pointer">
+            <i class="fa-solid fa-rotate mr-2"></i> Generate a New Set of Exercises
+          </button>
+          <button onclick="goToNextVocabLevel()" id="btn-vq-next-level" class="px-7 py-4 rounded-2xl bg-white/15 hover:bg-white/25 text-white font-extrabold text-lg sm:text-xl border border-white/30 transition cursor-pointer">
+            Next Level <i class="fa-solid fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Badges & Progress Modal -->
+  <div id="badges-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 animate-pop max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <div>
+            <h3 class="text-2xl font-extrabold text-slate-900">Your DSE Achievements</h3>
+            <p class="text-sm text-slate-500">Earn XP and unlock all 6 mastery badges!</p>
+          </div>
+        </div>
+        <button onclick="closeBadgesModal()" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5" id="badges-grid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+        <button onclick="confirmResetProgress()" class="text-sm font-bold text-rose-600 hover:text-rose-700 cursor-pointer">
+          <i class="fa-solid fa-trash-can mr-1"></i> Reset All Progress
+        </button>
+        <button onclick="closeBadgesModal()" class="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold cursor-pointer">
+          Keep Learning
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Reset Confirmation Modal (No native confirm() used!) -->
+  <div id="reset-confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-center animate-pop">
+      <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-2xl mx-auto">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h4 class="text-xl font-extrabold text-slate-900">Reset All Progress?</h4>
+      <p class="text-slate-600">This will reset your XP, streaks, mastered flashcards, and completed levels back to zero.</p>
+      <div class="flex items-center justify-center gap-3 pt-2">
+        <button onclick="closeResetModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer">Cancel</button>
+        <button onclick="executeResetProgress()" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold cursor-pointer">Yes, Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. EDUCATIONAL DATA: 23 VOCABULARY ITEMS (WITH 3 SIMPLE SENTENCES EACH)
+    // =========================================================================
+    const VOCAB_DATA = [
+      {
+        id: "v1",
+        word: "share your dilemma",
+        level: 1,
+        pos: "Verb Phrase",
+        meaning: "Tell someone about a difficult choice you have to make.",
+        chinese: "分享你的兩難處境",
+        sentences: [
+          { text: "Thank you for writing to ___ with me.", blank: "share your dilemma" },
+          { text: "You can always ___ with a trusted friend.", blank: "share your dilemma" },
+          { text: "It helps to ___ when you cannot decide.", blank: "share your dilemma" }
+        ]
+      },
+      {
+        id: "v2",
+        word: "pursue your dream",
+        level: 1,
+        pos: "Verb Phrase",
+        meaning: "Work hard to achieve a long-term goal or ambition.",
+        chinese: "追求你的夢想",
+        sentences: [
+          { text: "Save enough money before you ___ of owning a cafe.", blank: "pursue your dream" },
+          { text: "You need courage and patience to ___.", blank: "pursue your dream" },
+          { text: "Waiting two years will help you ___ safely.", blank: "pursue your dream" }
+        ]
+      },
+      {
+        id: "v3",
+        word: "secure an ideal location",
+        level: 2,
+        pos: "Verb Phrase",
+        meaning: "Find and rent the best possible place for a shop or cafe.",
+        chinese: "物色並租下理想地點",
+        sentences: [
+          { text: "A busy cafe needs time to ___ with many customers.", blank: "secure an ideal location" },
+          { text: "It is hard to ___ in Hong Kong without high rent.", blank: "secure an ideal location" },
+          { text: "You and your friends must ___ before opening.", blank: "secure an ideal location" }
+        ]
+      },
+      {
+        id: "v4",
+        word: "design an appealing menu",
+        level: 2,
+        pos: "Verb Phrase",
+        meaning: "Create an attractive list of food and drinks that customers love.",
+        chinese: "設計吸引人的餐單",
+        sentences: [
+          { text: "Good cafes ___ with fresh coffee and tasty cakes.", blank: "design an appealing menu" },
+          { text: "You need time to test recipes and ___.", blank: "design an appealing menu" },
+          { text: "Young customers will visit if you ___.", blank: "design an appealing menu" }
+        ]
+      },
+      {
+        id: "v5",
+        word: "demand substantial time and effort",
+        level: 3,
+        pos: "Verb Phrase",
+        meaning: "Require a large amount of hours and hard work.",
+        chinese: "需要大量時間和精力",
+        sentences: [
+          { text: "Opening a new shop will ___ from your whole team.", blank: "demand substantial time and effort" },
+          { text: "Applying for food licences can ___.", blank: "demand substantial time and effort" },
+          { text: "Big projects always ___ to succeed.", blank: "demand substantial time and effort" }
+        ]
+      },
+      {
+        id: "v6",
+        word: "for an extended period",
+        level: 2,
+        pos: "Prepositional Phrase",
+        meaning: "For a long time without stopping.",
+        chinese: "在一段較長的時間內",
+        sentences: [
+          { text: "If you quit now, you will have no salary ___.", blank: "for an extended period" },
+          { text: "New cafes often make little profit ___.", blank: "for an extended period" },
+          { text: "You must pay rent ___ before earning money.", blank: "for an extended period" }
+        ]
+      },
+      {
+        id: "v7",
+        word: "fund a fledgling cafe",
+        level: 2,
+        pos: "Verb Phrase",
+        meaning: "Provide money to support a brand-new, young coffee shop.",
+        chinese: "資助一間剛起步的咖啡店",
+        sentences: [
+          { text: "Without a job, it is hard to ___.", blank: "fund a fledgling cafe" },
+          { text: "Your extra savings will help ___ during its first year.", blank: "fund a fledgling cafe" },
+          { text: "It takes a lot of cash to ___.", blank: "fund a fledgling cafe" }
+        ]
+      },
+      {
+        id: "v8",
+        word: "adequate preparation time",
+        level: 2,
+        pos: "Noun Phrase",
+        meaning: "Enough time to get ready before starting something big.",
+        chinese: "充足的準備時間",
+        sentences: [
+          { text: "Keeping your job gives you ___ to plan well.", blank: "adequate preparation time" },
+          { text: "Do not rush; give your team ___.", blank: "adequate preparation time" },
+          { text: "With ___, you will make fewer silly mistakes.", blank: "adequate preparation time" }
+        ]
+      },
+      {
+        id: "v9",
+        word: "a crucial backup plan",
+        level: 2,
+        pos: "Noun Phrase",
+        meaning: "A very important second plan in case the first plan fails.",
+        chinese: "關鍵的後備計劃",
+        sentences: [
+          { text: "Your current job acts as ___ if things go wrong.", blank: "a crucial backup plan" },
+          { text: "Every smart business owner needs ___.", blank: "a crucial backup plan" },
+          { text: "Having ___ keeps you calm during hard times.", blank: "a crucial backup plan" }
+        ]
+      },
+      {
+        id: "v10",
+        word: "unexpected setbacks",
+        level: 2,
+        pos: "Noun Phrase",
+        meaning: "Sudden problems or delays that you did not plan for.",
+        chinese: "意想不到的挫折",
+        sentences: [
+          { text: "Savings protect you when ___ happen.", blank: "unexpected setbacks" },
+          { text: "New businesses often face ___ like broken machines.", blank: "unexpected setbacks" },
+          { text: "Stay calm and solve ___ step by step.", blank: "unexpected setbacks" }
+        ]
+      },
+      {
+        id: "v11",
+        word: "prestigious",
+        level: 1,
+        pos: "Adjective",
+        meaning: "Respected and admired because of high quality or status.",
+        chinese: "有名望的；聲望高的",
+        sentences: [
+          { text: "Chris worked at a ___ bank before starting his shop.", blank: "prestigious" },
+          { text: "She won a ___ award for her creative cake designs.", blank: "prestigious" },
+          { text: "Working at a ___ company looks great on your resume.", blank: "prestigious" }
+        ]
+      },
+      {
+        id: "v12",
+        word: "weigh the consequences",
+        level: 2,
+        pos: "Verb Phrase",
+        meaning: "Think carefully about the possible results before deciding.",
+        chinese: "權衡後果",
+        sentences: [
+          { text: "Please pause and ___ before you resign.", blank: "weigh the consequences" },
+          { text: "A wise leader will always ___ of every choice.", blank: "weigh the consequences" },
+          { text: "My friend told me to ___ of quitting too soon.", blank: "weigh the consequences" }
+        ]
+      },
+      {
+        id: "v13",
+        word: "a solid foundation",
+        level: 1,
+        pos: "Noun Phrase",
+        meaning: "A strong base that supports future growth and success.",
+        chinese: "穩固的基礎",
+        sentences: [
+          { text: "Careful planning gave our business ___.", blank: "a solid foundation" },
+          { text: "Good training builds ___ for your future career.", blank: "a solid foundation" },
+          { text: "Saving money early creates ___ for a new cafe.", blank: "a solid foundation" }
+        ]
+      },
+      {
+        id: "v14",
+        word: "mount",
+        level: 1,
+        pos: "Verb",
+        meaning: "Increase or grow larger step by step (often costs or pressure).",
+        chinese: "不斷增加；累積",
+        sentences: [
+          { text: "Unforeseen bills quickly ___ after a shop opens.", blank: "mount" },
+          { text: "Costs will ___ if you delay opening for months.", blank: "mount" },
+          { text: "Pressure can ___ when you run out of money.", blank: "mount" }
+        ]
+      },
+      {
+        id: "v15",
+        word: "a higher salary",
+        level: 1,
+        pos: "Noun Phrase",
+        meaning: "More monthly pay from a better job or promotion.",
+        chinese: "更高的薪金",
+        sentences: [
+          { text: "Your promotion comes with ___ every month.", blank: "a higher salary" },
+          { text: "Earning ___ helps you save money much faster.", blank: "a higher salary" },
+          { text: "She accepted the new role because of ___.", blank: "a higher salary" }
+        ]
+      },
+      {
+        id: "v16",
+        word: "broader responsibilities",
+        level: 3,
+        pos: "Noun Phrase",
+        meaning: "A wider range of duties and tasks at work.",
+        chinese: "更廣泛的職責",
+        sentences: [
+          { text: "A manager role brings ___ and new challenges.", blank: "broader responsibilities" },
+          { text: "Taking on ___ helps you grow into a strong leader.", blank: "broader responsibilities" },
+          { text: "Your promotion includes ___ such as leading a team.", blank: "broader responsibilities" }
+        ]
+      },
+      {
+        id: "v17",
+        word: "an unwelcome detour",
+        level: 3,
+        pos: "Noun Phrase",
+        meaning: "An unwanted delay or side path away from your main goal.",
+        chinese: "不受歡迎的彎路",
+        sentences: [
+          { text: "Do not view this promotion as ___.", blank: "an unwelcome detour" },
+          { text: "Waiting two years is not ___; it is smart planning.", blank: "an unwelcome detour" },
+          { text: "At first, the delay felt like ___ from my dream.", blank: "an unwelcome detour" }
+        ]
+      },
+      {
+        id: "v18",
+        word: "a strategic stepping stone",
+        level: 3,
+        pos: "Noun Phrase",
+        meaning: "A smart step that helps you reach a bigger future goal.",
+        chinese: "具策略性的踏腳石",
+        sentences: [
+          { text: "Treat your new job as ___ toward owning a cafe.", blank: "a strategic stepping stone" },
+          { text: "This role is ___ that builds your skills and savings.", blank: "a strategic stepping stone" },
+          { text: "Working as a supervisor is ___ to becoming a boss.", blank: "a strategic stepping stone" }
+        ]
+      },
+      {
+        id: "v19",
+        word: "accumulate substantial startup capital",
+        level: 3,
+        pos: "Verb Phrase",
+        meaning: "Save up a large amount of money needed to start a business.",
+        chinese: "累積可觀的創業資金",
+        sentences: [
+          { text: "Your higher pay will help you ___.", blank: "accumulate substantial startup capital" },
+          { text: "You need time to ___ for rent and coffee machines.", blank: "accumulate substantial startup capital" },
+          { text: "Working two more years lets you ___.", blank: "accumulate substantial startup capital" }
+        ]
+      },
+      {
+        id: "v20",
+        word: "build a reliable financial safety net",
+        level: 3,
+        pos: "Verb Phrase",
+        meaning: "Save enough emergency money to protect yourself from money trouble.",
+        chinese: "建立可靠的財務安全網",
+        sentences: [
+          { text: "Extra savings help you ___ before taking risks.", blank: "build a reliable financial safety net" },
+          { text: "It is wise to ___ in case sales are slow.", blank: "build a reliable financial safety net" },
+          { text: "A steady job lets you ___ for your family.", blank: "build a reliable financial safety net" }
+        ]
+      },
+      {
+        id: "v21",
+        word: "sharpen the management skills",
+        level: 3,
+        pos: "Verb Phrase",
+        meaning: "Improve your ability to lead staff and organize work.",
+        chinese: "提升管理技巧",
+        sentences: [
+          { text: "Leading a team now will ___ you need later.", blank: "sharpen the management skills" },
+          { text: "Your promotion is a great chance to ___.", blank: "sharpen the management skills" },
+          { text: "Running a cafe is easier after you ___.", blank: "sharpen the management skills" }
+        ]
+      },
+      {
+        id: "v22",
+        word: "chase your dream",
+        level: 1,
+        pos: "Verb Phrase",
+        meaning: "Actively go after what you hope to do in life.",
+        chinese: "追逐你的夢想",
+        sentences: [
+          { text: "Remember that it is never too late to ___.", blank: "chase your dream" },
+          { text: "Even at thirty-eight, you can still ___.", blank: "chase your dream" },
+          { text: "Prepare well first, then ___ with confidence.", blank: "chase your dream" }
+        ]
+      },
+      {
+        id: "v23",
+        word: "launch a company",
+        level: 1,
+        pos: "Verb Phrase",
+        meaning: "Officially start and open a new business.",
+        chinese: "創辦一間公司",
+        sentences: [
+          { text: "I did not ___ until I was thirty-eight years old.", blank: "launch a company" },
+          { text: "You need licences and capital before you ___.", blank: "launch a company" },
+          { text: "Planning on weekends helped us ___ smoothly.", blank: "launch a company" }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 2. 7 SENTENCE STRUCTURES (15 SIMPLE SENTENCES EACH -> 10 PER SET + REGEN)
+    // =========================================================================
+    const SENTENCE_STRUCTURES = [
+      {
+        id: "s1",
+        shortName: "1. Concession + Stance",
+        title: "While + [Concession], [Main Advice]",
+        formula: "While I + [verb]..., I believe + [advice].",
+        tip: "Use 'While' to show empathy for Kam's feelings before giving your honest advice.",
+        items: [
+          { clue: "Admire the dream, but advise waiting.", chunks: ["While", "I admire", "your dream,", "waiting", "is wiser."] },
+          { clue: "Understand excitement, but mention money.", chunks: ["While", "I understand", "your excitement,", "money", "matters too."] },
+          { clue: "Support passion, but ask Kam to think carefully.", chunks: ["While", "I support", "your passion,", "please think", "carefully."] },
+          { clue: "Idea sounds great, but time is needed.", chunks: ["While", "your idea", "sounds great,", "you need", "more time."] },
+          { clue: "Running a cafe is fun, yet costly.", chunks: ["While", "running a cafe", "is fun,", "it is", "very costly."] },
+          { clue: "Respect the choice, yet suggest waiting.", chunks: ["While", "I respect", "your choice,", "I suggest", "waiting."] },
+          { clue: "Feel ready now, yet patience brings success.", chunks: ["While", "you feel", "ready now,", "patience", "brings success."] },
+          { clue: "Quitting seems brave, yet keeping the job helps.", chunks: ["While", "quitting", "seems brave,", "keeping your job", "helps."] },
+          { clue: "Friends are eager, yet planning takes time.", chunks: ["While", "your friends", "are eager,", "planning", "takes time."] },
+          { clue: "Starting early is tempting, yet saving helps.", chunks: ["While", "starting early", "is tempting,", "saving money", "helps first."] },
+          { clue: "See your point, yet safety comes first.", chunks: ["While", "I see", "your point,", "safety", "comes first."] },
+          { clue: "Dreams are important, yet bills must be paid.", chunks: ["While", "dreams", "are important,", "bills must", "be paid."] },
+          { clue: "Offer is sudden, yet it brings benefits.", chunks: ["While", "this offer", "is sudden,", "it brings", "great benefits."] },
+          { clue: "Dislike waiting, yet good things take time.", chunks: ["While", "you dislike", "waiting,", "good things", "take time."] },
+          { clue: "Risk looks small, yet costs can grow.", chunks: ["While", "the risk", "looks small,", "costs can", "grow fast."] }
+        ]
+      },
+      {
+        id: "s2",
+        shortName: "2. Inverted Conditional",
+        title: "Should + [Subject] + [Base Verb], [Result]",
+        formula: "Should + [subject] + [verb], [result clause].",
+        tip: "A formal DSE alternative to 'If'! Put 'Should' at the start + base verb (no '-s').",
+        items: [
+          { clue: "If problems happen, savings help.", chunks: ["Should", "problems", "arise,", "your savings", "will help."] },
+          { clue: "If costs go up, you need extra money.", chunks: ["Should", "costs", "increase,", "you will need", "extra money."] },
+          { clue: "If the cafe fails, you have a backup.", chunks: ["Should", "your cafe", "fail,", "you have", "a backup."] },
+          { clue: "If you accept the job, you will learn.", chunks: ["Should", "you accept", "the job,", "you will", "learn fast."] },
+          { clue: "If emergencies happen, a safety net is vital.", chunks: ["Should", "emergencies", "happen,", "a safety net", "is vital."] },
+          { clue: "If you need advice, write to me.", chunks: ["Should", "you need", "advice,", "please write", "to me."] },
+          { clue: "If sales drop, steady income protects you.", chunks: ["Should", "sales", "drop,", "steady income", "protects you."] },
+          { clue: "If delays occur, extra time reduces stress.", chunks: ["Should", "delays", "occur,", "extra time", "reduces stress."] },
+          { clue: "If you wait two years, you will succeed.", chunks: ["Should", "you wait", "two years,", "you will", "succeed."] },
+          { clue: "If friends agree, start planning on weekends.", chunks: ["Should", "your friends", "agree,", "plan together", "on weekends."] },
+          { clue: "If unexpected bills grow, savings keep you safe.", chunks: ["Should", "unexpected bills", "mount,", "savings keep", "you safe."] },
+          { clue: "If you feel unsure, talk to your family.", chunks: ["Should", "you feel", "unsure,", "talk to", "your family."] },
+          { clue: "If rent rises, you need more capital.", chunks: ["Should", "the rent", "rise,", "you need", "more capital."] },
+          { clue: "If mistakes happen, experience helps fix them.", chunks: ["Should", "mistakes", "happen,", "experience helps", "fix them."] },
+          { clue: "If you change your mind, tell your friends.", chunks: ["Should", "you change", "your mind,", "tell your", "friends early."] }
+        ]
+      },
+      {
+        id: "s3",
+        shortName: "3. Participle Clause",
+        title: "[Verb-ing / Having]..., [Subject] + [Verb]",
+        formula: "[Verb-ing] + [object], [subject] + [verb].",
+        tip: "Start with an '-ing' participle phrase to show cause, action, or background smoothly.",
+        items: [
+          { clue: "Followed his advice and kept the job.", chunks: ["Taking", "his advice,", "I kept", "my steady", "job."] },
+          { clue: "Because we had extra savings, we survived.", chunks: ["Having", "extra savings,", "we survived", "the hard", "times."] },
+          { clue: "By keeping your job, you save more.", chunks: ["Keeping", "your job,", "you can", "save more", "money."] },
+          { clue: "By working as a manager, you gain skills.", chunks: ["Working", "as a manager,", "you will", "gain useful", "skills."] },
+          { clue: "By planning carefully, you avoid costly mistakes.", chunks: ["Planning", "carefully,", "you can", "avoid costly", "mistakes."] },
+          { clue: "When starting a business, prepare for risks.", chunks: ["Starting", "a business,", "you must", "prepare for", "risks."] },
+          { clue: "By accepting the promotion, you earn higher pay.", chunks: ["Accepting", "the promotion,", "you will", "earn higher", "pay."] },
+          { clue: "By waiting a few years, you build foundations.", chunks: ["Waiting", "a few years,", "you build", "a solid", "foundation."] },
+          { clue: "After listening to experts, I chose wisely.", chunks: ["Listening", "to experts,", "I made", "a smart", "choice."] },
+          { clue: "By saving every month, you reach your goal.", chunks: ["Saving", "every month,", "you will", "reach your", "goal."] },
+          { clue: "By using this chance, you grow your skills.", chunks: ["Using", "this chance,", "you can", "grow your", "skills."] },
+          { clue: "Because they face high rent, cafes close early.", chunks: ["Facing", "high rent,", "many new cafes", "close", "early."] },
+          { clue: "By following a clear plan, your team works well.", chunks: ["Following", "a clear plan,", "your team", "works", "better."] },
+          { clue: "Because you have a backup plan, you feel calm.", chunks: ["Having", "a backup plan,", "you will", "feel", "calm."] },
+          { clue: "By learning from others, we avoided big losses.", chunks: ["Learning", "from others,", "we avoided", "big financial", "losses."] }
+        ]
+      },
+      {
+        id: "s4",
+        shortName: "4. Rather Than Reframing",
+        title: "Rather than + [Verb-ing], [Imperative]",
+        formula: "Rather than + [V-ing]..., [verb] + [object].",
+        tip: "Help Kam see the positive side! Contrast a bad choice with a smart action.",
+        items: [
+          { clue: "Do not quit now; save more money first.", chunks: ["Rather than", "quitting now,", "save more", "money", "first."] },
+          { clue: "Do not rush ahead; make a careful plan.", chunks: ["Rather than", "rushing ahead,", "make", "a careful", "plan."] },
+          { clue: "Do not fear delays; use the time wisely.", chunks: ["Rather than", "fearing delays,", "use", "the time", "wisely."] },
+          { clue: "Do not see work as boring; learn skills.", chunks: ["Rather than", "seeing work", "as boring,", "learn new", "skills."] },
+          { clue: "Do not worry about age; focus on preparation.", chunks: ["Rather than", "worrying", "about age,", "focus on", "preparation."] },
+          { clue: "Do not guess costs; list every expense clearly.", chunks: ["Rather than", "guessing costs,", "list", "every expense", "clearly."] },
+          { clue: "Do not act fast; weigh all the consequences.", chunks: ["Rather than", "acting fast,", "weigh", "all the", "consequences."] },
+          { clue: "Do not refuse the offer; accept the promotion.", chunks: ["Rather than", "refusing", "the offer,", "accept", "the promotion."] },
+          { clue: "Do not lose your income; keep your job.", chunks: ["Rather than", "losing", "your income,", "keep", "your job."] },
+          { clue: "Do not feel discouraged; stay patient and hopeful.", chunks: ["Rather than", "feeling", "discouraged,", "stay patient", "and hopeful."] },
+          { clue: "Do not spend everything; build a safety net.", chunks: ["Rather than", "spending", "everything,", "build", "a safety net."] },
+          { clue: "Do not work alone; ask mentors for advice.", chunks: ["Rather than", "working alone,", "ask mentors", "for", "advice."] },
+          { clue: "Do not ignore risks; prepare a backup plan.", chunks: ["Rather than", "ignoring risks,", "prepare", "a backup", "plan."] },
+          { clue: "Do not give up dreams; delay them slightly.", chunks: ["Rather than", "giving up", "dreams,", "delay them", "slightly."] },
+          { clue: "Do not take big risks; grow step by step.", chunks: ["Rather than", "taking", "big risks,", "grow step", "by step."] }
+        ]
+      },
+      {
+        id: "s5",
+        shortName: "5. Gerund as Subject",
+        title: "[Verb-ing + Object] + [Singular Verb]",
+        formula: "[Verb-ing] + [noun] + is / provides / requires...",
+        tip: "Turn an action into the subject of your sentence using '-ing' + singular verb.",
+        items: [
+          { clue: "Starting a business is never easy.", chunks: ["Launching", "a business", "is never", "an easy", "task."] },
+          { clue: "Keeping your job gives steady income.", chunks: ["Keeping", "your job", "provides", "a steady", "income."] },
+          { clue: "Opening a cafe needs lots of money.", chunks: ["Opening", "a cafe", "requires", "a lot of", "money."] },
+          { clue: "Finding a good spot takes time and effort.", chunks: ["Finding", "a good location", "takes", "time and", "effort."] },
+          { clue: "Saving startup capital gives peace of mind.", chunks: ["Saving", "startup capital", "gives you", "peace of", "mind."] },
+          { clue: "Accepting this promotion helps your future cafe.", chunks: ["Accepting", "this promotion", "helps", "your future", "cafe."] },
+          { clue: "Designing a good menu attracts hungry customers.", chunks: ["Designing", "a good menu", "attracts", "many hungry", "customers."] },
+          { clue: "Managing a team builds strong leadership skills.", chunks: ["Managing", "a team", "builds", "strong leadership", "skills."] },
+          { clue: "Rushing into business often causes big problems.", chunks: ["Rushing", "into business", "often leads", "to big", "problems."] },
+          { clue: "Waiting two years makes your plan stronger.", chunks: ["Waiting", "two years", "makes", "your plan", "stronger."] },
+          { clue: "Sharing your dilemma was a smart step.", chunks: ["Sharing", "your dilemma", "was a", "very smart", "step."] },
+          { clue: "Hiring reliable staff is crucial for cafes.", chunks: ["Hiring", "reliable staff", "is crucial", "for every", "cafe."] },
+          { clue: "Building a safety net protects you from failure.", chunks: ["Building", "a safety net", "protects you", "from", "failure."] },
+          { clue: "Chasing your dream requires passion and patience.", chunks: ["Chasing", "your dream", "requires", "passion and", "patience."] },
+          { clue: "Balancing work and planning is tiring but useful.", chunks: ["Balancing", "work and planning", "is tiring", "but very", "useful."] }
+        ]
+      },
+      {
+        id: "s6",
+        shortName: "6. Never Too Late",
+        title: "It is never too late to + [Base Verb]",
+        formula: "It is never too late to + [verb] + [object].",
+        tip: "A warm, encouraging sentence pattern to reassure someone worried about age or timing.",
+        items: [
+          { clue: "Encourage Kam to chase dreams at any age.", chunks: ["It is", "never", "too late", "to chase", "your dreams."] },
+          { clue: "Reassure Kam about starting a business.", chunks: ["It is", "never", "too late", "to start", "a business."] },
+          { clue: "Reassure Kam about learning new skills.", chunks: ["It is", "never", "too late", "to learn", "new skills."] },
+          { clue: "Reassure Kam about opening a cafe.", chunks: ["It is", "never", "too late", "to open", "your cafe."] },
+          { clue: "Reassure Kam about following passion.", chunks: ["It is", "never", "too late", "to follow", "your passion."] },
+          { clue: "Reassure Kam about making a change.", chunks: ["It is", "never", "too late", "to make", "a change."] },
+          { clue: "Reassure Kam about building something great.", chunks: ["It is", "never", "too late", "to build", "something great."] },
+          { clue: "Reassure Kam about pursuing goals.", chunks: ["It is", "never", "too late", "to pursue", "your goals."] },
+          { clue: "Reassure Kam about trying again.", chunks: ["It is", "never", "too late", "to try", "once again."] },
+          { clue: "Reassure Kam about planning for success.", chunks: ["It is", "never", "too late", "to plan", "for success."] },
+          { clue: "Reassure Kam about launching a company.", chunks: ["It is", "never", "too late", "to launch", "a company."] },
+          { clue: "Reassure Kam about reaching dreams.", chunks: ["It is", "never", "too late", "to reach", "your dream."] },
+          { clue: "Reassure Kam about gaining experience.", chunks: ["It is", "never", "too late", "to gain", "more experience."] },
+          { clue: "Reassure Kam about becoming a boss.", chunks: ["It is", "never", "too late", "to become", "a boss."] },
+          { clue: "Reassure Kam about fulfilling ambition.", chunks: ["It is", "never", "too late", "to fulfill", "your ambition."] }
+        ]
+      },
+      {
+        id: "s7",
+        shortName: "7. Purpose (to / so that)",
+        title: "[Action] + to / in order to / so that + [Goal]",
+        formula: "[Imperative] + to / so that + [purpose].",
+        tip: "Explain clearly WHY Kam should follow your advice by stating the positive result.",
+        items: [
+          { clue: "Save money for funding the cafe.", chunks: ["Save", "more money", "to fund", "your future", "cafe."] },
+          { clue: "Keep your job in order to stay safe.", chunks: ["Keep", "your job", "in order to", "stay", "financially safe."] },
+          { clue: "Accept the promotion to gain leadership skills.", chunks: ["Accept", "the promotion", "to gain", "useful leadership", "skills."] },
+          { clue: "Make a plan so that you avoid mistakes.", chunks: ["Make", "a clear plan", "so that", "you avoid", "mistakes."] },
+          { clue: "Work hard now to build a solid base.", chunks: ["Work", "hard now", "to build", "a solid", "foundation."] },
+          { clue: "Research the market to find an ideal spot.", chunks: ["Research", "the market", "to find", "an ideal", "location."] },
+          { clue: "Save extra cash so unexpected bills hurt less.", chunks: ["Save", "extra cash", "so that", "unexpected bills", "hurt less."] },
+          { clue: "Wait two years in order to prepare well.", chunks: ["Wait", "two years", "in order to", "prepare", "very well."] },
+          { clue: "Talk to friends to share honest thoughts.", chunks: ["Talk", "to friends", "to share", "your honest", "thoughts."] },
+          { clue: "Practice managing staff so you feel ready.", chunks: ["Practice", "managing staff", "so that", "you feel", "fully ready."] },
+          { clue: "Check all licences to avoid legal trouble.", chunks: ["Check", "all licences", "to avoid", "any legal", "trouble."] },
+          { clue: "Build a safety net to protect your family.", chunks: ["Build", "a safety net", "to protect", "your", "family."] },
+          { clue: "Take this role to sharpen management skills.", chunks: ["Take", "this role", "to sharpen", "your management", "skills."] },
+          { clue: "Plan your budget to prevent running out.", chunks: ["Plan", "your budget", "to prevent", "running out", "of cash."] },
+          { clue: "Write down goals to stay on track.", chunks: ["Write down", "your goals", "to stay", "firmly on", "track."] }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 3. ANNOTATED SAMPLE ESSAY PARAGRAPHS
+    // =========================================================================
+    const ESSAY_PARAGRAPHS = [
+      {
+        type: "salutation",
+        segments: [
+          { text: "Dear Kam," }
+        ]
+      },
+      {
+        type: "body",
+        segments: [
+          { text: "Thank you for writing in to " },
+          { text: "share your dilemma", kind: "vocab", tag: "Key Vocabulary", title: "share your dilemma", explain: "Means telling someone about a hard choice between two options (here: promotion vs. opening a cafe).", examTip: "Great opening phrase for any DSE Letter of Advice!" },
+          { text: ". I completely understand your hesitation about whether to " },
+          { text: "pursue your dream", kind: "vocab", tag: "Key Vocabulary", title: "pursue your dream", explain: "Work actively toward a long-term ambition or passion.", examTip: "Stronger and more formal than 'do what you want'." },
+          { text: " right away or accept your promotion. " },
+          { text: "While I genuinely admire your courage and passion for opening a cafe with your friends, I strongly believe it would be wiser to wait a few more years.", kind: "structure", tag: "Structure 1: Concession + Stance", title: "While + [Concession], I strongly believe...", explain: "Shows empathy first ('While I admire...') before stating your main advice clearly.", examTip: "This structure scores high in Tone & Organization because it sounds supportive, not bossy." },
+          { text: " As the founder of Crafting Today, a company specializing in handmade crafts, I have stood at a very similar crossroads and would like to share my experience with you." }
+        ]
+      },
+      {
+        type: "body",
+        segments: [
+          { text: "First of all, " },
+          { text: "launching a business is no simple feat.", kind: "structure", tag: "Structure 5: Gerund Subject", title: "[Verb-ing + Object] + is...", explain: "Uses 'Launching a business' as a singular noun subject. 'No simple feat' means not an easy task.", examTip: "Starting topic sentences with a gerund makes your argument sound punchy and academic." },
+          { text: " Beyond applying for the necessary licences, you and your friends will need to " },
+          { text: "secure an ideal location", kind: "vocab", tag: "Key Vocabulary", title: "secure an ideal location", explain: "Find and sign a lease for the best possible shop space.", examTip: "Specific F&B business vocabulary boosts your Language score." },
+          { text: ", decide how many staff members to hire, and " },
+          { text: "design an appealing menu", kind: "vocab", tag: "Key Vocabulary", title: "design an appealing menu", explain: "Create an attractive list of food and drinks that draws customers in.", examTip: "Use specific collocations like 'design a menu' rather than 'make a menu'." },
+          { text: ". These preparations " },
+          { text: "demand substantial time and effort", kind: "vocab", tag: "Key Vocabulary", title: "demand substantial time and effort", explain: "Require a large amount of hours and hard work.", examTip: "'Substantial' is a high-value DSE synonym for 'a lot of'." },
+          { text: " and cannot be rushed through in just a few months. If you resign immediately, you will lose your steady income " },
+          { text: "for an extended period", kind: "vocab", tag: "Key Vocabulary", title: "for an extended period", explain: "For a long stretch of time without interruption.", examTip: "Much more formal than 'for a very long time'." },
+          { text: ", making it difficult to support yourself, let alone " },
+          { text: "fund a fledgling cafe", kind: "vocab", tag: "Key Vocabulary", title: "fund a fledgling cafe", explain: "Provide money for a brand-new, inexperienced cafe ('fledgling' = newly established).", examTip: "Impress markers with 'fledgling' to describe a new business!" },
+          { text: ". Keeping your job provides both " },
+          { text: "adequate preparation time", kind: "vocab", tag: "Key Vocabulary", title: "adequate preparation time", explain: "Enough time to prepare properly before launching.", examTip: "'Adequate' = sufficient / enough." },
+          { text: " and " },
+          { text: "a crucial backup plan", kind: "vocab", tag: "Key Vocabulary", title: "a crucial backup plan", explain: "An essential safety option in case the new cafe struggles.", examTip: "Shows mature, practical thinking in an advice letter." },
+          { text: " " },
+          { text: "should unexpected setbacks arise.", kind: "structure", tag: "Structure 2: Inverted Conditional", title: "Should + [Subject] + [Base Verb]", explain: "Replaces 'if unexpected setbacks should arise'. Notice 'arise' has no '-s'!", examTip: "Inverted conditionals ('Should + S + V') are a signature Level 5** grammar feature!" }
+        ]
+      },
+      {
+        type: "body",
+        segments: [
+          { text: "I learned this lesson firsthand earlier in my career. Years ago, I worked at a " },
+          { text: "prestigious", kind: "vocab", tag: "Key Vocabulary", title: "prestigious", explain: "Having high status, respect, and reputation.", examTip: "Great adjective for top banks, universities, or companies." },
+          { text: " investment bank—the pay was generous, though the hours left me exhausted. When a friend invited me to co-found a handicraft business, which had been my childhood dream, I nearly handed in my resignation letter on the spot. Fortunately, another close friend urged me to pause and " },
+          { text: "weigh the consequences", kind: "vocab", tag: "Key Vocabulary", title: "weigh the consequences", explain: "Carefully compare the good and bad results before deciding.", examTip: "Idiomatic verb phrase ideal for dilemma essays." },
+          { text: ". " },
+          { text: "Taking his advice, I kept my banking job while planning the venture on the side.", kind: "structure", tag: "Structure 3: Participle Clause", title: "[Verb-ing]..., [Subject] + [Verb]", explain: "'Taking his advice' = 'Because I took his advice'. Connects two actions cleanly.", examTip: "Participle clauses vary your sentence openings so you don't always start with 'I' or 'You'." },
+          { text: " Although juggling both was tiring, it gave our business " },
+          { text: "a solid foundation", kind: "vocab", tag: "Key Vocabulary", title: "a solid foundation", explain: "A strong, reliable base for future growth.", examTip: "Useful metaphor for business, study, or career planning." },
+          { text: ". Once we officially launched, unforeseen expenses quickly " },
+          { text: "mounted", kind: "vocab", tag: "Key Vocabulary", title: "mount (mounted)", explain: "To grow or pile up rapidly (especially costs, debts, or pressure).", examTip: "Vivid verb alternative to 'increased'." },
+          { text: ". Having extra savings from my banking job proved to be a lifesaver that prevented us from running out of capital." }
+        ]
+      },
+      {
+        type: "body",
+        segments: [
+          { text: "Moreover, your upcoming promotion comes with " },
+          { text: "a higher salary", kind: "vocab", tag: "Key Vocabulary", title: "a higher salary", explain: "Increased monthly pay from moving up to a senior role.", examTip: "Clear, natural collocation." },
+          { text: " and " },
+          { text: "broader responsibilities", kind: "vocab", tag: "Key Vocabulary", title: "broader responsibilities", explain: "Wider duties such as supervising staff and solving problems.", examTip: "Pairs naturally with 'a higher salary'." },
+          { text: ". " },
+          { text: "Rather than viewing this role as an unwelcome detour, treat it as a strategic stepping stone.", kind: "structure", tag: "Structure 4: Rather Than Reframing", title: "Rather than + [V-ing], [Imperative]", explain: "Reframes a negative view ('an unwelcome detour') into a positive one ('a strategic stepping stone').", examTip: "Also highlights two key vocab items: 'an unwelcome detour' & 'a strategic stepping stone'!" },
+          { text: " The additional income will help you " },
+          { text: "accumulate substantial startup capital", kind: "vocab", tag: "Key Vocabulary", title: "accumulate substantial startup capital", explain: "Gradually save up a large amount of money to start a business.", examTip: "High-level business collocation." },
+          { text: " and " },
+          { text: "build a reliable financial safety net", kind: "vocab", tag: "Key Vocabulary", title: "build a reliable financial safety net", explain: "Create a dependable emergency fund to protect yourself from financial loss.", examTip: "Strong visual metaphor that DSE markers love." },
+          { text: " in case you encounter unexpected hurdles similar to mine. At the same time, stepping into a leadership position can " },
+          { text: "sharpen the management skills", kind: "vocab", tag: "Key Vocabulary", title: "sharpen the management skills", explain: "Improve and refine your ability to lead people and run operations.", examTip: "'Sharpen' collocates great with 'skills'." },
+          { text: " you will eventually need to run a cafe." }
+        ]
+      },
+      {
+        type: "body",
+        segments: [
+          { text: "Finally, please remember that " },
+          { text: "it is never too late to chase your dreams.", kind: "structure", tag: "Structure 6: Never Too Late", title: "It is never too late to + [Base Verb]", explain: "Encouraging pattern that removes Kam's fear of missing out at age 25.", examTip: "Also includes key vocabulary: 'chase your dream(s)'." },
+          { text: " At twenty-five, you might worry about missing a \"golden window\" of opportunity. Yet I did not " },
+          { text: "launch my own company", kind: "vocab", tag: "Key Vocabulary", title: "launch a company", explain: "Officially start and open a new business.", examTip: "'Launch' is much more dynamic than 'open' or 'start'." },
+          { text: " until I was thirty-eight, when most of my peers had already settled into stable careers and family life. Despite the late start, pursuing my lifelong ambition made my life more fulfilling than ever before. Do not feel discouraged that you are not working in your dream job today—your time will come." }
+        ]
+      },
+      {
+        type: "body",
+        segments: [
+          { text: "In short, staying at your current company gives you both the financial backing and the preparation time " },
+          { text: "needed to turn your cafe into a lasting success.", kind: "structure", tag: "Structure 7: Purpose Infinitive", title: "...to + [Base Verb] (Purpose)", explain: "Explains the clear purpose and reward of staying patient.", examTip: "Ends the letter on an optimistic, forward-looking note." },
+          { text: " I hope my advice helps you navigate this exciting turning point." }
+        ]
+      },
+      {
+        type: "signoff",
+        segments: [
+          { text: "Best wishes,\nChris Wong\nColumnist, Jobs Online" }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 4. GAMIFICATION BADGES & STATE MANAGEMENT
+    // =========================================================================
+    const BADGES_LIST = [
+      { id: "b_explorer", title: "Pattern Detective", desc: "Inspect 5 highlighted patterns in the sample essay.", icon: "fa-magnifying-glass", color: "bg-indigo-100 text-indigo-600" },
+      { id: "b_voice", title: "Pronunciation Pro", desc: "Listen to 10 vocabulary pronunciations.", icon: "fa-volume-high", color: "bg-rose-100 text-rose-600" },
+      { id: "b_jumble1", title: "Sentence Builder", desc: "Complete your first 10-question sentence structure set.", icon: "fa-puzzle-piece", color: "bg-amber-100 text-amber-600" },
+      { id: "b_jumbleall", title: "Grammar Architect", desc: "Master all 7 sentence structures!", icon: "fa-crown", color: "bg-purple-100 text-purple-600" },
+      { id: "b_vocab10", title: "Word Collector", desc: "Master 10 DSE vocabulary flashcards.", icon: "fa-layer-group", color: "bg-emerald-100 text-emerald-600" },
+      { id: "b_vocab3", title: "5** Lexicon Master", desc: "Clear all 3 levels of the Vocabulary Gap-Fill Challenge.", icon: "fa-trophy", color: "bg-teal-100 text-teal-600" }
+    ];
+
+    const RANKS = [
+      { minXp: 0, title: "DSE Novice" },
+      { minXp: 100, title: "Advice Apprentice" },
+      { minXp: 250, title: "Columnist Cadet" },
+      { minXp: 450, title: "Level 5 Contender" },
+      { minXp: 700, title: "Level 5* Writer" },
+      { minXp: 1000, title: "DSE 5** Star" }
+    ];
+
+    let appState = {
+      xp: 0,
+      streak: 0,
+      soundFx: true,
+      exploredPatterns: [],
+      listenedCount: 0,
+      masteredVocabIds: [],
+      completedStructures: [],
+      completedVocabLevels: [],
+      unlockedBadges: []
+    };
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem("hkdse_s4_advice_app_v1");
+        if (saved) {
+          appState = { ...appState, ...JSON.parse(saved) };
+        }
+      } catch (e) {
+        // Safe fallback if localStorage is blocked
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem("hkdse_s4_advice_app_v1", JSON.stringify(appState));
+      } catch (e) {
+        // Ignore storage quota errors
+      }
+    }
+
+    // =========================================================================
+    // 5. WEB AUDIO SOUND EFFECTS (NO EXTERNAL AUDIO URLS NEEDED)
+    // =========================================================================
+    let audioCtx = null;
+    function playTone(type) {
+      if (!appState.soundFx) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === "suspended") {
+          audioCtx.resume();
+        }
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === "tap") {
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(660, now + 0.06);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+          osc.start(now);
+          osc.stop(now + 0.07);
+        } else if (type === "correct") {
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.09); // E5
+          osc.frequency.setValueAtTime(783.99, now + 0.18); // G5
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.36);
+          osc.start(now);
+          osc.stop(now + 0.36);
+        } else if (type === "wrong") {
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.linearRampToValueAtTime(175, now + 0.22);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+          osc.start(now);
+          osc.stop(now + 0.24);
+        } else if (type === "levelup") {
+          osc.type = "triangle";
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((freq, idx) => {
+            osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+          });
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+          osc.start(now);
+          osc.stop(now + 0.55);
+        }
+      } catch (e) {
+        // Ignore audio errors
+      }
+    }
+
+    function toggleSoundFx() {
+      appState.soundFx = !appState.soundFx;
+      saveState();
+      updateSoundIcon();
+      showToast(appState.soundFx ? "Sound effects ON" : "Sound effects muted", "info");
+    }
+
+    function updateSoundIcon() {
+      const icon = document.getElementById("sound-icon");
+      if (icon) {
+        icon.className = appState.soundFx ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark text-slate-400";
+      }
+    }
+
+    // =========================================================================
+    // 6. NATURAL HUMANIZED FEMALE VOICE TTS ENGINE
+    // =========================================================================
+    let selectedFemaleVoice = null;
+    let availableFemaleVoices = [];
+
+    function populateFemaleVoices() {
+      if (!("speechSynthesis" in window)) return;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return;
+
+      const englishVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith("en"));
+
+      // Priority ranking for natural humanized female voices
+      const preferredFemaleKeywords = [
+        "google uk english female",
+        "aria",
+        "jenny",
+        "libby",
+        "sonia",
+        "samantha",
+        "karen",
+        "moira",
+        "tessa",
+        "victoria",
+        "fiona",
+        "zira",
+        "hazel",
+        "susan",
+        "serena",
+        "kate",
+        "female",
+        "woman"
+      ];
+
+      const scored = englishVoices.map(v => {
+        const lower = v.name.toLowerCase();
+        let score = 0;
+        if (lower.includes("natural") || lower.includes("online") || lower.includes("neural")) score += 50;
+        preferredFemaleKeywords.forEach((kw, idx) => {
+          if (lower.includes(kw)) {
+            score += (100 - idx * 3);
+          }
+        });
+        // Penalize obvious male names so we never accidentally pick a male voice
+        const maleKeywords = ["male", "david", "mark", "daniel", "james", "george", "ryan", "guy", "alex", "fred", "tom", "oliver", "arthur"];
+        if (maleKeywords.some(m => lower.includes(m) && !lower.includes("female"))) {
+          score -= 200;
+        }
+        return { voice: v, score };
+      });
+
+      scored.sort((a, b) => b.score - a.score);
+      availableFemaleVoices = scored.filter(item => item.score > -100).map(item => item.voice);
+      if (!availableFemaleVoices.length) {
+        availableFemaleVoices = englishVoices;
+      }
+
+      if (!selectedFemaleVoice && availableFemaleVoices.length > 0) {
+        selectedFemaleVoice = availableFemaleVoices[0];
+      }
+
+      const selectEl = document.getElementById("voice-select");
+      if (selectEl && availableFemaleVoices.length > 0) {
+        selectEl.innerHTML = availableFemaleVoices.map((v, idx) => {
+          const cleanName = v.name.replace(/Microsoft |Google |Apple /g, "");
+          return `<option value="${idx}">${cleanName}</option>`;
+        }).join("");
+      }
+    }
+
+    if ("speechSynthesis" in window) {
+      populateFemaleVoices();
+      window.speechSynthesis.onvoiceschanged = populateFemaleVoices;
+    }
+
+    function onVoiceSelectChange() {
+      const selectEl = document.getElementById("voice-select");
+      const idx = parseInt(selectEl.value, 10);
+      if (!isNaN(idx) && availableFemaleVoices[idx]) {
+        selectedFemaleVoice = availableFemaleVoices[idx];
+        speakText("Hello! Ready to practice English.", false);
+      }
+    }
+
+    function speakText(text, slow = false, onEndCallback = null) {
+      if (!("speechSynthesis" in window)) {
+        showToast("Speech audio is not supported in this browser.", "warning");
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-GB";
+      if (selectedFemaleVoice) {
+        utterance.voice = selectedFemaleVoice;
+        utterance.lang = selectedFemaleVoice.lang || "en-GB";
+      }
+      // Natural warm female pacing and pitch
+      utterance.rate = slow ? 0.72 : 0.94;
+      utterance.pitch = 1.06;
+
+      // Track pronunciation badge
+      appState.listenedCount = (appState.listenedCount || 0) + 1;
+      if (appState.listenedCount >= 10) {
+        unlockBadge("b_voice");
+      }
+      saveState();
+
+      if (onEndCallback) {
+        utterance.onend = onEndCallback;
+        utterance.onerror = onEndCallback;
+      }
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // =========================================================================
+    // 7. GAMIFICATION HELPERS (XP, RANKS, STREAKS, CONFETTI, TOASTS)
+    // =========================================================================
+    function addXp(amount, reason = "") {
+      const oldLevel = Math.floor(appState.xp / 100) + 1;
+      appState.xp += amount;
+      const newLevel = Math.floor(appState.xp / 100) + 1;
+      saveState();
+      updateHud();
+
+      if (reason) {
+        showToast(`+${amount} XP • ${reason}`, "xp");
+      }
+      if (newLevel > oldLevel) {
+        playTone("levelup");
+        launchConfetti();
+        showToast(`Level Up! You reached Level ${newLevel}!`, "levelup");
+      }
+    }
+
+    function incrementStreak() {
+      appState.streak += 1;
+      saveState();
+      updateHud();
+    }
+
+    function resetStreak() {
+      appState.streak = 0;
+      saveState();
+      updateHud();
+    }
+
+    function unlockBadge(badgeId) {
+      if (appState.unlockedBadges.includes(badgeId)) return;
+      appState.unlockedBadges.push(badgeId);
+      saveState();
+      updateHud();
+      const badge = BADGES_LIST.find(b => b.id === badgeId);
+      if (badge) {
+        playTone("levelup");
+        launchConfetti();
+        showToast(`Badge Unlocked: ${badge.title}!`, "badge");
+      }
+    }
+
+    function updateHud() {
+      const level = Math.floor(appState.xp / 100) + 1;
+      const xpInLevel = appState.xp % 100;
+      let rankTitle = RANKS[0].title;
+      for (const r of RANKS) {
+        if (appState.xp >= r.minXp) rankTitle = r.title;
+      }
+
+      document.getElementById("hud-level").textContent = level;
+      document.getElementById("hud-rank").textContent = rankTitle;
+      document.getElementById("hud-xp-text").textContent = `${xpInLevel} / 100 XP`;
+      document.getElementById("hud-xp-bar").style.width = `${xpInLevel}%`;
+      document.getElementById("hud-streak").textContent = appState.streak;
+      document.getElementById("hud-badge-count").textContent = `${appState.unlockedBadges.length}/${BADGES_LIST.length}`;
+
+      document.getElementById("patterns-explored-count").textContent = appState.exploredPatterns.length;
+      document.getElementById("jumble-sets-completed").textContent = appState.completedStructures.length;
+      document.getElementById("fc-mastered-count").textContent = appState.masteredVocabIds.length;
+      document.getElementById("vq-levels-cleared").textContent = appState.completedVocabLevels.length;
+    }
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+
+      let colors = "bg-slate-900 text-white border-slate-700";
+      let icon = "fa-circle-info text-indigo-400";
+      if (type === "xp") {
+        colors = "bg-indigo-700 text-white border-indigo-500";
+        icon = "fa-bolt text-amber-300";
+      } else if (type === "levelup" || type === "badge") {
+        colors = "bg-amber-500 text-amber-950 border-amber-300";
+        icon = "fa-trophy text-amber-950";
+      } else if (type === "warning") {
+        colors = "bg-rose-600 text-white border-rose-400";
+        icon = "fa-circle-exclamation text-white";
+      }
+
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border shadow-lg font-bold text-sm sm:text-base animate-pop ${colors}`;
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(8px)";
+        toast.style.transition = "all 0.25s ease";
+        setTimeout(() => toast.remove(), 260);
+      }, 2800);
+    }
+
+    function launchConfetti() {
+      const palette = ["#4f46e5", "#f59e0b", "#10b981", "#ec4899", "#06b6d4"];
+      for (let i = 0; i < 42; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece rounded-sm";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.backgroundColor = palette[i % palette.length];
+        piece.style.animationDuration = (1.8 + Math.random() * 1.4) + "s";
+        piece.style.animationDelay = (Math.random() * 0.3) + "s";
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 3500);
+      }
+    }
+
+    // =========================================================================
+    // 8. TAB NAVIGATION
+    // =========================================================================
+    function switchTab(tabName) {
+      playTone("tap");
+      const tabs = ["sample", "jumble", "flashcards", "vocabquiz"];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tabName) {
+          sec.classList.remove("hidden");
+          btn.className = "nav-tab flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition cursor-pointer bg-indigo-600 text-white shadow-sm";
+        } else {
+          sec.classList.add("hidden");
+          btn.className = "nav-tab flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200";
+        }
+      });
+    }
+
+    // =========================================================================
+    // 9. MODULE 1: ANNOTATED SAMPLE WRITING
+    // =========================================================================
+    let activeHighlightFilter = "all";
+    let activeSegmentId = null;
+
+    function renderAnnotatedLetter() {
+      const container = document.getElementById("annotated-letter-container");
+      let segCounter = 0;
+
+      container.innerHTML = ESSAY_PARAGRAPHS.map((para, pIdx) => {
+        if (para.type === "salutation") {
+          return `<p class="font-extrabold text-slate-900">${para.segments[0].text}</p>`;
+        }
+        if (para.type === "signoff") {
+          return `<div class="pt-3 whitespace-pre-line font-bold text-slate-900">${para.segments[0].text}</div>`;
+        }
+
+        const innerHtml = para.segments.map((seg, sIdx) => {
+          if (!seg.kind) {
+            return `<span>${seg.text}</span>`;
+          }
+          const uid = `seg_${pIdx}_${sIdx}`;
+          segCounter++;
+
+          const showHighlight =
+            activeHighlightFilter === "all" ||
+            activeHighlightFilter === seg.kind;
+
+          if (!showHighlight) {
+            return `<span>${seg.text}</span>`;
+          }
+
+          const styleClass = seg.kind === "structure"
+            ? "bg-amber-100/90 border-amber-400 text-amber-950"
+            : "bg-emerald-100/90 border-emerald-400 text-emerald-950";
+
+          const activeRing = activeSegmentId === uid ? "pattern-active" : "";
+
+          return `<span onclick="inspectSegment('${uid}', ${pIdx}, ${sIdx})" class="pattern-chip ${styleClass} ${activeRing} font-semibold" title="Click to inspect this ${seg.kind}">${seg.text}</span>`;
+        }).join("");
+
+        return `<p>${innerHtml}</p>`;
+      }).join("");
+    }
+
+    function setHighlightFilter(filter) {
+      playTone("tap");
+      activeHighlightFilter = filter;
+      ["all", "structure", "vocab"].forEach(f => {
+        const btn = document.getElementById(`filter-${f}`);
+        if (f === filter) {
+          btn.classList.add("ring-2", "ring-indigo-500", "ring-offset-1");
+        } else {
+          btn.classList.remove("ring-2", "ring-indigo-500", "ring-offset-1");
+        }
+      });
+      renderAnnotatedLetter();
+    }
+
+    function inspectSegment(uid, pIdx, sIdx) {
+      playTone("tap");
+      activeSegmentId = uid;
+      renderAnnotatedLetter();
+
+      const seg = ESSAY_PARAGRAPHS[pIdx].segments[sIdx];
+      if (!seg) return;
+
+      // Award +5 XP the first time each pattern is explored
+      if (!appState.exploredPatterns.includes(uid)) {
+        appState.exploredPatterns.push(uid);
+        addXp(5, "New pattern explored!");
+        if (appState.exploredPatterns.length >= 5) {
+          unlockBadge("b_explorer");
+        }
+      }
+
+      const badgeColor = seg.kind === "structure"
+        ? "bg-amber-100 text-amber-900 border-amber-300"
+        : "bg-emerald-100 text-emerald-900 border-emerald-300";
+
+      const inspector = document.getElementById("inspector-content");
+      const escapedSpeak = seg.text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+      inspector.innerHTML = `
+        <div class="space-y-4 animate-pop">
+          <div class="flex items-center justify-between gap-2">
+            <span class="px-3 py-1 rounded-full text-xs font-extrabold border ${badgeColor}">${seg.tag}</span>
+            <button onclick="speakText('${escapedSpeak}', false)" class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer">
+              <i class="fa-solid fa-volume-high"></i> Listen
+            </button>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Pattern / Formula</p>
+            <p class="text-xl font-extrabold text-slate-900 leading-snug">${seg.title}</p>
+          </div>
+
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">How It Works</p>
+            <p class="text-base sm:text-lg text-slate-700 leading-relaxed">${seg.explain}</p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-100">
+            <p class="text-xs font-extrabold uppercase tracking-wider text-indigo-700 mb-1">
+              <i class="fa-solid fa-graduation-cap mr-1"></i> HKDSE Exam Tip
+            </p>
+            <p class="text-base font-medium text-indigo-950 leading-relaxed">${seg.examTip}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function speakSampleEssay() {
+      const fullText = ESSAY_PARAGRAPHS.map(p => p.segments.map(s => s.text).join("")).join(" ");
+      speakText(fullText, false);
+      showToast("Reading the model Letter of Advice aloud...", "info");
+    }
+
+    // =========================================================================
+    // 10. MODULE 2: 7 SENTENCE STRUCTURES JUMBLE-UP (10 QUESTIONS PER SET)
+    // =========================================================================
+    let currentStructureIdx = 0;
+    let currentJumbleSet = []; // 10 questions selected from the 15-item pool
+    let currentJumbleQIdx = 0;
+    let jumbleScore = 0;
+    let jumbleChecked = false;
+    let jumbleResults = []; // null | true | false for each of 10 Qs
+    let selectedTokens = []; // array of { id, text }
+    let bankTokens = []; // array of { id, text, used }
+    let usedSetsOffset = [0, 0, 0, 0, 0, 0, 0];
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function renderStructureSelector() {
+      const grid = document.getElementById("structure-selector-grid");
+      grid.innerHTML = SENTENCE_STRUCTURES.map((st, idx) => {
+        const isCompleted = appState.completedStructures.includes(st.id);
+        const isActive = idx === currentStructureIdx;
+        let btnClass = "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800";
+        if (isActive) {
+          btnClass = "bg-indigo-600 border-indigo-600 text-white shadow-md";
+        } else if (isCompleted) {
+          btnClass = "bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-900";
+        }
+
+        return `
+          <button onclick="selectStructure(${idx})" class="flex items-center justify-between gap-2 p-3.5 rounded-2xl border-2 font-bold text-left text-sm sm:text-base transition cursor-pointer ${btnClass}">
+            <span class="truncate">${st.shortName}</span>
+            ${isCompleted ? `<i class="fa-solid fa-circle-check ${isActive ? 'text-amber-300' : 'text-emerald-600'} shrink-0"></i>` : `<span class="text-xs opacity-70 shrink-0">10 Qs</span>`}
+          </button>
+        `;
+      }).join("");
+    }
+
+    function selectStructure(idx, isRegenerating = false) {
+      if (!isRegenerating) playTone("tap");
+      currentStructureIdx = idx;
+      const st = SENTENCE_STRUCTURES[idx];
+
+      // Pick 10 questions (rotating offset on regeneration so new sets feel fresh!)
+      const pool = st.items;
+      const offset = usedSetsOffset[idx] % pool.length;
+      const rotated = [...pool.slice(offset), ...pool.slice(0, offset)];
+      currentJumbleSet = shuffleArray(rotated.slice(0, 10));
+
+      currentJumbleQIdx = 0;
+      jumbleScore = 0;
+      jumbleResults = new Array(10).fill(null);
+
+      document.getElementById("jumble-arena").classList.remove("hidden");
+      document.getElementById("jumble-complete-card").classList.add("hidden");
+
+      renderStructureSelector();
+      loadJumbleQuestion();
+    }
+
+    function loadJumbleQuestion() {
+      const st = SENTENCE_STRUCTURES[currentStructureIdx];
+      const q = currentJumbleSet[currentJumbleQIdx];
+      jumbleChecked = false;
+      selectedTokens = [];
+
+      // Create unique tokens and shuffle until order differs from target
+      const originalTokens = q.chunks.map((text, idx) => ({ id: idx, text, used: false }));
+      let shuffled = shuffleArray(originalTokens);
+      if (shuffled.map(t => t.text).join(" ") === q.chunks.join(" ") && shuffled.length > 1) {
+        [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
+      }
+      bankTokens = shuffled;
+
+      // Update UI labels
+      document.getElementById("jumble-structure-badge").textContent = `Structure ${currentStructureIdx + 1} of 7`;
+      document.getElementById("jumble-progress-badge").textContent = `Question ${currentJumbleQIdx + 1} / 10`;
+      document.getElementById("jumble-structure-title").textContent = st.title;
+      document.getElementById("jumble-structure-formula").textContent = st.formula;
+      document.getElementById("jumble-clue-text").textContent = q.clue;
+
+      // Render 10 progress dots
+      const dotsEl = document.getElementById("jumble-dots");
+      dotsEl.innerHTML = jumbleResults.map((res, i) => {
+        let dotColor = "bg-slate-200 text-slate-500";
+        if (i === currentJumbleQIdx) dotColor = "bg-indigo-600 text-white ring-2 ring-indigo-300";
+        else if (res === true) dotColor = "bg-emerald-500 text-white";
+        else if (res === false) dotColor = "bg-rose-500 text-white";
+        return `<span class="w-7 h-7 rounded-full text-xs font-extrabold flex items-center justify-center ${dotColor}">${i + 1}</span>`;
+      }).join("");
+
+      // Reset buttons & feedback
+      const fb = document.getElementById("jumble-feedback");
+      fb.classList.add("hidden");
+      fb.innerHTML = "";
+      document.getElementById("btn-jumble-check").classList.remove("hidden");
+      document.getElementById("btn-jumble-next").classList.add("hidden");
+      document.getElementById("btn-jumble-reset").disabled = false;
+      document.getElementById("btn-jumble-hint").disabled = false;
+
+      renderJumbleTiles();
+    }
+
+    function renderJumbleTiles() {
+      const answerZone = document.getElementById("jumble-answer-zone");
+      const wordBank = document.getElementById("jumble-word-bank");
+
+      if (selectedTokens.length === 0) {
+        answerZone.innerHTML = `<span class="text-slate-400 text-lg sm:text-xl italic select-none">Tap the word tiles below in the right order...</span>`;
+      } else {
+        answerZone.innerHTML = selectedTokens.map((tok, pos) => `
+          <button onclick="removeTokenFromAnswer(${pos})" ${jumbleChecked ? "disabled" : ""} class="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xl sm:text-2xl shadow-sm transition cursor-pointer animate-pop">
+            ${tok.text}
+          </button>
+        `).join("");
+      }
+
+      wordBank.innerHTML = bankTokens.map((tok) => {
+        if (tok.used) {
+          return `<span class="px-4 py-2.5 rounded-2xl bg-slate-200/70 text-transparent border border-dashed border-slate-300 font-bold text-xl sm:text-2xl select-none">${tok.text}</span>`;
+        }
+        return `
+          <button onclick="addTokenToAnswer(${tok.id})" ${jumbleChecked ? "disabled" : ""} class="px-4 py-2.5 rounded-2xl bg-white hover:bg-indigo-50 border-2 border-indigo-200 hover:border-indigo-400 text-slate-900 font-bold text-xl sm:text-2xl shadow-xs transition cursor-pointer active:scale-95">
+            ${tok.text}
+          </button>
+        `;
+      }).join("");
+    }
+
+    function addTokenToAnswer(tokenId) {
+      if (jumbleChecked) return;
+      const token = bankTokens.find(t => t.id === tokenId);
+      if (!token || token.used) return;
+      playTone("tap");
+      token.used = true;
+      selectedTokens.push({ id: token.id, text: token.text });
+      renderJumbleTiles();
+    }
+
+    function removeTokenFromAnswer(pos) {
+      if (jumbleChecked) return;
+      playTone("tap");
+      const removed = selectedTokens.splice(pos, 1)[0];
+      const bankTok = bankTokens.find(t => t.id === removed.id);
+      if (bankTok) bankTok.used = false;
+      renderJumbleTiles();
+    }
+
+    function resetCurrentJumble() {
+      if (jumbleChecked) return;
+      playTone("tap");
+      selectedTokens = [];
+      bankTokens.forEach(t => (t.used = false));
+      renderJumbleTiles();
+    }
+
+    function giveJumbleFirstWordHint() {
+      if (jumbleChecked) return;
+      const q = currentJumbleSet[currentJumbleQIdx];
+      // Find first index where user's answer differs or is missing
+      let correctPrefixLen = 0;
+      for (let i = 0; i < selectedTokens.length; i++) {
+        if (selectedTokens[i].text === q.chunks[i]) {
+          correctPrefixLen++;
+        } else {
+          break;
+        }
+      }
+
+      if (correctPrefixLen >= q.chunks.length) return;
+
+      // Reset back to correctPrefixLen, then place the next right chunk
+      while (selectedTokens.length > correctPrefixLen) {
+        const rem = selectedTokens.pop();
+        const b = bankTokens.find(t => t.id === rem.id);
+        if (b) b.used = false;
+      }
+
+      const neededText = q.chunks[correctPrefixLen];
+      const matchingBankTok = bankTokens.find(t => !t.used && t.text === neededText);
+      if (matchingBankTok) {
+        playTone("tap");
+        matchingBankTok.used = true;
+        selectedTokens.push({ id: matchingBankTok.id, text: matchingBankTok.text });
+        renderJumbleTiles();
+      }
+    }
+
+    function speakJumbleHint() {
+      const q = currentJumbleSet[currentJumbleQIdx];
+      speakText(q.chunks.join(" "), false);
+    }
+
+    function checkJumbleAnswer() {
+      if (jumbleChecked) return;
+      const q = currentJumbleSet[currentJumbleQIdx];
+      const st = SENTENCE_STRUCTURES[currentStructureIdx];
+
+      if (selectedTokens.length < q.chunks.length) {
+        showToast("Please place all word tiles before checking!", "warning");
+        document.getElementById("jumble-answer-zone").classList.add("animate-shake");
+        setTimeout(() => document.getElementById("jumble-answer-zone").classList.remove("animate-shake"), 360);
+        return;
+      }
+
+      jumbleChecked = true;
+      const userSentence = selectedTokens.map(t => t.text).join(" ");
+      const targetSentence = q.chunks.join(" ");
+      const isCorrect = userSentence === targetSentence;
+
+      const fb = document.getElementById("jumble-feedback");
+      fb.classList.remove("hidden");
+
+      if (isCorrect) {
+        playTone("correct");
+        jumbleScore++;
+        jumbleResults[currentJumbleQIdx] = true;
+        incrementStreak();
+        addXp(10, "Sentence built!");
+
+        fb.className = "rounded-2xl p-5 border-2 bg-emerald-50 border-emerald-300 text-emerald-950 space-y-2 animate-pop";
+        fb.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <p class="font-extrabold text-xl text-emerald-800"><i class="fa-solid fa-circle-check mr-2"></i>Spot on! Well done!</p>
+            <button onclick="speakText('${targetSentence.replace(/'/g, "\\'")}', false)" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-sm cursor-pointer">
+              <i class="fa-solid fa-volume-high mr-1"></i> Listen
+            </button>
+          </div>
+          <p class="text-lg font-bold text-slate-900">"${targetSentence}"</p>
+          <p class="text-base text-emerald-800">${st.tip}</p>
+        `;
+      } else {
+        playTone("wrong");
+        jumbleResults[currentJumbleQIdx] = false;
+        resetStreak();
+
+        fb.className = "rounded-2xl p-5 border-2 bg-rose-50 border-rose-300 text-rose-950 space-y-2 animate-pop";
+        fb.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <p class="font-extrabold text-xl text-rose-800"><i class="fa-solid fa-circle-xmark mr-2"></i>Not quite right — check the model order:</p>
+            <button onclick="speakText('${targetSentence.replace(/'/g, "\\'")}', false)" class="px-3.5 py-1.5 rounded-xl bg-rose-600 text-white font-bold text-sm cursor-pointer">
+              <i class="fa-solid fa-volume-high mr-1"></i> Listen
+            </button>
+          </div>
+          <p class="text-lg sm:text-xl font-extrabold text-slate-900">"${targetSentence}"</p>
+          <p class="text-base text-rose-800">${st.tip}</p>
+        `;
+      }
+
+      renderJumbleTiles();
+      document.getElementById("btn-jumble-check").classList.add("hidden");
+      const nextBtn = document.getElementById("btn-jumble-next");
+      nextBtn.classList.remove("hidden");
+      nextBtn.innerHTML = currentJumbleQIdx === 9
+        ? `Finish Set <i class="fa-solid fa-flag-checkered ml-1.5"></i>`
+        : `Next Sentence <i class="fa-solid fa-arrow-right ml-1.5"></i>`;
+      document.getElementById("btn-jumble-reset").disabled = true;
+      document.getElementById("btn-jumble-hint").disabled = true;
+    }
+
+    function nextJumbleQuestion() {
+      playTone("tap");
+      if (currentJumbleQIdx < 9) {
+        currentJumbleQIdx++;
+        loadJumbleQuestion();
+      } else {
+        finishJumbleSet();
+      }
+    }
+
+    function finishJumbleSet() {
+      const st = SENTENCE_STRUCTURES[currentStructureIdx];
+      document.getElementById("jumble-arena").classList.add("hidden");
+      document.getElementById("jumble-complete-card").classList.remove("hidden");
+
+      document.getElementById("jumble-complete-title").textContent = `${st.shortName} Complete!`;
+      document.getElementById("jumble-complete-score").textContent = `You scored ${jumbleScore} / 10 on "${st.title}"!`;
+
+      if (!appState.completedStructures.includes(st.id)) {
+        appState.completedStructures.push(st.id);
+        addXp(30, `Completed ${st.shortName}!`);
+      }
+
+      unlockBadge("b_jumble1");
+      if (appState.completedStructures.length >= 7) {
+        unlockBadge("b_jumbleall");
+      }
+      renderStructureSelector();
+      updateHud();
+      launchConfetti();
+    }
+
+    function generateNewJumbleSet() {
+      playTone("tap");
+      // Advance offset by 5 so the student gets fresh sentences from the 15-item bank!
+      usedSetsOffset[currentStructureIdx] += 5;
+      selectStructure(currentStructureIdx, true);
+      showToast("Generated a brand-new set of 10 sentences!", "info");
+    }
+
+    function selectNextStructure() {
+      const nextIdx = (currentStructureIdx + 1) % SENTENCE_STRUCTURES.length;
+      selectStructure(nextIdx);
+    }
+
+    // =========================================================================
+    // 11. MODULE 3: VOCABULARY FLASHCARDS (23 ITEMS + FEMALE AUDIO)
+    // =========================================================================
+    let fcDeck = [...VOCAB_DATA];
+    let fcIndex = 0;
+    let fcFlipped = false;
+
+    function renderFlashcard() {
+      const item = fcDeck[fcIndex];
+      const inner = document.getElementById("flashcard-inner");
+      fcFlipped = false;
+      inner.classList.remove("rotate-y-180");
+
+      document.getElementById("fc-index-label").textContent = fcIndex + 1;
+      document.getElementById("fc-level-tag").textContent = `Level ${item.level} • DSE Key Vocab`;
+      document.getElementById("fc-front-word").textContent = item.word;
+      document.getElementById("fc-back-pos").textContent = item.pos;
+      document.getElementById("fc-back-meaning").textContent = item.meaning;
+      document.getElementById("fc-back-chinese").textContent = item.chinese;
+
+      const sampleSentence = item.sentences[0].text.replace("___", item.sentences[0].blank);
+      document.getElementById("fc-back-example").textContent = `"${sampleSentence}"`;
+
+      const isMastered = appState.masteredVocabIds.includes(item.id);
+      const badge = document.getElementById("fc-mastered-badge");
+      const masterBtn = document.getElementById("btn-fc-master");
+
+      if (isMastered) {
+        badge.classList.remove("hidden");
+        masterBtn.className = "px-6 py-3.5 rounded-2xl bg-slate-200 text-slate-700 font-extrabold text-base sm:text-lg transition cursor-pointer";
+        masterBtn.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> Mastered (Click to Unmark)`;
+      } else {
+        badge.classList.add("hidden");
+        masterBtn.className = "px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base sm:text-lg shadow-md shadow-emerald-200 transition cursor-pointer";
+        masterBtn.innerHTML = `<i class="fa-solid fa-check-circle mr-1.5"></i> Mark as Mastered (+10 XP)`;
+      }
+
+      renderFlashcardQuickPills();
+    }
+
+    function renderFlashcardQuickPills() {
+      const container = document.getElementById("fc-quick-pills");
+      container.innerHTML = fcDeck.map((item, idx) => {
+        const isCurrent = idx === fcIndex;
+        const isMastered = appState.masteredVocabIds.includes(item.id);
+        let cls = "bg-slate-100 text-slate-700 hover:bg-slate-200";
+        if (isCurrent) cls = "bg-indigo-600 text-white ring-2 ring-indigo-300";
+        else if (isMastered) cls = "bg-emerald-100 text-emerald-900 border border-emerald-300";
+
+        return `
+          <button onclick="jumpToFlashcard(${idx})" class="px-3 py-1.5 rounded-xl text-sm font-bold transition cursor-pointer ${cls}">
+            ${item.word}
+          </button>
+        `;
+      }).join("");
+    }
+
+    function jumpToFlashcard(idx) {
+      playTone("tap");
+      fcIndex = idx;
+      renderFlashcard();
+      speakCurrentFlashcard(false);
+    }
+
+    function flipFlashcard() {
+      playTone("tap");
+      fcFlipped = !fcFlipped;
+      const inner = document.getElementById("flashcard-inner");
+      if (fcFlipped) {
+        inner.classList.add("rotate-y-180");
+      } else {
+        inner.classList.remove("rotate-y-180");
+      }
+    }
+
+    function speakCurrentFlashcard(slow = false) {
+      const item = fcDeck[fcIndex];
+      const wave = document.getElementById("fc-wave-front");
+      if (wave) {
+        wave.classList.remove("hidden");
+        wave.classList.add("inline-flex");
+      }
+      speakText(item.word, slow, () => {
+        if (wave) {
+          wave.classList.add("hidden");
+          wave.classList.remove("inline-flex");
+        }
+      });
+    }
+
+    function speakExampleSentence() {
+      const item = fcDeck[fcIndex];
+      const sampleSentence = item.sentences[0].text.replace("___", item.sentences[0].blank);
+      speakText(sampleSentence, false);
+    }
+
+    function nextFlashcard() {
+      playTone("tap");
+      fcIndex = (fcIndex + 1) % fcDeck.length;
+      renderFlashcard();
+    }
+
+    function prevFlashcard() {
+      playTone("tap");
+      fcIndex = (fcIndex - 1 + fcDeck.length) % fcDeck.length;
+      renderFlashcard();
+    }
+
+    function shuffleFlashcards() {
+      playTone("tap");
+      fcDeck = shuffleArray(fcDeck);
+      fcIndex = 0;
+      renderFlashcard();
+      showToast("Flashcard deck shuffled!", "info");
+    }
+
+    function toggleMasteredFlashcard() {
+      const item = fcDeck[fcIndex];
+      const existingIdx = appState.masteredVocabIds.indexOf(item.id);
+      if (existingIdx === -1) {
+        appState.masteredVocabIds.push(item.id);
+        playTone("correct");
+        addXp(10, `Mastered "${item.word}"`);
+        if (appState.masteredVocabIds.length >= 10) {
+          unlockBadge("b_vocab10");
+        }
+      } else {
+        appState.masteredVocabIds.splice(existingIdx, 1);
+        playTone("tap");
+      }
+      saveState();
+      updateHud();
+      renderFlashcard();
+    }
+
+    // =========================================================================
+    // 12. MODULE 4: LEVELLED VOCABULARY GAP-FILLING (4 OPTIONS + REGENERATE)
+    // =========================================================================
+    const VOCAB_LEVELS = [
+      { level: 1, name: "Level 1: Core Foundations", desc: "8 Essential Career & Dream Phrases", color: "emerald" },
+      { level: 2, name: "Level 2: Cafe Planning & Risks", desc: "8 Practical Business Phrases", color: "indigo" },
+      { level: 3, name: "Level 3: DSE Star Power", desc: "7 Advanced Collocations", color: "violet" }
+    ];
+
+    let currentVocabLevel = 1;
+    let vqQuestions = [];
+    let vqIndex = 0;
+    let vqScore = 0;
+    let vqAnswered = false;
+    let vqVariantCursor = [0, 0, 0]; // rotates through the 3 simple sentences per word!
+
+    function renderVocabLevelSelector() {
+      const container = document.getElementById("vq-level-selector");
+      container.innerHTML = VOCAB_LEVELS.map(lvl => {
+        const isActive = lvl.level === currentVocabLevel;
+        const isCleared = appState.completedVocabLevels.includes(lvl.level);
+
+        let cardCls = "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800";
+        if (isActive) {
+          cardCls = "bg-indigo-600 border-indigo-600 text-white shadow-md";
+        } else if (isCleared) {
+          cardCls = "bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-950";
+        }
+
+        return `
+          <button onclick="startVocabLevel(${lvl.level})" class="p-4 rounded-2xl border-2 text-left transition cursor-pointer flex items-center justify-between gap-2 ${cardCls}">
+            <div>
+              <p class="font-extrabold text-base sm:text-lg">${lvl.name}</p>
+              <p class="text-xs sm:text-sm ${isActive ? 'text-indigo-100' : 'text-slate-500'}">${lvl.desc}</p>
+            </div>
+            ${isCleared ? `<i class="fa-solid fa-circle-check text-xl ${isActive ? 'text-amber-300' : 'text-emerald-600'}"></i>` : `<i class="fa-solid fa-play opacity-60"></i>`}
+          </button>
+        `;
+      }).join("");
+    }
+
+    function startVocabLevel(levelNum, isRegenerate = false) {
+      if (!isRegenerate) playTone("tap");
+      currentVocabLevel = levelNum;
+      const levelWords = VOCAB_DATA.filter(v => v.level === levelNum);
+      const sentenceVariantIdx = vqVariantCursor[levelNum - 1] % 3;
+
+      // Build questions using simple sentences + 3 smart distractors
+      vqQuestions = shuffleArray(levelWords).map(item => {
+        const chosenSentenceObj = item.sentences[sentenceVariantIdx];
+        // Pick 3 distractors (prefer same part of speech/length feel so options are fair and educational)
+        const otherWords = VOCAB_DATA.filter(v => v.id !== item.id);
+        const sameLevelOthers = otherWords.filter(v => v.level === levelNum);
+        const distractorPool = sameLevelOthers.length >= 3 ? sameLevelOthers : otherWords;
+        const distractors = shuffleArray(distractorPool).slice(0, 3).map(d => d.word);
+        const options = shuffleArray([item.word, ...distractors]);
+
+        return {
+          wordId: item.id,
+          correctWord: item.word,
+          chinese: item.chinese,
+          meaning: item.meaning,
+          sentenceTemplate: chosenSentenceObj.text,
+          options
+        };
+      });
+
+      vqIndex = 0;
+      vqScore = 0;
+
+      document.getElementById("vq-quiz-card").classList.remove("hidden");
+      document.getElementById("vq-complete-card").classList.add("hidden");
+
+      renderVocabLevelSelector();
+      loadVocabQuestion();
+    }
+
+    function loadVocabQuestion() {
+      const q = vqQuestions[vqIndex];
+      const lvlObj = VOCAB_LEVELS.find(l => l.level === currentVocabLevel);
+      vqAnswered = false;
+
+      document.getElementById("vq-level-badge").textContent = lvlObj.name;
+      document.getElementById("vq-q-counter").textContent = `Question ${vqIndex + 1} / ${vqQuestions.length}`;
+      document.getElementById("vq-current-score").textContent = vqScore;
+
+      const formattedSentence = q.sentenceTemplate.replace(
+        "___",
+        `<span id="vq-blank-slot" class="inline-block min-w-[190px] border-b-4 border-indigo-500 text-indigo-600 text-center px-3 mx-1 font-extrabold">________</span>`
+      );
+      document.getElementById("vq-sentence-display").innerHTML = formattedSentence;
+      document.getElementById("vq-chinese-hint").textContent = `Meaning Clue: ${q.chinese} (${q.meaning})`;
+
+      const letters = ["A", "B", "C", "D"];
+      const optionsGrid = document.getElementById("vq-options-grid");
+      optionsGrid.innerHTML = q.options.map((opt, idx) => {
+        const safeOpt = opt.replace(/'/g, "\\'");
+        return `
+          <div class="flex items-stretch rounded-2xl border-2 border-slate-200 bg-white hover:border-indigo-400 transition overflow-hidden shadow-xs" id="vq-opt-wrap-${idx}">
+            <button onclick="selectVocabOption(${idx})" id="vq-opt-btn-${idx}" class="flex-1 flex items-center gap-3.5 p-4 sm:p-5 text-left font-extrabold text-lg sm:text-xl text-slate-900 hover:bg-indigo-50/60 transition cursor-pointer">
+              <span class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-extrabold flex items-center justify-center shrink-0 text-base">${letters[idx]}</span>
+              <span>${opt}</span>
+            </button>
+            <button onclick="speakText('${safeOpt}', false)" class="px-4 bg-slate-50 hover:bg-indigo-100 text-indigo-600 border-l border-slate-200 flex items-center justify-center transition cursor-pointer" title="Listen to pronunciation">
+              <i class="fa-solid fa-volume-high text-lg"></i>
+            </button>
+          </div>
+        `;
+      }).join("");
+
+      const fb = document.getElementById("vq-feedback");
+      fb.classList.add("hidden");
+      fb.innerHTML = "";
+      document.getElementById("btn-vq-next").classList.add("hidden");
+    }
+
+    function speakCurrentGapSentence() {
+      const q = vqQuestions[vqIndex];
+      const textToRead = vqAnswered
+        ? q.sentenceTemplate.replace("___", q.correctWord)
+        : q.sentenceTemplate.replace("___", "blank");
+      speakText(textToRead, false);
+    }
+
+    function selectVocabOption(optIdx) {
+      if (vqAnswered) return;
+      vqAnswered = true;
+
+      const q = vqQuestions[vqIndex];
+      const chosenWord = q.options[optIdx];
+      const isCorrect = chosenWord === q.correctWord;
+
+      // Fill blank slot
+      const blankSlot = document.getElementById("vq-blank-slot");
+      if (blankSlot) {
+        blankSlot.textContent = q.correctWord;
+        blankSlot.className = isCorrect
+          ? "inline-block border-b-4 border-emerald-500 text-emerald-700 bg-emerald-50 rounded-lg px-3 mx-1 font-extrabold"
+          : "inline-block border-b-4 border-rose-500 text-rose-700 bg-rose-50 rounded-lg px-3 mx-1 font-extrabold";
+      }
+
+      // Highlight buttons
+      q.options.forEach((opt, i) => {
+        const wrap = document.getElementById(`vq-opt-wrap-${i}`);
+        const btn = document.getElementById(`vq-opt-btn-${i}`);
+        btn.disabled = true;
+        if (opt === q.correctWord) {
+          wrap.className = "flex items-stretch rounded-2xl border-2 border-emerald-500 bg-emerald-50 transition overflow-hidden shadow-sm";
+        } else if (i === optIdx && !isCorrect) {
+          wrap.className = "flex items-stretch rounded-2xl border-2 border-rose-500 bg-rose-50 transition overflow-hidden animate-shake";
+        } else {
+          wrap.classList.add("opacity-55");
+        }
+      });
+
+      const fullSentence = q.sentenceTemplate.replace("___", q.correctWord);
+      const fb = document.getElementById("vq-feedback");
+      fb.classList.remove("hidden");
+
+      if (isCorrect) {
+        playTone("correct");
+        vqScore++;
+        document.getElementById("vq-current-score").textContent = vqScore;
+        incrementStreak();
+        addXp(10, "Correct vocabulary!");
+
+        fb.className = "rounded-2xl p-5 border-2 bg-emerald-50 border-emerald-300 text-emerald-950 space-y-1.5 animate-pop";
+        fb.innerHTML = `
+          <p class="font-extrabold text-xl text-emerald-800"><i class="fa-solid fa-circle-check mr-2"></i>Correct! "${q.correctWord}"</p>
+          <p class="text-base sm:text-lg font-medium">"${fullSentence}"</p>
+        `;
+      } else {
+        playTone("wrong");
+        resetStreak();
+
+        fb.className = "rounded-2xl p-5 border-2 bg-rose-50 border-rose-300 text-rose-950 space-y-1.5 animate-pop";
+        fb.innerHTML = `
+          <p class="font-extrabold text-xl text-rose-800"><i class="fa-solid fa-circle-xmark mr-2"></i>Good try! The best answer is "${q.correctWord}".</p>
+          <p class="text-base sm:text-lg font-medium">"${fullSentence}"</p>
+        `;
+      }
+
+      // Speak the completed sentence automatically in the natural female voice!
+      speakText(fullSentence, false);
+
+      const nextBtn = document.getElementById("btn-vq-next");
+      nextBtn.classList.remove("hidden");
+      nextBtn.innerHTML = vqIndex === vqQuestions.length - 1
+        ? `See Level Results <i class="fa-solid fa-trophy ml-2"></i>`
+        : `Next Question <i class="fa-solid fa-arrow-right ml-2"></i>`;
+    }
+
+    function nextVocabQuestion() {
+      playTone("tap");
+      if (vqIndex < vqQuestions.length - 1) {
+        vqIndex++;
+        loadVocabQuestion();
+      } else {
+        finishVocabLevel();
+      }
+    }
+
+    function finishVocabLevel() {
+      const lvlObj = VOCAB_LEVELS.find(l => l.level === currentVocabLevel);
+      document.getElementById("vq-quiz-card").classList.add("hidden");
+      document.getElementById("vq-complete-card").classList.remove("hidden");
+
+      document.getElementById("vq-complete-title").textContent = `${lvlObj.name} Finished!`;
+      document.getElementById("vq-complete-summary").textContent = `You scored ${vqScore} / ${vqQuestions.length} in this vocabulary challenge!`;
+
+      if (!appState.completedVocabLevels.includes(currentVocabLevel)) {
+        appState.completedVocabLevels.push(currentVocabLevel);
+        addXp(35, `Cleared ${lvlObj.name}!`);
+      }
+
+      if (appState.completedVocabLevels.length >= 3) {
+        unlockBadge("b_vocab3");
+      }
+
+      renderVocabLevelSelector();
+      updateHud();
+      launchConfetti();
+    }
+
+    function generateNewVocabQuizSet() {
+      playTone("tap");
+      vqVariantCursor[currentVocabLevel - 1] += 1;
+      startVocabLevel(currentVocabLevel, true);
+      showToast("Generated a brand-new set of gap-fill sentences!", "info");
+    }
+
+    function goToNextVocabLevel() {
+      const nextLvl = currentVocabLevel < 3 ? currentVocabLevel + 1 : 1;
+      startVocabLevel(nextLvl);
+    }
+
+    // =========================================================================
+    // 13. BADGES & RESET MODALS
+    // =========================================================================
+    function openBadgesModal() {
+      playTone("tap");
+      const grid = document.getElementById("badges-grid");
+      grid.innerHTML = BADGES_LIST.map(b => {
+        const unlocked = appState.unlockedBadges.includes(b.id);
+        return `
+          <div class="p-4 rounded-2xl border-2 ${unlocked ? 'border-amber-300 bg-amber-50/40' : 'border-slate-200 bg-slate-50 opacity-60'} flex items-start gap-3.5">
+            <div class="w-12 h-12 rounded-2xl ${unlocked ? b.color : 'bg-slate-200 text-slate-400'} flex items-center justify-center text-xl shrink-0">
+              <i class="fa-solid ${b.icon}"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-extrabold text-slate-900">${b.title}</h4>
+                ${unlocked ? `<span class="text-xs font-extrabold text-emerald-600"><i class="fa-solid fa-check-circle"></i></span>` : `<span class="text-xs font-bold text-slate-400"><i class="fa-solid fa-lock"></i></span>`}
+              </div>
+              <p class="text-sm text-slate-600 mt-0.5">${b.desc}</p>
+            </div>
+          </div>
+        `;
+      }).join("");
+      document.getElementById("badges-modal").classList.remove("hidden");
+    }
+
+    function closeBadgesModal() {
+      document.getElementById("badges-modal").classList.add("hidden");
+    }
+
+    function confirmResetProgress() {
+      document.getElementById("reset-confirm-modal").classList.remove("hidden");
+    }
+
+    function closeResetModal() {
+      document.getElementById("reset-confirm-modal").classList.add("hidden");
+    }
+
+    function executeResetProgress() {
+      appState = {
+        xp: 0,
+        streak: 0,
+        soundFx: appState.soundFx,
+        exploredPatterns: [],
+        listenedCount: 0,
+        masteredVocabIds: [],
+        completedStructures: [],
+        completedVocabLevels: [],
+        unlockedBadges: []
+      };
+      saveState();
+      closeResetModal();
+      closeBadgesModal();
+      updateHud();
+      renderAnnotatedLetter();
+      selectStructure(0, true);
+      renderFlashcard();
+      startVocabLevel(1, true);
+      showToast("All progress has been reset.", "info");
+    }
+
+    // =========================================================================
+    // 14. INITIALIZE APP ON LOAD
+    // =========================================================================
+    window.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      updateSoundIcon();
+      updateHud();
+      renderAnnotatedLetter();
+      selectStructure(0, true);
+      renderFlashcard();
+      startVocabLevel(1, true);
+      populateFemaleVoices();
+    });
+  </script>
+</body>
+</html>

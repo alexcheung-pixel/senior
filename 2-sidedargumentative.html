@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HKDSE Writing Lab: 2-Sided Argumentative Essays</title>
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Load Inter and Noto Sans TC for clean English + Traditional Chinese display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Smooth transitions and custom scrollbar polish */
+    html {
+      scroll-behavior: smooth;
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Custom hide scrollbar for horizontal tab bar on mobile */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Top Navigation & Progress Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-extrabold text-lg shadow-sm">
+          DSE
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+            2-Sided Argumentative Essay Lab
+          </h1>
+          <p class="text-xs text-slate-500">F.5 English Writing Scaffold • Step-by-Step Guide</p>
+        </div>
+      </div>
+
+      <!-- Controls: Chinese Support Toggle & Progress -->
+      <div class="flex items-center gap-3">
+        <button
+          id="toggle-zh-btn"
+          onclick="toggleChineseSupport()"
+          class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition flex items-center gap-1.5"
+          title="Toggle Traditional Chinese hints"
+        >
+          <span>雙語提示:</span>
+          <span id="zh-status-badge" class="px-1.5 py-0.5 rounded-md bg-indigo-600 text-white text-xs">ON</span>
+        </button>
+
+        <div class="flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200" title="Stars earned from correct answers">
+          <span class="text-sm">⭐</span>
+          <span id="star-count-text" class="text-xs font-extrabold text-amber-800">0 Stars</span>
+        </div>
+
+        <div class="hidden sm:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+          <span class="text-xs font-medium text-slate-600">Progress:</span>
+          <div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-500" style="width: 16%"></div>
+          </div>
+          <span id="progress-text" class="text-xs font-bold text-slate-700">1/6</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step Navigation Tabs -->
+    <nav class="max-w-5xl mx-auto px-4 pb-2 overflow-x-auto no-scrollbar">
+      <div class="flex gap-2 min-w-max" id="step-tabs">
+        <!-- Tabs injected by JS -->
+      </div>
+    </nav>
+  </header>
+
+  <!-- Toast Notification Banner (Replaces alert()) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 pointer-events-none flex flex-col gap-2 max-w-sm w-full px-4 sm:px-0"></div>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-6 sm:py-8">
+    <div id="app-content" class="fade-in">
+      <!-- Dynamic Step Content rendered here -->
+    </div>
+  </main>
+
+  <!-- Footer Navigation -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-5xl mx-auto px-4 flex items-center justify-between gap-4">
+      <button
+        id="prev-step-btn"
+        onclick="changeStep(-1)"
+        class="px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition"
+      >
+        ← Previous
+      </button>
+
+      <div class="text-xs text-slate-500 text-center">
+        HKDSE Paper II • Writing Skill Builder
+      </div>
+
+      <button
+        id="next-step-btn"
+        onclick="changeStep(1)"
+        class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm disabled:opacity-40 disabled:pointer-events-none transition"
+      >
+        Next Step →
+      </button>
+    </div>
+  </footer>
+
+  <!-- Application Logic & Data -->
+  <script>
+    // =========================================================================
+    // 1. STATE MANAGEMENT
+    // =========================================================================
+    const state = {
+      currentStep: 0,
+      showChinese: true,
+      completedSteps: new Set([0]),
+      starsEarned: 0,
+      awardedKeys: new Set(),
+      // Step 0: Sample essay highlighter filter
+      highlightMode: 'all', // 'all' | 'topic' | 'causal' | 'comparison' | 'example'
+      sampleQuizAnswered: false,
+      sampleQuizCorrect: false,
+      sampleQuizChoice: null,
+      // Step 2: Idea Development (Sentence Ordering)
+      activeOrderTopic: 0,
+      orderUserLists: [],
+      orderSolved: [false, false, false, false],
+      orderChecked: [false, false, false, false],
+      // Step 3: Causal Patterns Practice
+      causalAnswers: [null, null, null, null],
+      // Step 4: Comparison Patterns Practice
+      comparisonAnswers: [null, null, null, null],
+      // Step 5: Before & After Demonstration & Draft Persistence
+      beforeAfterStage: 0,
+      draftText: '',
+      confirmClearDraft: false,
+    };
+
+    // Bilingual encouragement messages for F.5 HKDSE students
+    const ENCOURAGEMENTS = [
+      {
+        en: "🌟 Spot on! You're thinking like a DSE Level 4+ writer!",
+        zh: '答對了！你已經掌握到 DSE 寫作的關鍵技巧！',
+      },
+      {
+        en: '👏 Well done! Your logic is crystal clear!',
+        zh: '做得好！你的句子邏輯非常清晰！',
+      },
+      {
+        en: '💪 Keep it up! Every correct answer builds your DSE confidence!',
+        zh: '繼續努力！每答對一題都令你更進一步！',
+      },
+      {
+        en: '🎉 Brilliant! You nailed that sentence structure!',
+        zh: '太棒了！你完全掌握了這個高分句型！',
+      },
+      {
+        en: '🔥 Awesome work! You are making great progress!',
+        zh: '好叻呀！你進步得好快，繼續加油！',
+      },
+    ];
+
+    const STEPS = [
+      { id: 0, short: '1. Model Essay', title: '2023 DSE Q4 Sample Essay', zh: '範文結構分析' },
+      { id: 1, short: '2. Homework & Vocab', title: 'Homework Task & Vocab Bank', zh: '功課題目與詞彙' },
+      { id: 2, short: '3. Idea Order', title: 'Task 1: Idea Development', zh: '段落邏輯排序' },
+      { id: 3, short: '4. Causal Patterns', title: 'Task 2A: Causal Relationships', zh: '因果關係句型' },
+      { id: 4, short: '5. Comparisons', title: 'Task 2B: Making Comparisons', zh: '對比比較句型' },
+      { id: 5, short: '6. Before & After', title: 'Elaboration Demo & Draft', zh: '擴寫示範與寫作' },
+    ];
+
+    // =========================================================================
+    // 2. DATA: IDEA DEVELOPMENT (SENTENCE ORDERING - 4 THEMES IN EXACT ORDER)
+    // =========================================================================
+    const ORDER_THEMES = [
+      {
+        id: 'money',
+        stance: 'PRO 1 (Advantage)',
+        stanceColor: 'emerald',
+        title: '1. Money & Independence',
+        zhTitle: '論點一：金錢與經濟獨立（約 98 字）',
+        sentences: [
+          {
+            id: 'm1',
+            role: 'Topic Sentence (主題句)',
+            keyIdea: 'earn extra pocket money and ease their parents\' financial burden',
+            text: "First and foremost, taking a part-time job allows senior secondary students to earn extra pocket money and ease their parents' financial burden.",
+            zh: '首先，做兼職能讓高中生賺取額外零用錢，並減輕父母的經濟負擔。',
+            connectionNote: 'Introduces the main benefit: Pocket Money + Easing Family Burden.',
+          },
+          {
+            id: 'm2',
+            role: 'Elaboration 1: Comparison (對比擴寫)',
+            keyIdea: 'learn how to budget wisely',
+            text: 'Compared with peers who rely completely on their families for daily expenses, working students learn how to budget wisely.',
+            zh: '與完全依賴家庭支付日常開支的同輩相比，打工的學生學會如何明智地規劃預算。',
+            connectionNote: 'Links "earning money" to "budgeting wisely" by comparing with non-working peers.',
+          },
+          {
+            id: 'm3',
+            role: 'Elaboration 2: Causal Action (因果起因)',
+            keyIdea: 'pay for their own lunches, transport, and entertainment',
+            text: 'Earning a regular salary enables teenagers to pay for their own lunches, transport, and entertainment.',
+            zh: '賺取穩定薪金使青少年能夠自行支付午餐、交通及娛樂費用。',
+            connectionNote: 'Explains how budgeting works in practice: paying for daily expenses.',
+          },
+          {
+            id: 'm4',
+            role: 'Elaboration 3: Causal Result (因果結果)',
+            keyIdea: 'reduces their parents\' financial pressure',
+            text: "Consequently, this reduces their parents' financial pressure, especially in grass-roots families.",
+            zh: '因此，這減輕了父母的經濟壓力，尤其是在基層家庭中。',
+            connectionNote: 'Shows the direct result ("Consequently") back to parents\' financial burden.',
+          },
+          {
+            id: 'm5',
+            role: 'Example (具體例子)',
+            keyIdea: 'cover their monthly Octopus card fares and stationery costs',
+            text: 'For example, a Form 5 student working at a local convenience store on weekends can easily cover their monthly Octopus card fares and stationery costs without asking their parents for help.',
+            zh: '例如，一名週末在本地便利店工作的五中學生，無需向父母求助便能輕鬆應付每月的八達通車費和文具開支。',
+            connectionNote: 'Gives a concrete HK F.5 example proving how daily expenses are covered.',
+          },
+        ],
+      },
+      {
+        id: 'skills',
+        stance: 'PRO 2 (Advantage)',
+        stanceColor: 'emerald',
+        title: '2. Skills & Experience',
+        zhTitle: '論點二：工作經驗與溝通技巧（約 101 字）',
+        sentences: [
+          {
+            id: 's1',
+            role: 'Topic Sentence (主題句)',
+            keyIdea: 'gain real-world work experience and develop essential communication skills',
+            text: 'Another significant benefit is that working part-time helps teenagers gain real-world work experience and develop essential communication skills.',
+            zh: '另一個顯著好處是，兼職工作有助青少年獲得真實的工作經驗，並培養重要的溝通技巧。',
+            connectionNote: 'Introduces the 2nd benefit: Work Experience + Communication Skills.',
+          },
+          {
+            id: 's2',
+            role: 'Elaboration 1: Comparison (對比環境)',
+            keyIdea: 'interact with people from different backgrounds',
+            text: 'Unlike the school classroom, where teachers guide students step by step and peers are all the same age, a workplace requires teenagers to interact with people from different backgrounds.',
+            zh: '與老師逐步指導且同輩年齡相若的學校課室不同，工作場所要求青少年與來自不同背景的人互動。',
+            connectionNote: 'Contrasts the safe classroom with a diverse workplace requiring interaction.',
+          },
+          {
+            id: 's3',
+            role: 'Elaboration 2: Causal Chain (因果連鎖)',
+            keyIdea: 'boosts their self-confidence and problem-solving abilities',
+            text: 'Dealing with unexpected requests in a real job forces students to think quickly and speak politely, which gradually boosts their self-confidence and problem-solving abilities.',
+            zh: '在真實工作中處理突發要求迫使學生快速思考及禮貌地說話，這逐漸增強了他們的自信心和解難能力。',
+            connectionNote: 'Shows the cause-and-effect chain: dealing with requests -> thinking/speaking -> confidence.',
+          },
+          {
+            id: 's4',
+            role: 'Example (具體例子)',
+            keyIdea: 'handle impatient customers calmly',
+            text: 'For instance, working as a part-time waiter in a busy cha chaan teng teaches students how to handle impatient customers calmly, preparing them well for future university or job interviews.',
+            zh: '例如，在繁忙的茶餐廳擔任兼職侍應能教導學生如何冷靜地應付不耐煩的顧客，為他們未來的大學或求職面試做好準備。',
+            connectionNote: 'Illustrates polite communication under pressure in a familiar HK cha chaan teng.',
+          },
+        ],
+      },
+      {
+        id: 'academics',
+        stance: 'CON 1 (Drawback)',
+        stanceColor: 'rose',
+        title: '3. Academics & Time',
+        zhTitle: '論點三：學業成績與溫習時間（約 99 字）',
+        sentences: [
+          {
+            id: 'a1',
+            role: 'Topic Sentence (主題句)',
+            keyIdea: 'harm students\' academic performance by leaving them with insufficient time for HKDSE revision',
+            text: "On the other hand, taking up a part-time job can seriously harm students' academic performance by leaving them with insufficient time for HKDSE revision.",
+            zh: '另一方面，做兼職會令學生沒有足夠時間溫習香港中學文憑試，從而嚴重損害學業成績。',
+            connectionNote: 'Shifts to drawbacks: Less HKDSE Revision Time -> Harming Academic Performance.',
+          },
+          {
+            id: 'a2',
+            role: 'Elaboration 1: Comparison (對比時間分配)',
+            keyIdea: 'rush to work right after school',
+            text: 'While non-working students can spend their evenings reviewing notes and doing past papers, working students have to rush to work right after school.',
+            zh: '不打工的學生可以在晚上溫習筆記和做歷屆試題，而打工的學生放學後卻必須趕去上班。',
+            connectionNote: 'Contrasts evening revision time of non-working vs. working students.',
+          },
+          {
+            id: 'a3',
+            role: 'Elaboration 2: Causal Action (因果起因)',
+            keyIdea: 'poor time management and unfinished homework',
+            text: 'Spending long hours on a job leads to poor time management and unfinished homework.',
+            zh: '花長時間工作會導致時間管理不善及無法完成功課。',
+            connectionNote: 'Explains the immediate consequence of rushing to work: unfinished homework.',
+          },
+          {
+            id: 'a4',
+            role: 'Elaboration 3: Causal Result (因果結果)',
+            keyIdea: 'fall behind in their studies',
+            text: 'As a result, teenagers gradually fall behind in their studies during this crucial senior year.',
+            zh: '結果，青少年在這個關鍵的高中年份學業進度逐漸落後。',
+            connectionNote: 'Connects unfinished homework ("As a result") to falling behind in F.5.',
+          },
+          {
+            id: 'a5',
+            role: 'Example (具體例子)',
+            keyIdea: 'see their mock exam grades drop sharply',
+            text: 'For example, many Form 5 students who work three nights a week as retail assistants often see their mock exam grades drop sharply.',
+            zh: '例如，許多每週有三晚擔任零售店務員的中五學生，他們的模擬考試成績往往會急劇下降。',
+            connectionNote: 'Provides a concrete F.5 retail worker example showing falling exam grades.',
+          },
+        ],
+      },
+      {
+        id: 'health',
+        stance: 'CON 2 (Drawback)',
+        stanceColor: 'rose',
+        title: '4. Health & Energy',
+        zhTitle: '論點四：身體疲勞與健康問題（約 99 字）',
+        sentences: [
+          {
+            id: 'h1',
+            role: 'Topic Sentence (主題句)',
+            keyIdea: 'severe physical exhaustion and health problems',
+            text: 'Last but not least, juggling both heavy schoolwork and a part-time job often results in severe physical exhaustion and health problems.',
+            zh: '最後但同樣重要的是，同時兼顧繁重學業和兼職往往會導致嚴重的身心俱疲及健康問題。',
+            connectionNote: 'Introduces the final drawback: Physical Exhaustion + Health Problems.',
+          },
+          {
+            id: 'h2',
+            role: 'Elaboration 1: Causal Chain (因果連鎖)',
+            keyIdea: 'leads to sleep deprivation and overwhelming stress',
+            text: 'Working late shifts after a full day of lessons deprives teenagers of adequate rest, which directly leads to sleep deprivation and overwhelming stress.',
+            zh: '上一整天課後再輪夜班剝奪了青少年充足的休息，直接導致睡眠不足和沉重壓力。',
+            connectionNote: 'Traces the cause-and-effect chain: late shifts -> lack of rest -> sleep deprivation.',
+          },
+          {
+            id: 'h3',
+            role: 'Elaboration 2: Comparison + Effect (對比結果)',
+            keyIdea: 'lose concentration in class and fall sick easily',
+            text: 'Compared with classmates who get enough sleep at home, exhausted student workers are much more likely to lose concentration in class and fall sick easily.',
+            zh: '與在家獲得充足睡眠的同學相比，疲憊的打工學生更有可能在課堂上難以集中精神，並且容易生病。',
+            connectionNote: 'Compares tired vs. well-rested classmates to show loss of focus and illness.',
+          },
+          {
+            id: 'h4',
+            role: 'Example (具體例子)',
+            keyIdea: 'feel too sleepy to focus during morning English or Mathematics lessons',
+            text: 'For instance, a student who finishes a shift at a fast-food restaurant at 11 p.m. will feel too sleepy to focus during morning English or Mathematics lessons the next day.',
+            zh: '例如，一名在快餐店工作至晚上十一時才下班的學生，第二天早上上英文或數學課時會感到太睏而無法專心。',
+            connectionNote: 'Gives a relatable 11 p.m. fast-food shift example causing sleepiness in class.',
+          },
+        ],
+      },
+    ];
+
+    // =========================================================================
+    // 3. DATA: CAUSAL PATTERNS & PRACTICE
+    // =========================================================================
+    const CAUSAL_PATTERNS = [
+      {
+        code: 'Pattern A',
+        name: 'Domino Chain Reaction',
+        formula: '[Action / V-ing] + leads to / results in + [Noun], which eventually causes + [Person] + to [Verb].',
+        zh: '某行為「導致」某結果，進而「令」某人做某事（三步連鎖反應）。',
+        example:
+          'Working long hours on weekends <strong class="text-indigo-700">leads to</strong> physical exhaustion, <strong class="text-indigo-700">which eventually causes</strong> students <strong class="text-indigo-700">to</strong> fall asleep in class.',
+      },
+      {
+        code: 'Pattern B',
+        name: 'Enabling Positive Outcomes',
+        formula: '[Action / V-ing] + enables / allows + [Person] + to [Verb]. As a result, [Outcome].',
+        zh: '某行為「使」某人能夠做某事。「結果」，帶來正面影響。',
+        example:
+          'Working as a waiter <strong class="text-indigo-700">enables</strong> teenagers <strong class="text-indigo-700">to</strong> interact with different people. <strong class="text-indigo-700">As a result,</strong> they develop stronger communication skills.',
+      },
+      {
+        code: 'Pattern C',
+        name: 'Conditional Warning ("If... Consequently")',
+        formula: 'If + [Subject + Present Tense], [Subject] + will fail to [Verb]. Consequently, [Negative Result].',
+        zh: '「如果」做某事，他們便「無法」……。「因此」，造成負面後果。',
+        example:
+          '<strong class="text-indigo-700">If</strong> F.5 students spend too much time on part-time jobs, <strong class="text-indigo-700">they will fail to</strong> complete their homework on time. <strong class="text-indigo-700">Consequently,</strong> their grades will drop.',
+      },
+      {
+        code: 'Pattern D',
+        name: 'Explaining Reasons ("This is mainly because...")',
+        formula: '[Main Point]. This is mainly because + [Reason Clause]. Therefore, [Conclusion].',
+        zh: '提出論點。「這主要是因為」……。「因此」，得出結論。',
+        example:
+          'Taking a part-time job eases parents\' financial burden. <strong class="text-indigo-700">This is mainly because</strong> students can pay for their own transport. <strong class="text-indigo-700">Therefore,</strong> parents have less stress.',
+      },
+    ];
+
+    const CAUSAL_QUIZ = [
+      {
+        question: '1. Complete the domino chain: "Working late shifts at a convenience store ________ sleep deprivation, which causes students to lose focus."',
+        options: ['leads to', 'enables', 'because'],
+        correctIndex: 0,
+        explanation: '"leads to" is followed directly by a noun phrase ("sleep deprivation").',
+      },
+      {
+        question: '2. Choose the correct grammar: "Earning a regular salary ________ teenagers to manage their own daily expenses."',
+        options: ['results in', 'enables', 'consequently'],
+        correctIndex: 1,
+        explanation: '"enables + [person] + to [verb]" is the exact structure needed before "teenagers to manage".',
+      },
+      {
+        question: '3. Connect the two sentences: "Students spend every weekend working. ________, they have no time left for DSE past papers."',
+        options: ['This is mainly because', 'Consequently', 'Which causes'],
+        correctIndex: 1,
+        explanation: '"Consequently," introduces the final result at the start of a new sentence.',
+      },
+      {
+        question: '4. Explain the reason: "Part-time jobs boost self-confidence. ________ students must solve real problems on their own."',
+        options: ['As a result,', 'This is mainly because', 'Leads to'],
+        correctIndex: 1,
+        explanation: 'The second sentence gives the reason why confidence increases, so "This is mainly because" fits best.',
+      },
+    ];
+
+    // =========================================================================
+    // 4. DATA: COMPARISON PATTERNS & PRACTICE
+    // =========================================================================
+    const COMPARISON_PATTERNS = [
+      {
+        code: 'Pattern A',
+        name: 'Comparing Two Groups of Students',
+        formula: 'Compared with + [Group A: students who...], those who + [Group B] + are more [Adjective].',
+        zh: '「與……的學生相比」，另一群學生更……（最易擴寫 20 字的萬用句型）。',
+        example:
+          '<strong class="text-teal-700">Compared with</strong> peers <strong class="text-teal-700">who</strong> rely completely on their families, <strong class="text-teal-700">those who</strong> work part-time are much more independent.',
+      },
+      {
+        code: 'Pattern B',
+        name: 'Contrasting Two Environments ("Unlike...")',
+        formula: 'Unlike + [Place A], where [Situation A], [Place B] + requires + [Person] + to [Verb].',
+        zh: '「與……不同」（在該處……），另一個地方則要求某人做某事。',
+        example:
+          '<strong class="text-teal-700">Unlike</strong> the school classroom, <strong class="text-teal-700">where</strong> teachers guide students step by step, a workplace <strong class="text-teal-700">requires</strong> teenagers to solve problems independently.',
+      },
+      {
+        code: 'Pattern C',
+        name: 'Highlighting Better Time Use ("Instead of...")',
+        formula: 'Instead of + [Negative Habit / V-ing], working students can + [Positive Action].',
+        zh: '「與其」做無益的事，打工的學生可以做更有意義的事。',
+        example:
+          '<strong class="text-teal-700">Instead of</strong> wasting their weekends playing mobile games, <strong class="text-teal-700">working students can</strong> gain valuable experience for future interviews.',
+      },
+      {
+        code: 'Pattern D',
+        name: 'Contrasting Opposite Situations ("While...")',
+        formula: 'While + [Group A + Action A], [Group B] + have to + [Action B].',
+        zh: '「當／然而」A 組可以做某事時，B 組卻必須做另一件事（形成強烈對比）。',
+        example:
+          '<strong class="text-teal-700">While</strong> non-working students can spend their evenings revising notes, <strong class="text-teal-700">working students have to</strong> rush to work right after school.',
+      },
+    ];
+
+    const COMPARISON_QUIZ = [
+      {
+        question: '1. Complete the comparison: "________ classmates who get eight hours of sleep, exhausted student workers often fall asleep in class."',
+        options: ['Compared with', 'Instead of', 'Where'],
+        correctIndex: 0,
+        explanation: '"Compared with + [group of people]" directly contrasts exhausted student workers with well-rested classmates.',
+      },
+      {
+        question: '2. Contrast school and work: "________ the classroom, where everyone is the same age, a shop requires staff to serve elderly customers."',
+        options: ['While', 'Unlike', 'Consequently'],
+        correctIndex: 1,
+        explanation: '"Unlike + [noun/place], where..." contrasts two different environments.',
+      },
+      {
+        question: '3. Show contrast with "While": "________ full-time students can join after-school tutorials, working students have to attend evening shifts."',
+        options: ['While', 'Compared with', 'Instead of'],
+        correctIndex: 0,
+        explanation: '"While" connects two complete clauses showing opposite situations at the same time.',
+      },
+      {
+        question: '4. Choose the correct verb form: "Instead of ________ money on unnecessary snacks, working teenagers learn to save their salary."',
+        options: ['spend', 'spending', 'to spend'],
+        correctIndex: 1,
+        explanation: 'Prepositions like "Instead of" must be followed by a gerund (-ing form: "spending").',
+      },
+    ];
+
+    // =========================================================================
+    // 5. DATA: BEFORE & AFTER ELABORATION STAGES
+    // =========================================================================
+    const BEFORE_AFTER_STAGES = [
+      {
+        level: 'Stage 1: Weak Draft (17 words)',
+        badge: 'Level 1–2 (Underdeveloped)',
+        badgeClass: 'bg-rose-100 text-rose-800 border-rose-200',
+        explanation: 'Problem: Only gives a basic idea with zero explanation, no comparison, and no example. Too short for HKDSE!',
+        zhNote: '問題：只有一句空泛論點，沒有解釋、沒有對比、沒有例子，字數嚴重不足。',
+        html: `Another benefit is that working part-time helps students learn communication skills and get more work experience.`,
+      },
+      {
+        level: 'Stage 2: Add a Comparison (+31 words = 48 words)',
+        badge: 'Level 3 (Developing)',
+        badgeClass: 'bg-amber-100 text-amber-800 border-amber-200',
+        explanation: 'Upgrade 1: Use "Unlike the school classroom..." to contrast school with a real workplace.',
+        zhNote: '升級第一步：加入 "Unlike..." 對比學校課室與真實職場的分別。',
+        html: `Another significant benefit is that working part-time helps teenagers gain real-world work experience and develop essential communication skills. <span class="bg-teal-100 text-teal-900 px-1.5 py-0.5 rounded font-medium">Unlike the school classroom, where teachers guide students step by step and peers are all the same age, a workplace requires teenagers to interact with people from different backgrounds.</span>`,
+      },
+      {
+        level: 'Stage 3: Add a Causal Chain (+26 words = 74 words)',
+        badge: 'Level 3–4 (Solid Logic)',
+        badgeClass: 'bg-sky-100 text-sky-800 border-sky-200',
+        explanation: 'Upgrade 2: Show Cause & Effect — how handling customer requests leads to self-confidence.',
+        zhNote: '升級第二步：加入因果推論，解釋應付顧客如何一步步提升自信與解難能力。',
+        html: `Another significant benefit is that working part-time helps teenagers gain real-world work experience and develop essential communication skills. <span class="bg-teal-100 text-teal-900 px-1.5 py-0.5 rounded font-medium">Unlike the school classroom, where teachers guide students step by step and peers are all the same age, a workplace requires teenagers to interact with people from different backgrounds.</span> <span class="bg-indigo-100 text-indigo-900 px-1.5 py-0.5 rounded font-medium">Dealing with unexpected requests in a real job forces students to think quickly and speak politely, which gradually boosts their self-confidence and problem-solving abilities.</span>`,
+      },
+      {
+        level: 'Stage 4: Add a Specific HK Example (+27 words = 101 words)',
+        badge: 'Level 4+ Target (~100 words!)',
+        badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        explanation: 'Upgrade 3: Add a realistic Hong Kong example ("cha chaan teng") to hit the 100-word paragraph target!',
+        zhNote: '升級第三步：加入貼近香港生活的「茶餐廳侍應」例子，完美達成 100 字高分段落！',
+        html: `Another significant benefit is that working part-time helps teenagers gain real-world work experience and develop essential communication skills. <span class="bg-teal-100 text-teal-900 px-1.5 py-0.5 rounded font-medium">Unlike the school classroom, where teachers guide students step by step and peers are all the same age, a workplace requires teenagers to interact with people from different backgrounds.</span> <span class="bg-indigo-100 text-indigo-900 px-1.5 py-0.5 rounded font-medium">Dealing with unexpected requests in a real job forces students to think quickly and speak politely, which gradually boosts their self-confidence and problem-solving abilities.</span> <span class="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-medium">For instance, working as a part-time waiter in a busy cha chaan teng teaches students how to handle impatient customers calmly, preparing them well for future university or job interviews.</span>`,
+      },
+    ];
+
+    const VOCAB_GROUPS = [
+      {
+        title: '1. Money & Independence',
+        zh: '金錢與經濟獨立',
+        color: 'emerald',
+        items: [
+          { en: 'earn extra pocket money', zh: '賺取額外零用錢' },
+          { en: 'ease / reduce the financial burden on parents', zh: '減輕父母的經濟負擔' },
+          { en: 'become financially independent', zh: '變得經濟獨立' },
+          { en: 'budget and manage their own expenses', zh: '規劃及管理自己的開支' },
+        ],
+      },
+      {
+        title: '2. Skills & Experience',
+        zh: '工作技能與經驗',
+        color: 'sky',
+        items: [
+          { en: 'gain real-world work experience', zh: '獲得真實的工作經驗' },
+          { en: 'develop interpersonal / communication skills', zh: '培養人際／溝通技巧' },
+          { en: 'handle impatient customers calmly', zh: '冷靜應付不耐煩的顧客' },
+          { en: 'boost self-confidence and problem-solving abilities', zh: '增強自信心及解難能力' },
+        ],
+      },
+      {
+        title: '3. Academics & Time',
+        zh: '學業與時間管理',
+        color: 'amber',
+        items: [
+          { en: 'harm academic performance', zh: '損害學業成績' },
+          { en: 'insufficient time for HKDSE revision', zh: '缺乏足夠時間溫習文憑試' },
+          { en: 'lead to poor time management', zh: '導致時間管理不善' },
+          { en: 'fall behind in their studies', zh: '學業進度落後' },
+        ],
+      },
+      {
+        title: '4. Health & Energy',
+        zh: '健康與精力消耗',
+        color: 'rose',
+        items: [
+          { en: 'suffer from severe physical exhaustion', zh: '嚴重身心俱疲' },
+          { en: 'lead to sleep deprivation', zh: '導致睡眠不足' },
+          { en: 'lose concentration in class', zh: '在課堂上難以集中精神' },
+          { en: 'feel stressed and overwhelmed', zh: '感到壓力沉重及喘不過氣' },
+        ],
+      },
+    ];
+
+    // =========================================================================
+    // 6. CORE UI & NAVIGATION FUNCTIONS
+    // =========================================================================
+    function initApp() {
+      state.orderUserLists = ORDER_THEMES.map((theme) => shuffleArray(theme.sentences));
+      renderTabs();
+      renderCurrentStep();
+      updateProgressUI();
+    }
+
+    function getRandomEncouragement(seed = 0) {
+      return ENCOURAGEMENTS[seed % ENCOURAGEMENTS.length];
+    }
+
+    function awardStar(key, seed = 0) {
+      const cheer = getRandomEncouragement(seed);
+      const isNew = !state.awardedKeys.has(key);
+      if (isNew) {
+        state.awardedKeys.add(key);
+        state.starsEarned += 1;
+        const starEl = document.getElementById('star-count-text');
+        if (starEl) {
+          starEl.textContent = `${state.starsEarned} ${state.starsEarned === 1 ? 'Star' : 'Stars'}`;
+        }
+      }
+      const prefix = isNew ? '+1 ⭐ ' : '';
+      const msg = state.showChinese ? `${prefix}${cheer.en} (${cheer.zh})` : `${prefix}${cheer.en}`;
+      showToast(msg, 'success');
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bgClass =
+        type === 'success'
+          ? 'bg-emerald-600 text-white'
+          : type === 'warning'
+          ? 'bg-amber-600 text-white'
+          : 'bg-slate-800 text-white';
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-between gap-3 fade-in ${bgClass}`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 2800);
+    }
+
+    function toggleChineseSupport() {
+      state.showChinese = !state.showChinese;
+      const badge = document.getElementById('zh-status-badge');
+      badge.textContent = state.showChinese ? 'ON' : 'OFF';
+      badge.className = state.showChinese
+        ? 'px-1.5 py-0.5 rounded-md bg-indigo-600 text-white text-xs'
+        : 'px-1.5 py-0.5 rounded-md bg-slate-400 text-white text-xs';
+      renderCurrentStep();
+    }
+
+    function changeStep(delta) {
+      const next = state.currentStep + delta;
+      if (next >= 0 && next < STEPS.length) {
+        goToStep(next);
+      }
+    }
+
+    function goToStep(stepIndex) {
+      state.currentStep = stepIndex;
+      state.completedSteps.add(stepIndex);
+      renderTabs();
+      renderCurrentStep();
+      updateProgressUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateProgressUI() {
+      const count = state.completedSteps.size;
+      const pct = Math.round((count / STEPS.length) * 100);
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+      document.getElementById('progress-text').textContent = `${count}/${STEPS.length}`;
+
+      document.getElementById('prev-step-btn').disabled = state.currentStep === 0;
+      const nextBtn = document.getElementById('next-step-btn');
+      if (state.currentStep === STEPS.length - 1) {
+        nextBtn.textContent = 'Completed ✓';
+        nextBtn.disabled = true;
+      } else {
+        nextBtn.textContent = 'Next Step →';
+        nextBtn.disabled = false;
+      }
+    }
+
+    function renderTabs() {
+      const tabContainer = document.getElementById('step-tabs');
+      tabContainer.innerHTML = STEPS.map((step) => {
+        const isActive = step.id === state.currentStep;
+        const isVisited = state.completedSteps.has(step.id);
+        return `
+          <button
+            onclick="goToStep(${step.id})"
+            class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 border ${
+              isActive
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                : isVisited
+                ? 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                : 'bg-slate-50 text-slate-500 border-transparent hover:bg-slate-100'
+            }"
+          >
+            <span>${step.short}</span>
+            ${isVisited && !isActive ? '<span class="text-emerald-500 font-bold">✓</span>' : ''}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderCurrentStep() {
+      const container = document.getElementById('app-content');
+      container.classList.remove('fade-in');
+      void container.offsetWidth;
+      container.classList.add('fade-in');
+
+      switch (state.currentStep) {
+        case 0:
+          container.innerHTML = renderStep0();
+          break;
+        case 1:
+          container.innerHTML = renderStep1();
+          break;
+        case 2:
+          container.innerHTML = renderStep2();
+          break;
+        case 3:
+          container.innerHTML = renderStep3();
+          break;
+        case 4:
+          container.innerHTML = renderStep4();
+          break;
+        case 5:
+          container.innerHTML = renderStep5();
+          updateWordCount(false);
+          break;
+      }
+    }
+
+    // =========================================================================
+    // 7. STEP 0: 2023 DSE Q4 SAMPLE ESSAY (WITH MULTI-COLOUR INTRO & CONCLUSION)
+    // =========================================================================
+    function renderStep0() {
+      const mode = state.highlightMode;
+      const hl = (type, text) => {
+        if (mode !== 'all' && mode !== type) return text;
+        const styles = {
+          topic: 'bg-sky-100 text-sky-900 border-b-2 border-sky-400 px-1 rounded font-medium',
+          causal: 'bg-indigo-100 text-indigo-900 border-b-2 border-indigo-400 px-1 rounded font-medium',
+          comparison: 'bg-teal-100 text-teal-900 border-b-2 border-teal-400 px-1 rounded font-medium',
+          example: 'bg-amber-100 text-amber-900 border-b-2 border-amber-400 px-1 rounded font-medium',
+        };
+        return `<span class="${styles[type]}">${text}</span>`;
+      };
+
+      const optABtnClass =
+        state.sampleQuizChoice === 'A'
+          ? 'bg-emerald-50 border-emerald-500 text-emerald-950 font-semibold ring-2 ring-emerald-200'
+          : 'bg-white border-indigo-200 text-slate-800 hover:border-indigo-500';
+      const optBBtnClass =
+        state.sampleQuizChoice === 'B'
+          ? 'bg-rose-50 border-rose-500 text-rose-950 font-semibold ring-2 ring-rose-200'
+          : 'bg-white border-indigo-200 text-slate-800 hover:border-indigo-500';
+
+      return `
+        <div class="space-y-6">
+          <!-- Banner -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wide">
+                2023 HKDSE Paper II • Question 4 Model (~450 words)
+              </span>
+              <span class="text-xs text-slate-500 font-medium">Read & Study the Structure First</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+              Sample Essay: Pros and Cons of Monitoring Employees in the Workplace
+            </h2>
+            ${
+              state.showChinese
+                ? '<p class="text-sm text-slate-600 mt-1">先閱讀這篇約 450 字的 2023 DSE 範文。留意<strong>引言（4句不同顏色）</strong>、<strong>正反論點</strong>以及<strong>總結（2句不同顏色）</strong>的結構！</p>'
+                : ''
+            }
+
+            <!-- Interactive Highlight Filter Buttons -->
+            <div class="mt-4 pt-4 border-t border-slate-100">
+              <p class="text-xs font-bold text-slate-500 uppercase mb-2">Body Paragraph Highlight Filter (正文結構標示):</p>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="setHighlightMode('all')" class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                  mode === 'all' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }">Show All Colors</button>
+                <button onclick="setHighlightMode('topic')" class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                  mode === 'topic' ? 'bg-sky-600 text-white border-sky-600' : 'bg-sky-50 text-sky-800 border-sky-200'
+                }">Topic Sentences (主題句)</button>
+                <button onclick="setHighlightMode('causal')" class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                  mode === 'causal' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-indigo-50 text-indigo-800 border-indigo-200'
+                }">Causal Links (因果推論)</button>
+                <button onclick="setHighlightMode('comparison')" class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                  mode === 'comparison' ? 'bg-teal-600 text-white border-teal-600' : 'bg-teal-50 text-teal-800 border-teal-200'
+                }">Comparisons (對比)</button>
+                <button onclick="setHighlightMode('example')" class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                  mode === 'example' ? 'bg-amber-600 text-white border-amber-600' : 'bg-amber-50 text-amber-800 border-amber-200'
+                }">Examples (例子)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sample Essay Card -->
+          <div class="bg-white rounded-2xl p-5 sm:p-8 border border-slate-200 shadow-sm space-y-5 leading-relaxed text-slate-800 text-sm sm:text-base">
+            <h3 class="text-lg sm:text-xl font-bold text-center text-slate-900 border-b border-slate-100 pb-3">
+              Pros and cons of monitoring employees in the workplace
+            </h3>
+
+            <!-- Introduction with 4 distinctly coloured sentences -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="text-xs font-bold text-slate-700 uppercase">
+                  Introduction (引言 — 4 Sentences in 4 Colours)
+                </div>
+                <div class="flex flex-wrap gap-1.5 text-[11px] font-semibold">
+                  <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-900 border border-sky-300">S1: Background</span>
+                  <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">S2: Trend</span>
+                  <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-900 border border-purple-300">S3: Divided Views</span>
+                  <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-300">S4: Thesis</span>
+                </div>
+              </div>
+              <p class="leading-loose">
+                <span class="bg-sky-100 text-sky-950 border-b-2 border-sky-400 px-1.5 py-0.5 rounded">Nowadays, with rapid technological advancement, cameras are ubiquitous, from shop CCTV to car cameras.</span>
+                <span class="bg-amber-100 text-amber-950 border-b-2 border-amber-400 px-1.5 py-0.5 rounded">However, basic office CCTV seems insufficient to many employers, fueling a growing trend of using cameras and computer software to monitor workplace activities.</span>
+                <span class="bg-purple-100 text-purple-950 border-b-2 border-purple-400 px-1.5 py-0.5 rounded">Views on this issue remain divided: some contend it boosts labour productivity, while others argue it harms job satisfaction.</span>
+                <span class="bg-emerald-100 text-emerald-950 border-b-2 border-emerald-400 px-1.5 py-0.5 rounded font-semibold">This essay explores both sides of the coin.</span>
+              </p>
+            </div>
+
+            <!-- Pro 1 -->
+            <div class="space-y-1">
+              <span class="inline-block text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md">Body 1: PRO 1 (Productivity)</span>
+              <p>
+                ${hl('topic', 'First, workplace monitoring significantly enhances worker productivity, a primary goal for human resources managers.')}
+                ${hl('example', 'Research by the business faculty of HKU on wage payment methods reveals that employees paid on a time rate are more prone to shirking during working hours.')}
+                ${hl('causal', 'Since time rates are standard across many industries, workers such as clerks, secretaries, and security guards often have lower work incentives.')}
+                Monitoring them via cameras and software addresses this issue effectively, as employees know their bosses can observe them anytime.
+                ${hl('causal', 'Fearing being grilled by supervisors for falling asleep or using computers for entertainment, staff pay closer attention to their duties.')}
+              </p>
+            </div>
+
+            <!-- Pro 2 -->
+            <div class="space-y-1">
+              <span class="inline-block text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md">Body 2: PRO 2 (Data Security)</span>
+              <p>
+                ${hl('topic', 'Another major advantage is reducing the risk of information leakage.')}
+                ${hl('example', 'Months ago, a viral news story reported that a multinational accounting firm was sued for leaking confidential client data after employees used personal WhatsApp accounts for work communication, severely undermining public confidence in the company.')}
+                ${hl('causal', "Installing monitoring software on every worker's computer prevents similar incidents from happening again.")}
+                ${hl('causal', "Certain programs allow managers to review employees' online conversations, enabling them not only to track team progress but also to give prompt instructions when staff do something wrong or illegal.")}
+              </p>
+            </div>
+
+            <!-- Transition -->
+            <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200">
+              <div class="text-xs font-bold text-amber-800 uppercase mb-1">Transition Paragraph (過渡段 — 連接正反兩面)</div>
+              <p class="font-medium text-amber-950">
+                Nevertheless, focusing solely on these upsides would be unfair; there is another side to the coin.
+              </p>
+            </div>
+
+            <!-- Con 1 -->
+            <div class="space-y-1">
+              <span class="inline-block text-xs font-bold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-md">Body 3: CON 1 (Job Satisfaction)</span>
+              <p>
+                ${hl('topic', 'Workplace monitoring often lowers job satisfaction.')}
+                ${hl('causal', "When employers frequently check work progress, they tend to offer opinions on employees' work, which becomes annoying when feedback arrives too often.")}
+                ${hl('causal', "Moreover, continuous evaluation restricts workers' freedom in completing their tasks.")}
+                ${hl('comparison', 'As corporate experts point out, greater employer intervention directly leads to lower job satisfaction.')}
+              </p>
+            </div>
+
+            <!-- Con 2 -->
+            <div class="space-y-1">
+              <span class="inline-block text-xs font-bold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-md">Body 4: CON 2 (Workplace Trust)</span>
+              <p>
+                ${hl('topic', 'Lastly, surveillance worsens the employer-employee relationship.')}
+                Installing cameras and computer software may be deemed a sign of distrust in the eyes of employees.
+                ${hl('causal', "This practice stems from employers' insecurity and skepticism that staff will work diligently without close supervision.")}
+                ${hl('causal', 'Such underlying motives fracture workplace bonds, breed misunderstanding, and damage morale.')}
+                ${hl('comparison', 'Employers and employees form a team working toward shared goals, and company operations can hardly reach a higher level without a harmonious working environment.')}
+              </p>
+            </div>
+
+            <!-- Conclusion with distinctly coloured sentences -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="text-xs font-bold text-slate-700 uppercase">
+                  Conclusion (總結 — Each Sentence in a Distinct Colour)
+                </div>
+                <div class="flex flex-wrap gap-1.5 text-[11px] font-semibold">
+                  <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-900 border border-rose-300">S1: Summary of Both Sides</span>
+                  <span class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-900 border border-indigo-300">S2: Balanced Recommendation</span>
+                </div>
+              </div>
+              <p class="leading-loose">
+                <span class="bg-rose-100 text-rose-950 border-b-2 border-rose-400 px-1.5 py-0.5 rounded">In a nutshell, workplace monitoring is a double-edged sword that augments productivity while undermining job satisfaction.</span>
+                <span class="bg-indigo-100 text-indigo-950 border-b-2 border-indigo-400 px-1.5 py-0.5 rounded font-semibold">Employers must therefore strike a careful balance between monitoring staff and building up mutual trust with employees.</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Quick Structure Check -->
+          <div class="bg-indigo-50 rounded-2xl p-5 border border-indigo-200">
+            <h4 class="font-bold text-indigo-950 text-sm sm:text-base mb-2">
+              Quick Check: Why does the writer include the short paragraph <em>"Nevertheless, focusing solely on these upsides would be unfair..."</em>?
+            </h4>
+            <div class="grid sm:grid-cols-2 gap-2.5 mt-3">
+              <button onclick="checkSampleQuiz(true, 'A')" class="p-3 rounded-xl border text-left text-xs sm:text-sm font-medium transition ${optABtnClass}">
+                A. To smoothly shift from the Pros (advantages) to the Cons (disadvantages).
+              </button>
+              <button onclick="checkSampleQuiz(false, 'B')" class="p-3 rounded-xl border text-left text-xs sm:text-sm font-medium transition ${optBBtnClass}">
+                B. To introduce the final conclusion of the whole essay.
+              </button>
+            </div>
+            ${
+              state.sampleQuizAnswered
+                ? state.sampleQuizCorrect
+                  ? `<div class="mt-3 p-3.5 rounded-xl bg-emerald-100/90 border border-emerald-300 text-emerald-950 space-y-1 fade-in">
+                      <div class="text-xs sm:text-sm font-extrabold text-emerald-800">
+                        🌟 Spot on! You're thinking like a DSE Level 4+ writer! ${state.showChinese ? '(答對了！你已掌握文章結構！)' : ''}
+                      </div>
+                      <p class="text-xs sm:text-sm">
+                        A 1–2 sentence transition paragraph signals clearly to the DSE marker that you are shifting smoothly from the Pros to the Cons.
+                      </p>
+                    </div>`
+                  : `<div class="mt-3 p-3.5 rounded-xl bg-rose-100/80 border border-rose-300 text-rose-950 text-xs sm:text-sm font-semibold fade-in">
+                      ✗ Not quite! Notice it appears right in the middle of the essay before the drawbacks are discussed. Try Option A — you've got this!
+                    </div>`
+                : ''
+            }
+          </div>
+        </div>
+      `;
+    }
+
+    function setHighlightMode(mode) {
+      state.highlightMode = mode;
+      renderCurrentStep();
+    }
+
+    function checkSampleQuiz(isCorrect, choice) {
+      state.sampleQuizAnswered = true;
+      state.sampleQuizCorrect = isCorrect;
+      state.sampleQuizChoice = choice;
+      if (isCorrect) {
+        awardStar('sample_quiz', 0);
+      }
+      renderCurrentStep();
+    }
+
+    // =========================================================================
+    // 8. STEP 1: HOMEWORK TASK & VOCABULARY BANK
+    // =========================================================================
+    function renderStep1() {
+      return `
+        <div class="space-y-6">
+          <!-- Homework Prompt Card -->
+          <div class="bg-gradient-to-br from-indigo-600 to-blue-700 text-white rounded-2xl p-6 sm:p-7 shadow-md">
+            <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider mb-3">
+              Your Homework Writing Task (功課寫作題目)
+            </span>
+            <p class="text-base sm:text-lg font-semibold leading-relaxed">
+              "Many senior secondary students in Hong Kong take up part-time jobs during weekends or school holidays. Write an article for your school newsletter discussing the benefits and drawbacks of students working part-time."
+            </p>
+            ${
+              state.showChinese
+                ? '<p class="text-xs sm:text-sm text-indigo-100 mt-3 pt-3 border-t border-white/20">中文題解：許多香港高中生會在週末或學校假期做兼職。試為校刊撰寫一篇文章，探討學生做兼職的好處與壞處（雙邊議論文，目標字數約 400–450 字）。</p>'
+                : ''
+            }
+          </div>
+
+          <!-- 100-Word Paragraph Blueprint -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+            <h3 class="text-lg font-extrabold text-slate-900 mb-1">
+              How to Build a 100-Word Body Paragraph (如何寫出 100 字論點段？)
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-600 mb-4">
+              Follow this 4-part formula for each of your 4 body paragraphs (2 Pros + 2 Cons = ~400 words!):
+            </p>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div class="p-4 rounded-xl bg-sky-50 border border-sky-200">
+                <div class="text-xs font-extrabold text-sky-700 uppercase">1. Topic Sentence</div>
+                <div class="font-bold text-slate-900 text-sm mt-1">State 1 Clear Point</div>
+                <p class="text-xs text-slate-600 mt-1">~20 words. Tell the reader the main benefit or drawback immediately.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-teal-50 border border-teal-200">
+                <div class="text-xs font-extrabold text-teal-700 uppercase">2. Comparison</div>
+                <div class="font-bold text-slate-900 text-sm mt-1">Contrast Two Groups</div>
+                <p class="text-xs text-slate-600 mt-1">~25 words. Compare working vs. non-working students (<em>Unlike... / Compared with...</em>).</p>
+              </div>
+              <div class="p-4 rounded-xl bg-indigo-50 border border-indigo-200">
+                <div class="text-xs font-extrabold text-indigo-700 uppercase">3. Causal Chain</div>
+                <div class="font-bold text-slate-900 text-sm mt-1">Explain Cause & Effect</div>
+                <p class="text-xs text-slate-600 mt-1">~25 words. Show what happens step by step (<em>leads to... / As a result...</em>).</p>
+              </div>
+              <div class="p-4 rounded-xl bg-amber-50 border border-amber-200">
+                <div class="text-xs font-extrabold text-amber-700 uppercase">4. HK Example</div>
+                <div class="font-bold text-slate-900 text-sm mt-1">Give a Real Case</div>
+                <p class="text-xs text-slate-600 mt-1">~30 words. Use a relatable HK F.5 example (convenience store, <em>cha chaan teng</em>, fast-food).</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Topic Vocabulary Bank -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+            <h3 class="text-lg font-extrabold text-slate-900 mb-1">
+              Essential Topic Vocabulary Bank (高分主題詞彙庫)
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-600 mb-4">
+              Upgrade simple words like <em>"money"</em>, <em>"tired"</em>, and <em>"bad for study"</em> with these DSE collocations:
+            </p>
+            <div class="grid md:grid-cols-2 gap-4">
+              ${VOCAB_GROUPS.map(
+                (group) => `
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60">
+                  <div class="flex items-center justify-between mb-2.5">
+                    <h4 class="font-bold text-slate-900 text-sm">${group.title}</h4>
+                    ${state.showChinese ? `<span class="text-xs font-semibold text-indigo-600">${group.zh}</span>` : ''}
+                  </div>
+                  <ul class="space-y-2">
+                    ${group.items
+                      .map(
+                        (item) => `
+                      <li class="text-xs sm:text-sm bg-white px-3 py-2 rounded-lg border border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
+                        <span class="font-semibold text-slate-800">${item.en}</span>
+                        ${state.showChinese ? `<span class="text-xs text-slate-500">${item.zh}</span>` : ''}
+                      </li>
+                    `
+                      )
+                      .join('')}
+                  </ul>
+                </div>
+              `
+              ).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 9. STEP 2: TASK 1 - IDEA DEVELOPMENT (SENTENCE ORDERING WITH HIGHLIGHTS)
+    // =========================================================================
+    function highlightKeyPhrase(fullText, keyIdea) {
+      if (!keyIdea || !fullText.includes(keyIdea)) return fullText;
+      return fullText.replace(
+        keyIdea,
+        `<mark class="bg-amber-200/90 text-slate-950 font-semibold px-1.5 py-0.5 rounded-md border-b-2 border-amber-500">${keyIdea}</mark>`
+      );
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      if (copy.every((item, idx) => item.id === arr[idx].id)) {
+        [copy[0], copy[1]] = [copy[1], copy[0]];
+      }
+      return copy;
+    }
+
+    function renderStep2() {
+      const idx = state.activeOrderTopic;
+      const theme = ORDER_THEMES[idx];
+      const userList = state.orderUserLists[idx];
+      const isSolved = state.orderSolved[idx];
+      const isChecked = state.orderChecked[idx];
+
+      return `
+        <div class="space-y-6">
+          <!-- Header Card -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+            <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold uppercase">
+              Task 1 • Idea Development (100-Word Paragraph Structure)
+            </span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">
+              Put the Sentences in Logical Order
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">
+              Arrange each ~100-word paragraph from <strong>Topic Sentence → Elaboration (Comparison / Cause & Effect) → Example</strong>.
+            </p>
+            <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-700 bg-amber-50/80 border border-amber-200 px-3 py-2 rounded-xl">
+              <span class="font-bold text-amber-900">💡 Reading Tip:</span>
+              <span>Look at the <mark class="bg-amber-200/90 text-slate-950 font-semibold px-1.5 py-0.5 rounded">yellow highlighted key ideas</mark> in each sentence to see how one idea connects to the next!</span>
+            </div>
+
+            <!-- 4 Theme Selector Pills in Exact Requested Sequence -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
+              ${ORDER_THEMES.map((t, i) => {
+                const active = i === idx;
+                const solved = state.orderSolved[i];
+                return `
+                  <button
+                    onclick="selectOrderTopic(${i})"
+                    class="p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                      active
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                        : solved
+                        ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    }"
+                  >
+                    <div class="flex items-center justify-between text-[11px] font-bold uppercase opacity-80">
+                      <span>${t.stance.split(' ')[0]} ${t.stance.split(' ')[1]}</span>
+                      <span>${solved ? '✓ Done' : ''}</span>
+                    </div>
+                    <div class="text-xs sm:text-sm font-bold mt-1">${t.title}</div>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Active Ordering Workspace -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+              <div>
+                <span class="text-xs font-bold uppercase px-2.5 py-1 rounded-md ${
+                  theme.stanceColor === 'emerald' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                }">
+                  ${theme.stance}
+                </span>
+                <h3 class="text-lg font-extrabold text-slate-900 mt-1.5">${theme.title}</h3>
+                ${state.showChinese ? `<p class="text-xs text-slate-500">${theme.zhTitle}</p>` : ''}
+              </div>
+              <button
+                onclick="reshuffleOrderTopic(${idx})"
+                class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-300 text-slate-600 hover:bg-slate-100 transition"
+              >
+                ↻ Shuffle Again
+              </button>
+            </div>
+
+            <!-- Sortable Sentence Cards -->
+            <div class="space-y-3">
+              ${userList
+                .map((sent, sIdx) => {
+                  const isPositionCorrect = sent.id === theme.sentences[sIdx].id;
+
+                  let cardBorderClass = 'bg-slate-50 border-slate-200 hover:border-indigo-300';
+                  let badgeBgClass = 'bg-indigo-100 text-indigo-800';
+                  let statusPill = '';
+
+                  if (isSolved || isChecked) {
+                    if (isPositionCorrect) {
+                      cardBorderClass = 'bg-emerald-50/70 border-emerald-300';
+                      badgeBgClass = 'bg-emerald-600 text-white';
+                      statusPill = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          ✓ Correct Order ${state.showChinese ? '(位置正確)' : ''}
+                        </span>
+                      `;
+                    } else {
+                      cardBorderClass = 'bg-rose-50/70 border-rose-300';
+                      badgeBgClass = 'bg-rose-600 text-white';
+                      statusPill = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                          ✗ Wrong Order ${state.showChinese ? '(位置未正確 — 請調整)' : ''}
+                        </span>
+                      `;
+                    }
+                  }
+
+                  return `
+                    <div class="p-4 rounded-xl border transition flex items-start gap-3 ${cardBorderClass}">
+                      <div class="w-7 h-7 rounded-lg font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5 ${badgeBgClass}">
+                        ${sIdx + 1}
+                      </div>
+
+                      <div class="flex-1 space-y-1.5">
+                        <div class="flex flex-wrap items-center gap-2">
+                          ${
+                            isSolved || isPositionCorrect
+                              ? `<span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">${sent.role}</span>`
+                              : ''
+                          }
+                          ${statusPill}
+                        </div>
+
+                        <p class="text-sm sm:text-base text-slate-800 leading-relaxed">
+                          ${highlightKeyPhrase(sent.text, sent.keyIdea)}
+                        </p>
+
+                        ${
+                          state.showChinese
+                            ? `<p class="text-xs sm:text-sm text-slate-600 bg-white/80 px-2.5 py-1.5 rounded-lg border border-slate-200/70">
+                                <span class="font-semibold text-slate-500">中文意思：</span>${sent.zh}
+                              </p>`
+                            : ''
+                        }
+                      </div>
+
+                      ${
+                        !isSolved
+                          ? `
+                        <div class="flex flex-col gap-1 shrink-0">
+                          <button
+                            onclick="moveSentence(${idx}, ${sIdx}, -1)"
+                            ${sIdx === 0 ? 'disabled' : ''}
+                            class="w-9 h-9 rounded-lg bg-white border border-slate-300 text-slate-700 font-bold hover:bg-indigo-50 hover:border-indigo-400 disabled:opacity-30 transition flex items-center justify-center"
+                            title="Move Up"
+                          >
+                            ▲
+                          </button>
+                          <button
+                            onclick="moveSentence(${idx}, ${sIdx}, 1)"
+                            ${sIdx === userList.length - 1 ? 'disabled' : ''}
+                            class="w-9 h-9 rounded-lg bg-white border border-slate-300 text-slate-700 font-bold hover:bg-indigo-50 hover:border-indigo-400 disabled:opacity-30 transition flex items-center justify-center"
+                            title="Move Down"
+                          >
+                            ▼
+                          </button>
+                        </div>
+                      `
+                          : ''
+                      }
+                    </div>
+                  `;
+                })
+                .join('')}
+            </div>
+
+            <!-- Idea Connection Flow Summary (Shown when solved) -->
+            ${
+              isSolved
+                ? `
+              <div class="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-2 fade-in">
+                <div class="text-xs font-extrabold text-amber-900 uppercase">
+                  🔗 How the Key Ideas Connect (句子之間的邏輯連接):
+                </div>
+                <div class="space-y-1.5">
+                  ${theme.sentences
+                    .map(
+                      (s, stepI) => `
+                    <div class="text-xs sm:text-sm text-slate-800 flex items-start gap-2">
+                      <span class="font-bold text-amber-800 shrink-0">Sentence ${stepI + 1}:</span>
+                      <span>
+                        <strong class="underline decoration-amber-400 decoration-2">${s.keyIdea}</strong>
+                        <span class="text-slate-600"> — ${s.connectionNote}</span>
+                      </span>
+                    </div>
+                  `
+                    )
+                    .join('')}
+                </div>
+              </div>
+            `
+                : ''
+            }
+
+            <!-- Check / Next Action Bar -->
+            <div class="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              ${
+                !isSolved
+                  ? `<button
+                      onclick="checkSentenceOrder(${idx})"
+                      class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 shadow-sm transition"
+                    >
+                      Check My Order (檢查句子排序)
+                    </button>`
+                  : `<div class="flex-1 flex flex-wrap items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl fade-in">
+                      <div>
+                        <div class="text-sm font-extrabold text-emerald-800">
+                          🎉 Brilliant! You arranged all sentences in the right logical order!
+                        </div>
+                        ${
+                          state.showChinese
+                            ? '<p class="text-xs text-emerald-700 mt-0.5">太棒了！你成功將所有句子按正確邏輯排列，繼續保持！</p>'
+                            : ''
+                        }
+                      </div>
+                      ${
+                        idx < ORDER_THEMES.length - 1
+                          ? `<button
+                              onclick="selectOrderTopic(${idx + 1})"
+                              class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 shadow-sm transition"
+                            >
+                              Next Theme: ${ORDER_THEMES[idx + 1].title} →
+                            </button>`
+                          : `<span class="text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-600 text-white">
+                              🏆 All 4 Themes Mastered! Ready for Task 2A →
+                            </span>`
+                      }
+                    </div>`
+              }
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function selectOrderTopic(topicIdx) {
+      state.activeOrderTopic = topicIdx;
+      renderCurrentStep();
+    }
+
+    function moveSentence(topicIdx, sentIdx, direction) {
+      const list = state.orderUserLists[topicIdx];
+      const targetIdx = sentIdx + direction;
+      if (targetIdx < 0 || targetIdx >= list.length) return;
+      [list[sentIdx], list[targetIdx]] = [list[targetIdx], list[sentIdx]];
+
+      const correctList = ORDER_THEMES[topicIdx].sentences;
+      const allRight = list.every((item, i) => item.id === correctList[i].id);
+      if (allRight) {
+        state.orderChecked[topicIdx] = true;
+        state.orderSolved[topicIdx] = true;
+        awardStar(`order_${topicIdx}`, topicIdx + 1);
+      }
+      renderCurrentStep();
+    }
+
+    function reshuffleOrderTopic(topicIdx) {
+      state.orderSolved[topicIdx] = false;
+      state.orderChecked[topicIdx] = false;
+      state.orderUserLists[topicIdx] = shuffleArray(ORDER_THEMES[topicIdx].sentences);
+      renderCurrentStep();
+    }
+
+    function checkSentenceOrder(topicIdx) {
+      state.orderChecked[topicIdx] = true;
+      const userList = state.orderUserLists[topicIdx];
+      const correctList = ORDER_THEMES[topicIdx].sentences;
+      let correctPositions = 0;
+
+      userList.forEach((item, idx) => {
+        if (item.id === correctList[idx].id) correctPositions++;
+      });
+
+      if (correctPositions === correctList.length) {
+        state.orderSolved[topicIdx] = true;
+        awardStar(`order_${topicIdx}`, topicIdx + 1);
+        renderCurrentStep();
+      } else {
+        showToast(
+          `Good effort! ${correctPositions} of ${correctList.length} sentences are already in the right spot. Adjust the red ones!`,
+          'warning'
+        );
+        renderCurrentStep();
+      }
+    }
+
+    // =========================================================================
+    // 10. STEP 3: TASK 2A - CAUSAL RELATIONSHIPS
+    // =========================================================================
+    function renderStep3() {
+      return `
+        <div class="space-y-6">
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+            <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold uppercase">
+              Task 2A • Elaboration Technique 1
+            </span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">
+              Sentence Patterns for Causal Relationships (因果關係句型)
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">
+              Never stop after one short sentence! Build a <strong>3-step domino chain</strong>:
+              <span class="font-semibold text-indigo-700">Action → Immediate Result → Final Consequence</span>.
+            </p>
+          </div>
+
+          <!-- 4 Causal Patterns -->
+          <div class="grid md:grid-cols-2 gap-4">
+            ${CAUSAL_PATTERNS.map(
+              (p) => `
+              <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between space-y-3">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-0.5 rounded-md bg-indigo-100 text-indigo-800 text-xs font-extrabold">${p.code}</span>
+                    <span class="text-xs font-bold text-slate-500">${p.name}</span>
+                  </div>
+                  <div class="mt-3 p-3 rounded-xl bg-slate-900 text-indigo-200 font-mono text-xs leading-relaxed">
+                    ${p.formula}
+                  </div>
+                  ${state.showChinese ? `<p class="text-xs text-slate-600 mt-2">${p.zh}</p>` : ''}
+                </div>
+                <div class="pt-3 border-t border-slate-100 text-xs sm:text-sm text-slate-800 leading-relaxed">
+                  <span class="text-xs font-bold text-slate-400 uppercase block mb-0.5">Model Sentence:</span>
+                  ${p.example}
+                </div>
+              </div>
+            `
+            ).join('')}
+          </div>
+
+          <!-- Mini Practice Quiz -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-lg font-extrabold text-slate-900">
+              Quick Practice: Choose the Best Causal Connector (即時練習)
+            </h3>
+            ${CAUSAL_QUIZ.map((q, qIdx) => {
+              const selected = state.causalAnswers[qIdx];
+              const isAnswered = selected !== null;
+              const isCorrect = selected === q.correctIndex;
+              return `
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                  <p class="text-sm font-semibold text-slate-900">${q.question}</p>
+                  <div class="flex flex-wrap gap-2">
+                    ${q.options
+                      .map((opt, oIdx) => {
+                        let btnClass = 'bg-white border-slate-300 text-slate-700 hover:border-indigo-500';
+                        if (isAnswered) {
+                          if (oIdx === q.correctIndex) {
+                            btnClass = 'bg-emerald-600 border-emerald-600 text-white font-bold';
+                          } else if (oIdx === selected) {
+                            btnClass = 'bg-rose-600 border-rose-600 text-white';
+                          } else {
+                            btnClass = 'bg-white border-slate-200 text-slate-500 hover:border-indigo-400';
+                          }
+                        }
+                        return `
+                          <button
+                            onclick="answerCausalQuiz(${qIdx}, ${oIdx})"
+                            class="px-4 py-2 rounded-xl border text-xs sm:text-sm font-medium transition ${btnClass}"
+                          >
+                            ${opt}
+                          </button>
+                        `;
+                      })
+                      .join('')}
+                  </div>
+                  ${
+                    isAnswered
+                      ? isCorrect
+                        ? `<div class="p-3.5 rounded-xl bg-emerald-100/80 border border-emerald-300 text-xs sm:text-sm text-emerald-950 space-y-1 fade-in">
+                            <div class="font-extrabold text-emerald-800">
+                              ${getRandomEncouragement(qIdx).en} ${state.showChinese ? `(${getRandomEncouragement(qIdx).zh})` : ''}
+                            </div>
+                            <div><strong>Why it works:</strong> ${q.explanation}</div>
+                          </div>`
+                        : `<div class="p-3.5 rounded-xl bg-rose-100/80 border border-rose-300 text-xs sm:text-sm text-rose-950 space-y-1 fade-in">
+                            <div class="font-extrabold text-rose-800">
+                              ✗ Almost! Look at the grammar tip below and try clicking the right one! ${state.showChinese ? '(差一點！看看提示再試一次！)' : ''}
+                            </div>
+                            <div><strong>Tip:</strong> ${q.explanation}</div>
+                          </div>`
+                      : ''
+                  }
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function answerCausalQuiz(qIdx, optIdx) {
+      state.causalAnswers[qIdx] = optIdx;
+      if (optIdx === CAUSAL_QUIZ[qIdx].correctIndex) {
+        awardStar(`causal_${qIdx}`, qIdx);
+      }
+      renderCurrentStep();
+    }
+
+    // =========================================================================
+    // 11. STEP 4: TASK 2B - MAKING COMPARISONS
+    // =========================================================================
+    function renderStep4() {
+      return `
+        <div class="space-y-6">
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+            <span class="px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-bold uppercase">
+              Task 2B • Elaboration Technique 2
+            </span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">
+              Sentence Patterns for Making Comparisons (對比比較句型)
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">
+              Comparing <strong>working vs. non-working students</strong> or <strong>school vs. workplace</strong> is the easiest way to add 25–30 words of strong elaboration.
+            </p>
+          </div>
+
+          <!-- 4 Comparison Patterns -->
+          <div class="grid md:grid-cols-2 gap-4">
+            ${COMPARISON_PATTERNS.map(
+              (p) => `
+              <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between space-y-3">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-0.5 rounded-md bg-teal-100 text-teal-800 text-xs font-extrabold">${p.code}</span>
+                    <span class="text-xs font-bold text-slate-500">${p.name}</span>
+                  </div>
+                  <div class="mt-3 p-3 rounded-xl bg-slate-900 text-teal-200 font-mono text-xs leading-relaxed">
+                    ${p.formula}
+                  </div>
+                  ${state.showChinese ? `<p class="text-xs text-slate-600 mt-2">${p.zh}</p>` : ''}
+                </div>
+                <div class="pt-3 border-t border-slate-100 text-xs sm:text-sm text-slate-800 leading-relaxed">
+                  <span class="text-xs font-bold text-slate-400 uppercase block mb-0.5">Model Sentence:</span>
+                  ${p.example}
+                </div>
+              </div>
+            `
+            ).join('')}
+          </div>
+
+          <!-- Mini Practice Quiz -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-lg font-extrabold text-slate-900">
+              Quick Practice: Master Comparison Structures (即時練習)
+            </h3>
+            ${COMPARISON_QUIZ.map((q, qIdx) => {
+              const selected = state.comparisonAnswers[qIdx];
+              const isAnswered = selected !== null;
+              const isCorrect = selected === q.correctIndex;
+              return `
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                  <p class="text-sm font-semibold text-slate-900">${q.question}</p>
+                  <div class="flex flex-wrap gap-2">
+                    ${q.options
+                      .map((opt, oIdx) => {
+                        let btnClass = 'bg-white border-slate-300 text-slate-700 hover:border-teal-500';
+                        if (isAnswered) {
+                          if (oIdx === q.correctIndex) {
+                            btnClass = 'bg-emerald-600 border-emerald-600 text-white font-bold';
+                          } else if (oIdx === selected) {
+                            btnClass = 'bg-rose-600 border-rose-600 text-white';
+                          } else {
+                            btnClass = 'bg-white border-slate-200 text-slate-500 hover:border-teal-400';
+                          }
+                        }
+                        return `
+                          <button
+                            onclick="answerComparisonQuiz(${qIdx}, ${oIdx})"
+                            class="px-4 py-2 rounded-xl border text-xs sm:text-sm font-medium transition ${btnClass}"
+                          >
+                            ${opt}
+                          </button>
+                        `;
+                      })
+                      .join('')}
+                  </div>
+                  ${
+                    isAnswered
+                      ? isCorrect
+                        ? `<div class="p-3.5 rounded-xl bg-emerald-100/80 border border-emerald-300 text-xs sm:text-sm text-emerald-950 space-y-1 fade-in">
+                            <div class="font-extrabold text-emerald-800">
+                              ${getRandomEncouragement(qIdx + 2).en} ${state.showChinese ? `(${getRandomEncouragement(qIdx + 2).zh})` : ''}
+                            </div>
+                            <div><strong>Why it works:</strong> ${q.explanation}</div>
+                          </div>`
+                        : `<div class="p-3.5 rounded-xl bg-rose-100/80 border border-rose-300 text-xs sm:text-sm text-rose-950 space-y-1 fade-in">
+                            <div class="font-extrabold text-rose-800">
+                              ✗ Almost! Check the structure tip below and try again! ${state.showChinese ? '(差一點！看看提示再試一次！)' : ''}
+                            </div>
+                            <div><strong>Tip:</strong> ${q.explanation}</div>
+                          </div>`
+                      : ''
+                  }
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function answerComparisonQuiz(qIdx, optIdx) {
+      state.comparisonAnswers[qIdx] = optIdx;
+      if (optIdx === COMPARISON_QUIZ[qIdx].correctIndex) {
+        awardStar(`comp_${qIdx}`, qIdx + 2);
+      }
+      renderCurrentStep();
+    }
+
+    // =========================================================================
+    // 12. STEP 5: BEFORE & AFTER DEMONSTRATION + HOMEWORK DRAFTING PAD
+    // =========================================================================
+    function renderStep5() {
+      const stageIdx = state.beforeAfterStage;
+      const stage = BEFORE_AFTER_STAGES[stageIdx];
+
+      return `
+        <div class="space-y-6">
+          <!-- Before & After Interactive Demonstration -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+            <span class="px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold uppercase">
+              Before & After • Elaboration Demonstration
+            </span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">
+              Watch a Weak 17-Word Idea Grow into a 101-Word DSE Paragraph!
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">
+              Click Stages 1 to 4 below to see how adding a <strong>Comparison</strong>, a <strong>Causal Chain</strong>, and a <strong>Hong Kong Example</strong> transforms a weak draft:
+            </p>
+
+            <!-- Stage Selector Buttons -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
+              ${BEFORE_AFTER_STAGES.map(
+                (st, i) => `
+                <button
+                  onclick="setBeforeAfterStage(${i})"
+                  class="p-3 rounded-xl border text-left transition ${
+                    i === stageIdx
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                  }"
+                >
+                  <div class="text-xs font-extrabold">${st.level.split(':')[0]}</div>
+                  <div class="text-[11px] opacity-90 mt-0.5">${st.level.split(':')[1]}</div>
+                </button>
+              `
+              ).join('')}
+            </div>
+
+            <!-- Active Stage Display -->
+            <div class="mt-5 p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h3 class="font-extrabold text-slate-900 text-base">${stage.level}</h3>
+                <span class="px-3 py-1 rounded-full text-xs font-bold border ${stage.badgeClass}">
+                  ${stage.badge}
+                </span>
+              </div>
+
+              <p class="text-sm sm:text-base text-slate-800 leading-loose bg-white p-4 rounded-xl border border-slate-200">
+                ${stage.html}
+              </p>
+
+              <div class="text-xs sm:text-sm text-slate-700 bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+                <strong>Teacher's Tip:</strong> ${stage.explanation}
+                ${state.showChinese ? `<br/><span class="text-slate-600">${stage.zhNote}</span>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Homework Writing Pad -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 class="text-lg font-extrabold text-slate-900">
+                  Your Homework Writing Pad (試寫你的文章)
+                </h3>
+                <p class="text-xs text-slate-500">
+                  Target: ~400–450 words total (~100 words per body paragraph). Your draft is saved automatically while you switch tabs!
+                </p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span id="draft-word-count" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200">
+                  0 words
+                </span>
+                <button
+                  onclick="handleClearDraft()"
+                  class="px-3 py-1.5 rounded-xl border text-xs font-bold transition ${
+                    state.confirmClearDraft
+                      ? 'bg-rose-600 text-white border-rose-600'
+                      : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                  }"
+                >
+                  ${state.confirmClearDraft ? 'Confirm Clear?' : 'Clear'}
+                </button>
+                <button
+                  onclick="copyEssayToClipboard()"
+                  class="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition"
+                >
+                  Copy Draft
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Sentence Starter Chips -->
+            <div class="flex flex-wrap gap-1.5">
+              <button onclick="insertStarter('First and foremost, taking a part-time job allows senior secondary students to ')" class="px-2.5 py-1.5 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-semibold hover:bg-sky-100">+ Pro 1 Topic</button>
+              <button onclick="insertStarter('Compared with peers who rely completely on their families, working students ')" class="px-2.5 py-1.5 rounded-lg bg-teal-50 text-teal-800 border border-teal-200 text-xs font-semibold hover:bg-teal-100">+ Compared with...</button>
+              <button onclick="insertStarter('Unlike the school classroom, where teachers guide students step by step, a workplace requires ')" class="px-2.5 py-1.5 rounded-lg bg-teal-50 text-teal-800 border border-teal-200 text-xs font-semibold hover:bg-teal-100">+ Unlike...</button>
+              <button onclick="insertStarter('Spending long hours on a job leads to poor time management, which eventually causes ')" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-200 text-xs font-semibold hover:bg-indigo-100">+ Leads to... which causes</button>
+              <button onclick="insertStarter('For example, a Form 5 student working at a ')" class="px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold hover:bg-amber-100">+ For example...</button>
+              <button onclick="insertStarter('Nevertheless, focusing solely on these benefits would be unfair; there is another side to the coin.\n\n')" class="px-2.5 py-1.5 rounded-lg bg-purple-50 text-purple-800 border border-purple-200 text-xs font-semibold hover:bg-purple-100">+ Transition</button>
+            </div>
+
+            <textarea
+              id="homework-textarea"
+              oninput="updateWordCount(true)"
+              rows="11"
+              placeholder="Write your article for the school newsletter here...&#10;&#10;Title: Pros and cons of senior secondary students taking part-time jobs&#10;&#10;Paragraph 1 (Introduction): Nowadays, it is common for senior secondary students in Hong Kong to take up part-time jobs..."
+              class="w-full p-4 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none text-sm sm:text-base leading-relaxed text-slate-800"
+            >${escapeHtml(state.draftText)}</textarea>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function setBeforeAfterStage(stageNum) {
+      state.beforeAfterStage = stageNum;
+      if (stageNum === 3) {
+        awardStar('before_after_full', 3);
+      }
+      renderCurrentStep();
+    }
+
+    function insertStarter(phrase) {
+      const ta = document.getElementById('homework-textarea');
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const current = ta.value;
+      ta.value = current.substring(0, start) + phrase + current.substring(end);
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = start + phrase.length;
+      updateWordCount(true);
+    }
+
+    function updateWordCount(shouldReward = true) {
+      const ta = document.getElementById('homework-textarea');
+      const badge = document.getElementById('draft-word-count');
+      if (!ta || !badge) return;
+      state.draftText = ta.value;
+      if (state.confirmClearDraft && ta.value.trim()) {
+        state.confirmClearDraft = false;
+      }
+      const words = ta.value.trim().split(/\s+/).filter(Boolean);
+      badge.textContent = `${words.length} words`;
+      if (words.length >= 380) {
+        badge.className =
+          'px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-300';
+        if (shouldReward) {
+          awardStar('draft_target_reached', 4);
+        }
+      } else {
+        badge.className =
+          'px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200';
+      }
+    }
+
+    function handleClearDraft() {
+      if (!state.draftText.trim()) {
+        showToast('Your writing pad is already empty!', 'warning');
+        return;
+      }
+      if (!state.confirmClearDraft) {
+        state.confirmClearDraft = true;
+        renderCurrentStep();
+        return;
+      }
+      state.draftText = '';
+      state.confirmClearDraft = false;
+      renderCurrentStep();
+      showToast('Writing pad cleared.', 'info');
+    }
+
+    function copyEssayToClipboard() {
+      const ta = document.getElementById('homework-textarea');
+      if (!ta || !ta.value.trim()) {
+        showToast('Write a few sentences first before copying!', 'warning');
+        return;
+      }
+      try {
+        ta.select();
+        document.execCommand('copy');
+        if (window.getSelection) {
+          window.getSelection().removeAllRanges();
+        }
+        showToast('Draft copied to clipboard! Ready to paste into Google Docs / Word.', 'success');
+      } catch (err) {
+        showToast('Please select your text manually and press Ctrl+C / Cmd+C to copy.', 'warning');
+      }
+    }
+
+    // Boot application on window load
+    window.onload = initApp;
+  </script>
+</body>
+</html>

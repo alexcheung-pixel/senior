@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HKDSE F.4 Writing Quest: Parents' Letter Mastery</title>
+  <!-- Tailwind CSS for responsive, modern styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tone.js for synthesized game sound effects (no external audio URLs needed) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Smooth tile entrance and bounce effects */
+    @keyframes popIn {
+      0% { transform: scale(0.88); opacity: 0; }
+      70% { transform: scale(1.04); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.35); }
+      50% { box-shadow: 0 0 0 8px rgba(79, 70, 229, 0); }
+    }
+
+    .animate-pop {
+      animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-shake {
+      animation: shake 0.35s ease-in-out;
+    }
+
+    .animate-glow {
+      animation: pulseGlow 2s infinite;
+    }
+
+    /* Custom scrollbar for horizontal quest tabs on mobile */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Interactive word tile styling */
+    .word-tile {
+      transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease, border-color 0.14s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .word-tile:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+
+  <!-- ===================================================================== -->
+  <!-- TOP GAMIFIED HUD HEADER                                               -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      <!-- Brand & Course Title -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center font-extrabold text-lg shadow-md">
+          DSE
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-extrabold text-sm sm:text-base text-slate-900 leading-tight">F.4 Writing Quest</h1>
+            <span class="hidden sm:inline-block px-2 py-0.5 text-[11px] font-bold rounded-full bg-indigo-100 text-indigo-700">Paper 2 Part A</span>
+          </div>
+          <p class="text-xs text-slate-500">Parents' Letter: Structures &amp; Vocab</p>
+        </div>
+      </div>
+
+      <!-- Gamification Status Bar (Rank, XP Bar, Streak, Audio Toggle) -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Rank & XP Progress -->
+        <div class="bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 flex items-center gap-2">
+          <span id="rank-icon" class="text-base">🌱</span>
+          <div>
+            <div class="flex items-center justify-between gap-2 text-[11px] font-bold">
+              <span id="rank-title" class="text-indigo-700">F.4 Rookie</span>
+              <span id="xp-text" class="text-slate-600">0 XP</span>
+            </div>
+            <div class="w-20 sm:w-28 h-1.5 bg-slate-200 rounded-full overflow-hidden mt-0.5">
+              <div id="xp-bar" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Streak Counter -->
+        <div id="streak-badge" class="bg-amber-50 border border-amber-200 text-amber-700 rounded-xl px-2.5 py-1.5 flex items-center gap-1 font-extrabold text-xs sm:text-sm" title="Consecutive Correct Answers">
+          <span>🔥</span>
+          <span id="streak-count">0</span>
+        </div>
+
+        <!-- Sound Effects Toggle -->
+        <button id="sound-toggle" onclick="toggleSound()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 transition" title="Toggle Sound Effects" aria-label="Toggle Sound Effects">
+          <span id="sound-icon" class="text-base">🔊</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 5-Stage Quest Navigation Stepper -->
+    <nav class="bg-slate-50/90 border-t border-slate-200/80">
+      <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar" id="quest-nav">
+        <button onclick="switchStage(1)" id="nav-stage-1" class="stage-tab flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border">
+          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-extrabold bg-indigo-600 text-white">1</span>
+          <span>2018 Exam &amp; Sample</span>
+        </button>
+        <button onclick="switchStage(2)" id="nav-stage-2" class="stage-tab flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border">
+          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-extrabold bg-slate-200 text-slate-700">2</span>
+          <span>Paragraph &amp; Pattern Decoder</span>
+        </button>
+        <button onclick="switchStage(3)" id="nav-stage-3" class="stage-tab flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border">
+          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-extrabold bg-slate-200 text-slate-700">3</span>
+          <span>Homework: EcoPark</span>
+        </button>
+        <button onclick="switchStage(4)" id="nav-stage-4" class="stage-tab flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border">
+          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-extrabold bg-slate-200 text-slate-700">4</span>
+          <span>Vocab Vault (12)</span>
+        </button>
+        <button onclick="switchStage(5)" id="nav-stage-5" class="stage-tab flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border">
+          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-extrabold bg-slate-200 text-slate-700">5</span>
+          <span>Pattern Dojo (15 Quests)</span>
+          <span class="px-1.5 py-0.5 text-[10px] rounded-md bg-amber-400 text-slate-900 font-extrabold">MAIN</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Toast Notification Banner (Replaces alert()) -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-xs sm:max-w-sm"></div>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN CONTENT WORKSPACE                                                -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-6">
+
+    <!-- =================================================================== -->
+    <!-- STAGE 1: 2018 DSE PART A QUESTION & SAMPLE WRITING                  -->
+    <!-- =================================================================== -->
+    <section id="stage-1" class="quest-stage space-y-6">
+      <!-- Mission Banner -->
+      <div class="bg-gradient-to-r from-indigo-700 via-indigo-600 to-violet-600 rounded-2xl p-5 sm:p-6 text-white shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="inline-block px-2.5 py-1 rounded-lg bg-white/15 text-xs font-bold uppercase tracking-wider mb-2">Stage 1 • Past Paper Foundation</span>
+            <h2 class="text-xl sm:text-2xl font-extrabold">2018 HKDSE Paper 2 Part A: Parents' Letter</h2>
+            <p class="text-indigo-100 text-sm mt-1">Examine the official 2018 exam prompt, poster, mindmap, and high-scoring sample letter.</p>
+          </div>
+          <button onclick="completeStage1()" id="btn-complete-s1" class="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-sm shadow transition flex items-center gap-2">
+            <span>Claim +50 XP &amp; Analyze Essay</span>
+            <span>➔</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left Column: 2018 Exam Prompt, Poster & Mindmap (5 cols) -->
+        <div class="lg:col-span-5 space-y-5">
+          <!-- Exam Prompt Box -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-600">2018-DSE-ENG LANG 2 • PART A</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">~200 words</span>
+            </div>
+            <p class="text-sm text-slate-700 leading-relaxed font-medium">
+              1. You are <strong class="text-slate-900">Chris Wong</strong>, the class teacher of <strong class="text-slate-900">6A</strong>. You will be taking your class on a school trip next month to <strong class="text-indigo-700">sky100</strong>, shown in the poster below.
+            </p>
+            <p class="text-sm text-slate-700 leading-relaxed font-medium mt-2">
+              Write a <strong class="text-slate-900">letter to parents</strong> giving them the necessary information about the trip. You may use the mindmap to help you write your letter.
+            </p>
+          </div>
+
+          <!-- Poster Card -->
+          <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-5 shadow-md border border-slate-700 relative overflow-hidden">
+            <div class="text-center bg-indigo-500/20 border border-indigo-400/30 rounded-xl py-1.5 px-3 text-xs font-bold italic text-indigo-200 mb-4">
+              "Highest indoor observation deck in the city!"
+            </div>
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="text-2xl font-black tracking-tight text-white">sky<span class="text-amber-400">100</span></div>
+                <div class="text-xs text-slate-300 font-semibold mb-3">Hong Kong Observation Deck</div>
+                <ul class="space-y-1.5 text-xs text-slate-200">
+                  <li class="flex items-center gap-2"><span>📍</span> <span>100/F ICC, 1 Austin Road, West Kowloon</span></li>
+                  <li class="flex items-center gap-2"><span>🎟️</span> <span>Entrance fee: <strong class="text-amber-300">$150</strong></span></li>
+                  <li class="flex items-center gap-2"><span>🕙</span> <span>Opening hours: <strong class="text-emerald-300">10am – 9pm</strong></span></li>
+                </ul>
+              </div>
+              <!-- Decorative Skyline SVG -->
+              <div class="w-20 h-24 rounded-xl bg-indigo-900/60 border border-indigo-500/30 flex items-end justify-center p-2 flex-shrink-0">
+                <svg viewBox="0 0 64 80" class="w-full h-full text-indigo-300" fill="currentColor">
+                  <rect x="24" y="6" width="16" height="70" rx="2" class="text-amber-400" />
+                  <rect x="8" y="32" width="12" height="44" rx="1" opacity="0.6" />
+                  <rect x="44" y="24" width="12" height="52" rx="1" opacity="0.7" />
+                  <circle cx="32" cy="14" r="2.5" class="text-slate-900" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mindmap Visual -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-3 text-center">Exam Mindmap (5 Content Nodes)</h3>
+            <div class="grid grid-cols-2 gap-2.5 text-center text-xs font-bold">
+              <div class="p-2.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-800">🚌 Transportation</div>
+              <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800">🎯 Purpose of the trip</div>
+              <div class="col-span-2 py-3 px-4 rounded-xl bg-indigo-600 text-white font-extrabold text-sm shadow-sm">
+                🏫 School Trip (Central Topic)
+              </div>
+              <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">💰 Cost</div>
+              <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">🍱 Lunch</div>
+              <div class="col-span-2 p-2.5 rounded-xl bg-purple-50 border-2 border-dashed border-purple-300 text-purple-800">
+                ❓ Own Idea (e.g., Date, Assembly Time &amp; Venue Highlights)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Sample Writing with Interactive Pattern Highlighter (7 cols) -->
+        <div class="lg:col-span-7">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-slate-900 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">📄</span>
+                <h3 class="font-bold text-sm sm:text-base">Model Sample Writing (2018 sky100)</h3>
+              </div>
+              <button onclick="toggleSampleHighlights()" id="btn-toggle-highlight" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs transition">
+                ✨ Highlight Target Patterns: ON
+              </button>
+            </div>
+
+            <!-- Legend for Highlighted Patterns -->
+            <div id="highlight-legend" class="bg-indigo-50/80 border-b border-indigo-100 px-5 py-2.5 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-700">
+              <span class="font-bold text-indigo-800">Target Structures Spotted:</span>
+              <span class="px-2 py-0.5 rounded bg-amber-200/80 text-amber-950">1. Not only..., but also (Inversion)</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-200/80 text-emerald-950">2. Participle Phrase</span>
+              <span class="px-2 py-0.5 rounded bg-sky-200/80 text-sky-950">3. Provided that</span>
+              <span class="px-2 py-0.5 rounded bg-purple-200/80 text-purple-950">4. It is + adj./p.p. + that</span>
+              <span class="px-2 py-0.5 rounded bg-rose-200/80 text-rose-950">5. Should you have... (Inversion)</span>
+            </div>
+
+            <!-- Letter Text -->
+            <div class="p-5 sm:p-7 space-y-4 text-sm sm:text-[15px] leading-relaxed text-slate-800 font-normal">
+              <p class="font-bold text-slate-900">Dear Parents,</p>
+
+              <p>
+                To facilitate learning outside the classroom and broaden students' horizons, I am writing to inform you of an upcoming school trip to Sky100, which all Class 6A students will attend next month.
+                <span class="pattern-hl bg-amber-200/80 text-amber-950 px-1 rounded font-medium transition" title="Pattern 1: Not only..., but also... (Inversion)">Not only will this excursion deepen their understanding of the city, but it will also provide an enriching and memorable experience.</span>
+              </p>
+
+              <p>
+                <span class="pattern-hl bg-emerald-200/80 text-emerald-950 px-1 rounded font-medium transition" title="Pattern 2: Participle Phrase">Located on the 100th floor of the International Commerce Centre (ICC) at 1 Austin Road, West Kowloon,</span>
+                Sky100 Observation Deck offers a panoramic view of Hong Kong. Students are required to make their own way there and assemble at the main entrance of ICC by 10:00 a.m. on 5 May 2018. For those who plan to travel by public transport, taking the MTR to Kowloon Station or boarding Minibus Route 74 are both convenient options.
+              </p>
+
+              <p>
+                Regarding lunch arrangements, Sky100 has generously offered a special student rate of $30 per lunchbox. If your child wishes to purchase one, please remind them to bring enough cash on the day. Alternatively, students who prefer to dine at nearby restaurants are welcome to do so,
+                <span class="pattern-hl bg-sky-200/80 text-sky-950 px-1 rounded font-medium transition" title="Pattern 5: Provided that">provided that they return to Sky100 by 1:30 p.m.</span>
+              </p>
+
+              <p>
+                In addition, please provide your child with a $150 cheque for the entrance fee.
+                <span class="pattern-hl bg-purple-200/80 text-purple-950 px-1 rounded font-medium transition" title="Pattern 3: It is + adj./p.p. + that">It is sincerely hoped that this outing will be a rewarding experience for everyone.</span>
+                <span class="pattern-hl bg-rose-200/80 text-rose-950 px-1 rounded font-medium transition" title="Pattern 4: Should you have any... (Inversion)">Should you have any enquiries, please do not hesitate to email me at chriswong@mss.edu.hk or call me at 12345678.</span>
+              </p>
+
+              <div class="pt-2">
+                <p>Yours sincerely,</p>
+                <p class="font-bold text-slate-900 mt-2">Chris Wong</p>
+                <p class="text-slate-600 text-xs">Class Teacher of 6A</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- STAGE 2: PARAGRAPH-BY-PARAGRAPH ANALYSIS & PATTERN SPOTTER          -->
+    <!-- =================================================================== -->
+    <section id="stage-2" class="quest-stage hidden space-y-6">
+      <div class="bg-gradient-to-r from-emerald-700 to-teal-600 rounded-2xl p-5 sm:p-6 text-white shadow-lg">
+        <span class="inline-block px-2.5 py-1 rounded-lg bg-white/15 text-xs font-bold uppercase tracking-wider mb-2">Stage 2 • Structural Blueprint</span>
+        <h2 class="text-xl sm:text-2xl font-extrabold">Sample Essay Analysis &amp; Pattern Spotter</h2>
+        <p class="text-emerald-100 text-sm mt-1">Inspect each paragraph's communicative purpose, task details, conclusion checklist, and spot the 5 key sentence patterns.</p>
+      </div>
+
+      <!-- Interactive Paragraph Tabs -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="grid grid-cols-2 sm:grid-cols-4 border-b border-slate-200 bg-slate-50">
+          <button onclick="selectParagraph(0)" id="para-tab-0" class="para-tab py-3.5 px-3 text-xs sm:text-sm font-extrabold border-b-2 transition">
+            Paragraph 1<br><span class="text-[11px] font-medium opacity-80">Opening &amp; Purpose</span>
+          </button>
+          <button onclick="selectParagraph(1)" id="para-tab-1" class="para-tab py-3.5 px-3 text-xs sm:text-sm font-extrabold border-b-2 transition">
+            Paragraph 2<br><span class="text-[11px] font-medium opacity-80">Venue, Time &amp; Transport</span>
+          </button>
+          <button onclick="selectParagraph(2)" id="para-tab-2" class="para-tab py-3.5 px-3 text-xs sm:text-sm font-extrabold border-b-2 transition">
+            Paragraph 3<br><span class="text-[11px] font-medium opacity-80">Lunch Arrangements</span>
+          </button>
+          <button onclick="selectParagraph(3)" id="para-tab-3" class="para-tab py-3.5 px-3 text-xs sm:text-sm font-extrabold border-b-2 transition">
+            Paragraph 4<br><span class="text-[11px] font-medium opacity-80">Cost &amp; Conclusion</span>
+          </button>
+        </div>
+
+        <!-- Paragraph Analysis Display Panel -->
+        <div id="para-analysis-content" class="p-5 sm:p-6"></div>
+      </div>
+
+      <!-- Special Spotlight Card: What to Include in a DSE Parents' Letter Conclusion -->
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-900 flex items-center justify-center font-black text-lg flex-shrink-0">
+            ★
+          </div>
+          <div class="flex-1">
+            <h3 class="font-extrabold text-base sm:text-lg text-amber-950">DSE Exam Secret: What MUST Be Included in the Conclusion?</h3>
+            <p class="text-xs sm:text-sm text-amber-900 mt-1 mb-4">In HKDSE Part A Parents' Letters, markers look for 4 essential closing elements to award top marks for <strong>Content</strong> and <strong>Tone/Register</strong>:</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+              <div class="bg-white rounded-xl p-3.5 border border-amber-200 shadow-sm">
+                <div class="font-extrabold text-indigo-700 mb-1">1. Goodwill &amp; Expectation</div>
+                <p class="text-slate-600">Express sincere hope that the trip will benefit students (e.g., <em>"It is sincerely hoped that this outing will be rewarding..."</em>).</p>
+              </div>
+              <div class="bg-white rounded-xl p-3.5 border border-amber-200 shadow-sm">
+                <div class="font-extrabold text-emerald-700 mb-1">2. Polite Enquiry Invitation</div>
+                <p class="text-slate-600">Use formal inversion to invite questions (e.g., <em>"Should you have any enquiries, please do not hesitate to..."</em>).</p>
+              </div>
+              <div class="bg-white rounded-xl p-3.5 border border-amber-200 shadow-sm">
+                <div class="font-extrabold text-sky-700 mb-1">3. Teacher Contact Info</div>
+                <p class="text-slate-600">Provide clear email address and school phone number so parents can reach you easily.</p>
+              </div>
+              <div class="bg-white rounded-xl p-3.5 border border-amber-200 shadow-sm">
+                <div class="font-extrabold text-purple-700 mb-1">4. Formal Sign-Off (+ Reply Slip)</div>
+                <p class="text-slate-600">Close with <em>"Yours sincerely,"</em> + Full Name &amp; Title (<em>Class Teacher of 6A</em>). Remember parents' letters pair with a Reply Slip!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini-Game: Spot the 5 Target Patterns in the Sample Writing -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-extrabold">Mini-Challenge • +75 XP</span>
+            <h3 class="text-lg font-extrabold text-slate-900 mt-1">Pattern Spotter: Identify the 5 Structures in the Sample Essay</h3>
+            <p class="text-xs sm:text-sm text-slate-600">Match each sentence from the 2018 sample letter to the grammar pattern you will master in Stage 5.</p>
+          </div>
+          <div id="spotter-score-badge" class="px-3 py-1.5 rounded-xl bg-slate-100 font-bold text-xs text-slate-700">
+            Matched: 0 / 5
+          </div>
+        </div>
+
+        <div id="pattern-spotter-list" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- STAGE 3: HOMEWORK QUESTION — TAI TONG ORGANIC ECOPARK               -->
+    <!-- =================================================================== -->
+    <section id="stage-3" class="quest-stage hidden space-y-6">
+      <div class="bg-gradient-to-r from-teal-700 via-emerald-700 to-green-700 rounded-2xl p-5 sm:p-6 text-white shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="inline-block px-2.5 py-1 rounded-lg bg-white/15 text-xs font-bold uppercase tracking-wider mb-2">Stage 3 • Your Writing Assignment</span>
+            <h2 class="text-xl sm:text-2xl font-extrabold">Homework Task: Tai Tong Organic EcoPark</h2>
+            <p class="text-emerald-100 text-sm mt-1">Study the new poster and plan all 5 mindmap points before learning the vocabulary and grammar structures.</p>
+          </div>
+          <button onclick="switchStage(4)" class="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-sm shadow transition">
+            Next: Learn 12 Vocab Phrases ➔
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Homework Prompt & EcoPark Visual Poster (7 cols) -->
+        <div class="lg:col-span-7 space-y-5">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-700">Homework Prompt</span>
+            <p class="text-sm sm:text-base text-slate-800 font-medium leading-relaxed mt-2">
+              You are <strong class="text-slate-900">Chris Wong</strong>, the class teacher of <strong class="text-slate-900">6A</strong>. You will be taking your class on a school trip next month to <strong class="text-emerald-700">Tai Tong Organic EcoPark</strong>, shown in the poster below. Write a letter to parents giving them the necessary information about the trip (~200 words).
+            </p>
+          </div>
+
+          <!-- Interactive EcoPark Poster Grid -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-slate-100">
+              <div>
+                <h3 class="font-extrabold text-base sm:text-lg text-emerald-900">Tai Tong Organic EcoPark • Riding Club • Organic Valley</h3>
+                <p class="text-xs text-slate-500">Click any poster zone below to see how to use it in your letter!</p>
+              </div>
+              <div class="flex gap-2 text-xs font-extrabold">
+                <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900">🎟️ Fee: $80</span>
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900">🕘 9:00am – 6:00pm</span>
+              </div>
+            </div>
+
+            <!-- 6 Visual Activity Cards representing the PDF poster -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div class="p-3.5 rounded-xl bg-lime-50 border border-lime-200 hover:shadow-md transition">
+                <div class="text-2xl mb-1">🌿</div>
+                <div class="font-extrabold text-xs text-lime-900">ECOPARK 生態園</div>
+                <p class="text-[11px] text-lime-800 mt-1">Explore lush greenery &amp; immerse in nature.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200 hover:shadow-md transition">
+                <div class="text-2xl mb-1">🐎</div>
+                <div class="font-extrabold text-xs text-sky-900">RIDING CLUB 馬房</div>
+                <p class="text-[11px] text-sky-800 mt-1">Try horseback riding (optional / extra fee).</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 hover:shadow-md transition">
+                <div class="text-2xl mb-1">🍓</div>
+                <div class="font-extrabold text-xs text-rose-900">FRUIT PICKING 水果採摘</div>
+                <p class="text-[11px] text-rose-800 mt-1">Harvest seasonal produce &amp; gain hands-on experience.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 hover:shadow-md transition">
+                <div class="text-2xl mb-1">⛺</div>
+                <div class="font-extrabold text-xs text-amber-900">CAMPING &amp; ACTIVITIES</div>
+                <p class="text-[11px] text-amber-800 mt-1">Outdoor lawns to unwind from academic pressure.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-pink-50 border border-pink-200 hover:shadow-md transition">
+                <div class="text-2xl mb-1">🎨</div>
+                <div class="font-extrabold text-xs text-pink-900">DIY WORKSHOP 工作坊</div>
+                <p class="text-[11px] text-pink-800 mt-1">Craft unique keepsakes &amp; foster class bonding.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-teal-50 border border-teal-200 hover:shadow-md transition">
+                <div class="text-2xl mb-1">🐟</div>
+                <div class="font-extrabold text-xs text-teal-900">VALLEY MAP 湖心亭餵魚</div>
+                <p class="text-[11px] text-teal-800 mt-1">Feed the fish at the lakeside pavilion &amp; visit Lotus Pond.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Homework Mindmap Planner (5 cols) -->
+        <div class="lg:col-span-5">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm h-full flex flex-col justify-between">
+            <div>
+              <h3 class="font-extrabold text-base text-slate-900 mb-1">Interactive Homework Mindmap</h3>
+              <p class="text-xs text-slate-500 mb-4">Tap each mindmap bubble to unlock planning ideas for Tai Tong Organic EcoPark:</p>
+
+              <div class="space-y-2.5" id="homework-mindmap-nodes">
+                <button onclick="showMindmapTip('purpose')" class="w-full text-left p-3 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100 transition flex items-center justify-between">
+                  <span class="font-bold text-xs sm:text-sm text-emerald-900">🎯 1. Purpose of the trip</span>
+                  <span class="text-xs font-extrabold text-emerald-700">Tap to plan ▾</span>
+                </button>
+                <button onclick="showMindmapTip('transport')" class="w-full text-left p-3 rounded-xl border border-sky-200 bg-sky-50/70 hover:bg-sky-100 transition flex items-center justify-between">
+                  <span class="font-bold text-xs sm:text-sm text-sky-900">🚌 2. Transportation &amp; Assembly</span>
+                  <span class="text-xs font-extrabold text-sky-700">Tap to plan ▾</span>
+                </button>
+                <button onclick="showMindmapTip('activities')" class="w-full text-left p-3 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100 transition flex items-center justify-between">
+                  <span class="font-bold text-xs sm:text-sm text-purple-900">❓ 3. '?' Node: EcoPark Activities</span>
+                  <span class="text-xs font-extrabold text-purple-700">Tap to plan ▾</span>
+                </button>
+                <button onclick="showMindmapTip('lunch')" class="w-full text-left p-3 rounded-xl border border-amber-200 bg-amber-50/70 hover:bg-amber-100 transition flex items-center justify-between">
+                  <span class="font-bold text-xs sm:text-sm text-amber-900">🍱 4. Lunch Arrangements</span>
+                  <span class="text-xs font-extrabold text-amber-700">Tap to plan ▾</span>
+                </button>
+                <button onclick="showMindmapTip('cost')" class="w-full text-left p-3 rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-100 transition flex items-center justify-between">
+                  <span class="font-bold text-xs sm:text-sm text-rose-900">💰 5. Cost &amp; Payment</span>
+                  <span class="text-xs font-extrabold text-rose-700">Tap to plan ▾</span>
+                </button>
+              </div>
+
+              <!-- Tip Display Box -->
+              <div id="mindmap-tip-box" class="mt-4 p-4 rounded-xl bg-slate-900 text-white text-xs sm:text-sm leading-relaxed">
+                <div class="font-extrabold text-amber-400 mb-1">💡 Planning Tip: Purpose of the Trip</div>
+                <p class="text-slate-200">Explain why Class 6A is visiting Tai Tong Organic EcoPark: to <strong>immerse themselves in nature</strong>, <strong>cultivate environmental awareness</strong>, and <strong>unwind from academic pressure</strong>. Use <em>Not only..., but also...</em> here!</p>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500 flex items-center justify-between">
+              <span>Target Length: <strong>~200 words</strong></span>
+              <span>Tone: <strong>Polite &amp; Formal</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- STAGE 4: VOCABULARY BUILDING (12 EXPRESSIONS + EXAMPLES + MATCH)    -->
+    <!-- =================================================================== -->
+    <section id="stage-4" class="quest-stage hidden space-y-6">
+      <div class="bg-gradient-to-r from-sky-700 via-blue-600 to-indigo-600 rounded-2xl p-5 sm:p-6 text-white shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="inline-block px-2.5 py-1 rounded-lg bg-white/15 text-xs font-bold uppercase tracking-wider mb-2">Stage 4 • Lexical Arsenal</span>
+            <h2 class="text-xl sm:text-2xl font-extrabold">Vocabulary Building: 12 DSE Trip Expressions</h2>
+            <p class="text-sky-100 text-sm mt-1">Study each expression and its sample sentence for Tai Tong Organic EcoPark. Tap 🔊 to hear pronunciation!</p>
+          </div>
+          <button onclick="switchStage(5)" class="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-sm shadow transition">
+            Go to Pattern Dojo (Stage 5) ➔
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Buttons -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="filterVocab('all')" id="vfilter-all" class="vfilter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white">All 12 Expressions</button>
+        <button onclick="filterVocab('benefits')" id="vfilter-benefits" class="vfilter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100">🎯 Purpose &amp; Benefits (5)</button>
+        <button onclick="filterVocab('activities')" id="vfilter-activities" class="vfilter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100">🌿 EcoPark Activities (5)</button>
+        <button onclick="filterVocab('rules')" id="vfilter-rules" class="vfilter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100">📋 Rules &amp; Costs (2)</button>
+      </div>
+
+      <!-- 12 Vocabulary Cards Grid -->
+      <div id="vocab-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+      <!-- Quick Vocab Match Mini-Game -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">Quick Vocab Check • +75 XP</span>
+            <h3 class="text-lg font-extrabold text-slate-900 mt-1">Match the Meaning to the Right Expression</h3>
+          </div>
+          <span id="vocab-quiz-progress" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700">Question 1 / 6</span>
+        </div>
+
+        <div id="vocab-quiz-container" class="bg-slate-50 rounded-xl p-4 sm:p-5 border border-slate-200"></div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- STAGE 5: PATTERN DOJO & SENTENCE-ORDERING ARENA (MAIN FOCUS)        -->
+    <!-- =================================================================== -->
+    <section id="stage-5" class="quest-stage hidden space-y-6">
+      <!-- Hero Banner -->
+      <div class="bg-gradient-to-r from-violet-700 via-indigo-700 to-blue-700 rounded-2xl p-5 sm:p-6 text-white shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="inline-block px-2.5 py-1 rounded-lg bg-amber-400 text-slate-900 text-xs font-extrabold uppercase tracking-wider mb-2">Stage 5 • Core Mastery Arena</span>
+            <h2 class="text-xl sm:text-2xl font-extrabold">Sentence Patterns &amp; Word-Order Dojo</h2>
+            <p class="text-indigo-100 text-sm mt-1">Learn the 5 target grammar structures and arrange short word/phrase tiles into accurate sentences using your new vocabulary!</p>
+          </div>
+          <div class="bg-white/15 backdrop-blur rounded-xl px-4 py-2.5 text-center border border-white/20">
+            <div class="text-[11px] uppercase tracking-wider text-indigo-200 font-bold">Dojo Progress</div>
+            <div id="dojo-mastery-count" class="text-xl font-black text-amber-300">0 / 15 Solved</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP A: INTERACTIVE GRAMMAR LESSON GUIDE FOR THE 5 PATTERNS -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-slate-900 text-white px-5 py-3 flex items-center justify-between">
+          <span class="font-extrabold text-xs sm:text-sm uppercase tracking-wider text-amber-400">Step 1: Study the 5 Target Patterns</span>
+          <span class="text-xs text-slate-300">Tap a pattern tab to review its formula</span>
+        </div>
+
+        <!-- Pattern Selector Pills -->
+        <div class="flex overflow-x-auto no-scrollbar border-b border-slate-200 bg-slate-50 p-2 gap-2" id="pattern-guide-tabs"></div>
+
+        <!-- Selected Pattern Lesson Card -->
+        <div id="pattern-guide-body" class="p-5 sm:p-6"></div>
+      </div>
+
+      <!-- STEP B: GAMIFIED SENTENCE-ORDERING CHALLENGE -->
+      <div class="bg-white rounded-2xl border-2 border-indigo-200 shadow-md overflow-hidden">
+        <!-- Arena Top Bar -->
+        <div class="bg-indigo-50 border-b border-indigo-100 px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🧩</span>
+            <div>
+              <h3 class="font-extrabold text-sm sm:text-base text-indigo-950">Step 2: Sentence-Ordering Challenge</h3>
+              <p class="text-xs text-indigo-700">Tap the scrambled words/phrases below to build the sentence in the correct order.</p>
+            </div>
+          </div>
+
+          <!-- Pattern Filter for Practice -->
+          <div class="flex items-center gap-2">
+            <label for="dojo-pattern-filter" class="text-xs font-bold text-slate-600">Focus:</label>
+            <select id="dojo-pattern-filter" onchange="changeDojoFilter(this.value)" class="text-xs font-bold bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-indigo-500">
+              <option value="all">All 5 Patterns (15 Sentences)</option>
+              <option value="1">1. Not only..., but also (Inversion)</option>
+              <option value="2">2. Participle Phrases</option>
+              <option value="3">3. It is + adjective + that</option>
+              <option value="4">4. Should you have any... (Inversion)</option>
+              <option value="5">5. Provided that</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Question Navigation Dots / Pills -->
+        <div class="px-5 py-3 bg-white border-b border-slate-100 flex items-center justify-between gap-2 flex-wrap">
+          <div id="puzzle-pills" class="flex flex-wrap items-center gap-1.5"></div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="prevPuzzle()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition">◀ Prev</button>
+            <button onclick="nextPuzzle()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition">Next ▶</button>
+          </div>
+        </div>
+
+        <!-- Active Puzzle Workspace -->
+        <div id="puzzle-workspace" class="p-5 sm:p-7 space-y-5">
+          <!-- Target Pattern & Vocab Tags -->
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="puzzle-number-badge" class="px-3 py-1 rounded-lg bg-indigo-600 text-white text-xs font-extrabold">Quest #1</span>
+              <span id="puzzle-pattern-badge" class="px-3 py-1 rounded-lg bg-violet-100 text-violet-900 text-xs font-extrabold border border-violet-200">Pattern 1</span>
+            </div>
+            <div id="puzzle-vocab-badges" class="flex flex-wrap items-center gap-1.5"></div>
+          </div>
+
+          <!-- Meaning / Context Clue -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-start gap-2.5">
+            <span class="text-base">🎯</span>
+            <div>
+              <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Sentence Goal</div>
+              <p id="puzzle-meaning-clue" class="text-xs sm:text-sm font-semibold text-slate-800 mt-0.5"></p>
+            </div>
+          </div>
+
+          <!-- ANSWER TRAY (Where selected tiles appear) -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-700">Your Sentence (Tap a tile to remove it)</span>
+              <span id="tile-counter" class="text-xs font-bold text-slate-400">0 / 0 tiles placed</span>
+            </div>
+            <div id="answer-tray" class="min-h-[76px] p-3.5 rounded-2xl bg-indigo-50/50 border-2 border-dashed border-indigo-300 flex flex-wrap items-center gap-2.5 transition">
+              <span id="tray-placeholder" class="text-xs sm:text-sm text-slate-400 italic">Tap the scrambled words/phrases below to assemble your sentence here...</span>
+            </div>
+          </div>
+
+          <!-- SCRAMBLED WORD/PHRASE BANK -->
+          <div>
+            <span class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">Scrambled Words &amp; Phrases (Tap in order)</span>
+            <div id="word-bank" class="min-h-[68px] p-3.5 rounded-2xl bg-slate-100/80 border border-slate-200 flex flex-wrap items-center gap-2.5"></div>
+          </div>
+
+          <!-- ACTION BUTTONS -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div class="flex items-center gap-2">
+              <button onclick="useHint()" id="btn-hint" class="px-3.5 py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs sm:text-sm transition flex items-center gap-1.5">
+                <span>💡</span>
+                <span>Next Tile Hint</span>
+              </button>
+              <button onclick="resetCurrentPuzzle()" class="px-3.5 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs sm:text-sm transition flex items-center gap-1.5">
+                <span>🔄</span>
+                <span>Reset</span>
+              </button>
+            </div>
+
+            <button onclick="checkPuzzleAnswer()" id="btn-check-answer" class="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-extrabold text-sm shadow-md transition flex items-center gap-2">
+              <span>✅ Check Sentence</span>
+            </button>
+          </div>
+
+          <!-- INLINE FEEDBACK BOX (Shows grammar explanation upon check) -->
+          <div id="puzzle-feedback" class="hidden rounded-2xl p-4 sm:p-5 border text-sm"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 px-4 text-center text-xs text-slate-500">
+    HKDSE English Language Paper 2 (Part A) Interactive Study Companion • Form 4 Writing Mastery
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT APPLICATION LOGIC & CURRICULUM DATA                        -->
+  <!-- ===================================================================== -->
+  <script>
+    // =========================================================================
+    // 1. SOUND ENGINE (Tone.js Synthesized Feedback)
+    // =========================================================================
+    let soundEnabled = true;
+    let synth = null;
+
+    async function playTone(type) {
+      if (!soundEnabled) return;
+      try {
+        if (typeof Tone !== 'undefined') {
+          if (Tone.context.state !== 'running') {
+            await Tone.start();
+          }
+          if (!synth) {
+            synth = new Tone.PolySynth(Tone.Synth, {
+              oscillator: { type: 'triangle' },
+              envelope: { attack: 0.01, decay: 0.15, sustain: 0.05, release: 0.3 }
+            }).toDestination();
+            synth.volume.value = -8;
+          }
+          const now = Tone.now();
+          if (type === 'pop') {
+            synth.triggerAttackRelease('C5', '32n', now);
+          } else if (type === 'remove') {
+            synth.triggerAttackRelease('G4', '32n', now);
+          } else if (type === 'success') {
+            synth.triggerAttackRelease(['C5', 'E5', 'G5'], '16n', now);
+            synth.triggerAttackRelease(['C6'], '8n', now + 0.12);
+          } else if (type === 'error') {
+            synth.triggerAttackRelease(['E3', 'Bb3'], '16n', now);
+          } else if (type === 'levelup') {
+            synth.triggerAttackRelease('C5', '16n', now);
+            synth.triggerAttackRelease('E5', '16n', now + 0.08);
+            synth.triggerAttackRelease('G5', '16n', now + 0.16);
+            synth.triggerAttackRelease('C6', '8n', now + 0.24);
+          }
+        }
+      } catch (e) {
+        // Gracefully ignore audio errors if browser blocks autoplay
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('sound-icon').textContent = soundEnabled ? '🔊' : '🔇';
+      showToast(soundEnabled ? 'Sound effects enabled' : 'Sound effects muted', 'info');
+    }
+
+    // Speech synthesis for vocabulary pronunciation
+    function speakText(text) {
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'en-GB';
+          utterance.rate = 0.92;
+          window.speechSynthesis.speak(utterance);
+        }
+      } catch (e) {
+        // Ignore if unsupported
+      }
+    }
+
+    // =========================================================================
+    // 2. GAMIFICATION STATE (XP, Ranks, Streak, Progress)
+    // =========================================================================
+    const gameState = {
+      xp: 0,
+      streak: 0,
+      stage1Claimed: false,
+      spotterSolved: new Set(),
+      vocabQuizIndex: 0,
+      vocabQuizScore: 0,
+      solvedPuzzles: new Set(),
+      currentStage: 1,
+      activePatternGuide: 1,
+      dojoFilter: 'all',
+      currentPuzzleIndex: 0,
+      placedTileIds: [],
+      scrambledTiles: []
+    };
+
+    const RANKS = [
+      { minXp: 0, title: 'F.4 Rookie', icon: '🌱' },
+      { minXp: 100, title: 'Vocab Explorer', icon: '🧭' },
+      { minXp: 250, title: 'Grammar Scout', icon: '⚡' },
+      { minXp: 420, title: 'DSE Level 5* Star', icon: '🌟' },
+      { minXp: 600, title: 'DSE 5** Master', icon: '👑' }
+    ];
+
+    function addXP(amount, reason) {
+      const prevRank = getRank(gameState.xp).title;
+      gameState.xp += amount;
+      const newRank = getRank(gameState.xp);
+
+      updateHUD();
+      showToast(`+${amount} XP — ${reason}`, 'xp');
+
+      if (newRank.title !== prevRank) {
+        playTone('levelup');
+        setTimeout(() => {
+          showToast(`🎉 Rank Up! You are now: ${newRank.icon} ${newRank.title}!`, 'levelup');
+        }, 500);
+      }
+    }
+
+    function getRank(xp) {
+      let current = RANKS[0];
+      for (const r of RANKS) {
+        if (xp >= r.minXp) current = r;
+      }
+      return current;
+    }
+
+    function updateHUD() {
+      const rank = getRank(gameState.xp);
+      document.getElementById('rank-icon').textContent = rank.icon;
+      document.getElementById('rank-title').textContent = rank.title;
+      document.getElementById('xp-text').textContent = `${gameState.xp} XP`;
+      document.getElementById('streak-count').textContent = gameState.streak;
+
+      // Progress bar toward 650 max XP
+      const pct = Math.min(100, Math.round((gameState.xp / 650) * 100));
+      document.getElementById('xp-bar').style.width = `${pct}%`;
+
+      // Update Dojo mastery badge
+      document.getElementById('dojo-mastery-count').textContent = `${gameState.solvedPuzzles.size} / ${PUZZLES.length} Solved`;
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const styles = {
+        xp: 'bg-indigo-900 text-amber-300 border-indigo-700',
+        levelup: 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 border-amber-300 font-extrabold',
+        success: 'bg-emerald-800 text-white border-emerald-600',
+        info: 'bg-slate-800 text-white border-slate-700'
+      };
+      toast.className = `px-4 py-2.5 rounded-xl border shadow-lg text-xs sm:text-sm font-bold animate-pop ${styles[type] || styles.info}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 2800);
+    }
+
+    // =========================================================================
+    // 3. NAVIGATION BETWEEN THE 5 QUEST STAGES
+    // =========================================================================
+    function switchStage(stageNum) {
+      gameState.currentStage = stageNum;
+      document.querySelectorAll('.quest-stage').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`stage-${stageNum}`).classList.remove('hidden');
+
+      document.querySelectorAll('.stage-tab').forEach((btn, idx) => {
+        const num = idx + 1;
+        const badge = btn.querySelector('span:first-child');
+        if (num === stageNum) {
+          btn.className = 'stage-tab flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition border bg-indigo-600 text-white border-indigo-600 shadow-sm';
+          badge.className = 'w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-extrabold bg-white text-indigo-700';
+        } else {
+          btn.className = 'stage-tab flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border bg-white text-slate-700 border-slate-200 hover:bg-slate-100';
+          badge.className = 'w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-extrabold bg-slate-200 text-slate-700';
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // =========================================================================
+    // 4. STAGE 1 & STAGE 2 DATA & INTERACTIONS
+    // =========================================================================
+    let highlightsVisible = true;
+    function toggleSampleHighlights() {
+      highlightsVisible = !highlightsVisible;
+      const btn = document.getElementById('btn-toggle-highlight');
+      const legend = document.getElementById('highlight-legend');
+      const spans = document.querySelectorAll('.pattern-hl');
+
+      if (highlightsVisible) {
+        btn.textContent = '✨ Highlight Target Patterns: ON';
+        legend.classList.remove('hidden');
+        spans.forEach(s => s.classList.remove('bg-transparent', 'text-slate-800', 'font-normal'));
+      } else {
+        btn.textContent = '✨ Highlight Target Patterns: OFF';
+        legend.classList.add('hidden');
+        spans.forEach(s => s.classList.add('bg-transparent', 'text-slate-800', 'font-normal'));
+      }
+    }
+
+    function completeStage1() {
+      if (!gameState.stage1Claimed) {
+        gameState.stage1Claimed = true;
+        playTone('success');
+        addXP(50, 'Completed 2018 Sample Inspection');
+        const btn = document.getElementById('btn-complete-s1');
+        btn.innerHTML = '<span>✓ Claimed! Go to Stage 2</span><span>➔</span>';
+      }
+      switchStage(2);
+    }
+
+    // Paragraph-by-Paragraph Analysis Data
+    const PARAGRAPH_ANALYSIS = [
+      {
+        title: 'Paragraph 1: Opening & Purpose of the Trip',
+        excerpt: '"To facilitate learning outside the classroom and broaden students\' horizons, I am writing to inform you of an upcoming school trip to Sky100, which all Class 6A students will attend next month. Not only will this excursion deepen their understanding of the city, but it will also provide an enriching and memorable experience."',
+        purpose: 'Establish a polite, formal tone, clearly state the reason for writing, and convince parents of the educational value of the outing.',
+        taskDetails: [
+          'Answers Mindmap Node: "Purpose of the trip" (facilitate learning outside the classroom, broaden horizons, deepen understanding of the city).',
+          'Identifies target participants ("all Class 6A students"), destination ("Sky100"), and timeframe ("next month").'
+        ],
+        patternNote: 'Uses Pattern 1: "Not only will this excursion..., but it will also..." (Subject-Auxiliary Inversion) to emphasize dual benefits right from the start.'
+      },
+      {
+        title: 'Paragraph 2: Venue, Assembly & Transportation',
+        excerpt: '"Located on the 100th floor of the International Commerce Centre (ICC) at 1 Austin Road, West Kowloon, Sky100 Observation Deck offers a panoramic view of Hong Kong. Students are required to make their own way there and assemble at the main entrance of ICC by 10:00 a.m. on 5 May 2018. For those who plan to travel by public transport, taking the MTR to Kowloon Station or boarding Minibus Route 74 are both convenient options."',
+        purpose: 'Give parents clear logistical instructions on where the venue is, when/where students must gather, and how to travel there.',
+        taskDetails: [
+          'Uses Poster Info: Exact address ("100/F ICC, 1 Austin Road, West Kowloon") and highlights ("panoramic view").',
+          'Answers Mindmap "?" Node: Specifies exact date ("5 May 2018") and assembly time/point ("10:00 a.m. at the main entrance of ICC").',
+          'Answers Mindmap Node: "Transportation" (MTR to Kowloon Station or Minibus Route 74).'
+        ],
+        patternNote: 'Opens with Pattern 2: A Past Participle Phrase ("Located on the 100th floor...") to avoid repetitive "Sky100 is located..." sentences.'
+      },
+      {
+        title: 'Paragraph 3: Lunch Arrangements',
+        excerpt: '"Regarding lunch arrangements, Sky100 has generously offered a special student rate of $30 per lunchbox. If your child wishes to purchase one, please remind them to bring enough cash on the day. Alternatively, students who prefer to dine at nearby restaurants are welcome to do so, provided that they return to Sky100 by 1:30 p.m."',
+        purpose: 'Provide clear meal options, payment instructions for lunch, and a strict return time for student safety.',
+        taskDetails: [
+          'Answers Mindmap Node: "Lunch" with two flexible choices: (1) $30 student lunchbox paid in cash, or (2) dining at nearby restaurants.',
+          'Sets a clear supervision boundary ("return to Sky100 by 1:30 p.m.").'
+        ],
+        patternNote: 'Uses Pattern 5: "provided that..." ("...provided that they return to Sky100 by 1:30 p.m.") to state a mandatory condition formally.'
+      },
+      {
+        title: 'Paragraph 4: Cost & Formal Conclusion',
+        excerpt: '"In addition, please provide your child with a $150 cheque for the entrance fee. It is sincerely hoped that this outing will be a rewarding experience for everyone. Should you have any enquiries, please do not hesitate to email me at chriswong@mss.edu.hk or call me at 12345678. Yours sincerely, Chris Wong, Class Teacher of 6A"',
+        purpose: 'State the trip cost clearly and close the letter with goodwill, contact details, and an appropriate formal sign-off.',
+        taskDetails: [
+          'Answers Mindmap Node: "Cost" & Poster Info ("$150 cheque for the entrance fee").',
+          'Conclusion Element 1: Expresses positive hope ("It is sincerely hoped that...").',
+          'Conclusion Element 2: Invites parent enquiries with email & phone number.',
+          'Conclusion Element 3: Formal closing ("Yours sincerely, Chris Wong, Class Teacher of 6A").'
+        ],
+        patternNote: 'Combines Pattern 3 ("It is sincerely hoped that...") and Pattern 4 ("Should you have any enquiries..." inversion) for an impressive DSE ending.'
+      }
+    ];
+
+    function selectParagraph(index) {
+      document.querySelectorAll('.para-tab').forEach((tab, idx) => {
+        if (idx === index) {
+          tab.className = 'para-tab py-3.5 px-3 text-xs sm:text-sm font-extrabold border-b-2 border-emerald-600 bg-white text-emerald-800 transition';
+        } else {
+          tab.className = 'para-tab py-3.5 px-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition';
+        }
+      });
+
+      const data = PARAGRAPH_ANALYSIS[index];
+      const container = document.getElementById('para-analysis-content');
+      container.innerHTML = `
+        <div class="animate-pop space-y-4">
+          <h3 class="text-base sm:text-lg font-extrabold text-slate-900">${data.title}</h3>
+          <blockquote class="p-3.5 rounded-xl bg-slate-50 border-l-4 border-emerald-500 text-xs sm:text-sm italic text-slate-700 leading-relaxed">
+            ${data.excerpt}
+          </blockquote>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200">
+              <div class="text-xs font-extrabold uppercase tracking-wider text-emerald-800 mb-1">🎯 Communicative Purpose</div>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">${data.purpose}</p>
+            </div>
+            <div class="p-4 rounded-xl bg-sky-50/70 border border-sky-200">
+              <div class="text-xs font-extrabold uppercase tracking-wider text-sky-800 mb-1">✅ Task Requirements &amp; Details</div>
+              <ul class="list-disc list-inside space-y-1 text-xs sm:text-sm text-slate-700">
+                ${data.taskDetails.map(item => `<li>${item}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 flex items-start gap-2.5">
+            <span class="text-base">🔍</span>
+            <div class="text-xs sm:text-sm text-indigo-950"><strong>Target Structure Spotlight:</strong> ${data.patternNote}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Pattern Spotter Mini-Game Data
+    const SPOTTER_ITEMS = [
+      {
+        id: 'sp1',
+        sentence: '"Not only will this excursion deepen their understanding of the city, but it will also provide an enriching experience."',
+        answer: 'Not only..., but also... (Inversion)',
+        options: ['Participle Phrases', 'Not only..., but also... (Inversion)', 'Provided that']
+      },
+      {
+        id: 'sp2',
+        sentence: '"Located on the 100th floor of the ICC, Sky100 Observation Deck offers a panoramic view of Hong Kong."',
+        answer: 'Participle Phrases',
+        options: ['Participle Phrases', 'Should you have any... (Inversion)', 'It is + adjective + that']
+      },
+      {
+        id: 'sp3',
+        sentence: '"Students are welcome to dine at nearby restaurants, provided that they return to Sky100 by 1:30 p.m."',
+        answer: 'Provided that',
+        options: ['Not only..., but also... (Inversion)', 'Provided that', 'Participle Phrases']
+      },
+      {
+        id: 'sp4',
+        sentence: '"It is sincerely hoped that this outing will be a rewarding experience for everyone."',
+        answer: 'It is + adjective + that',
+        options: ['It is + adjective + that', 'Should you have any... (Inversion)', 'Provided that']
+      },
+      {
+        id: 'sp5',
+        sentence: '"Should you have any enquiries, please do not hesitate to email me or call me."',
+        answer: 'Should you have any... (Inversion)',
+        options: ['Participle Phrases', 'It is + adjective + that', 'Should you have any... (Inversion)']
+      }
+    ];
+
+    function renderPatternSpotter() {
+      const list = document.getElementById('pattern-spotter-list');
+      list.innerHTML = SPOTTER_ITEMS.map((item, idx) => {
+        const isSolved = gameState.spotterSolved.has(item.id);
+        return `
+          <div class="p-4 rounded-xl border ${isSolved ? 'bg-emerald-50/70 border-emerald-300' : 'bg-slate-50 border-slate-200'} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="text-xs sm:text-sm font-medium text-slate-800 flex-1">
+              <span class="font-extrabold text-indigo-600 mr-1">#${idx + 1}</span> ${item.sentence}
+            </div>
+            <div class="flex flex-wrap gap-1.5 flex-shrink-0">
+              ${item.options.map(opt => {
+                if (isSolved && opt === item.answer) {
+                  return `<span class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-extrabold">✓ ${opt}</span>`;
+                }
+                return `<button onclick="checkSpotter('${item.id}', '${opt.replace(/'/g, "\\'")}')" ${isSolved ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg text-xs font-bold border transition ${isSolved ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-white hover:bg-indigo-50 text-slate-700 border-slate-300 hover:border-indigo-400'}">${opt}</button>`;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function checkSpotter(id, chosen) {
+      const item = SPOTTER_ITEMS.find(x => x.id === id);
+      if (!item || gameState.spotterSolved.has(id)) return;
+
+      if (chosen === item.answer) {
+        gameState.spotterSolved.add(id);
+        gameState.streak++;
+        playTone('success');
+        addXP(15, `Spotted "${item.answer}"`);
+        document.getElementById('spotter-score-badge').textContent = `Matched: ${gameState.spotterSolved.size} / 5`;
+        renderPatternSpotter();
+      } else {
+        gameState.streak = 0;
+        updateHUD();
+        playTone('error');
+        showToast('Not quite! Look closely at the underlined/opening grammar structure.', 'info');
+      }
+    }
+
+    // =========================================================================
+    // 5. STAGE 3: HOMEWORK MINDMAP PLANNER
+    // =========================================================================
+    const MINDMAP_TIPS = {
+      purpose: {
+        title: '💡 Planning Tip: Purpose of the Trip',
+        text: 'Explain why Class 6A is visiting Tai Tong Organic EcoPark: to <strong>immerse themselves in nature</strong>, <strong>cultivate environmental awareness</strong>, and <strong>unwind from academic pressure</strong>. Use <em>Not only..., but also...</em> here!'
+      },
+      transport: {
+        title: '💡 Planning Tip: Transportation & Assembly',
+        text: 'Mention that Tai Tong Organic EcoPark is located in Yuen Long (opening hours: 9:00 a.m. – 6:00 p.m.). Students can assemble at school at 8:30 a.m. to take a school coach together, or take MTR West Rail to Long Ping Station and transfer to K66 shuttle bus. Remind them that <strong>punctuality is strictly required</strong>!'
+      },
+      activities: {
+        title: '💡 Planning Tip: "?" Node — EcoPark Activities',
+        text: 'Use the poster activities! Students can <strong>explore the lush greenery</strong>, <strong>harvest seasonal produce</strong> (fruit picking), <strong>feed the fish at the lakeside pavilion</strong>, and <strong>craft unique keepsakes</strong> in the DIY workshop to <strong>foster class bonding</strong>.'
+      },
+      lunch: {
+        title: '💡 Planning Tip: Lunch Arrangements',
+        text: 'Students may bring their own packed lunch to enjoy at the picnic area, or dine at the park\'s organic canteen <strong>at their own expense</strong>, <strong>provided that</strong> they gather back at the main pavilion by 1:30 p.m.'
+      },
+      cost: {
+        title: '💡 Planning Tip: Cost & Payment ($80 Fee)',
+        text: 'From the poster, the entrance fee is <strong>$80</strong>. Ask parents to provide an $80 cheque/cash, and note that optional activities such as <strong>horseback riding</strong> at the Riding Club are <strong>at students\' own expense</strong>.'
+      }
+    };
+
+    function showMindmapTip(key) {
+      playTone('pop');
+      const tip = MINDMAP_TIPS[key];
+      const box = document.getElementById('mindmap-tip-box');
+      box.innerHTML = `
+        <div class="animate-pop">
+          <div class="font-extrabold text-amber-400 mb-1">${tip.title}</div>
+          <p class="text-slate-200">${tip.text}</p>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 6. STAGE 4: 12 VOCABULARY EXPRESSIONS & QUICK MATCH QUIZ
+    // =========================================================================
+    const VOCAB_LIST = [
+      {
+        num: 1,
+        phrase: 'immerse oneself in nature',
+        chinese: '沉浸在大自然中',
+        category: 'benefits',
+        example: 'Students can immerse themselves in nature during the trip to Tai Tong Organic EcoPark.'
+      },
+      {
+        num: 2,
+        phrase: 'cultivate environmental awareness',
+        chinese: '培養環保意識',
+        category: 'benefits',
+        example: 'This outdoor excursion will help cultivate environmental awareness among teenagers.'
+      },
+      {
+        num: 3,
+        phrase: 'gain hands-on experience',
+        chinese: '獲得親身體驗／實踐經驗',
+        category: 'benefits',
+        example: 'By joining the organic farming tour, students can gain hands-on experience.'
+      },
+      {
+        num: 4,
+        phrase: 'foster class bonding',
+        chinese: '促進班級凝聚力／同窗情誼',
+        category: 'benefits',
+        example: 'Group games at the campsite will certainly foster class bonding.'
+      },
+      {
+        num: 5,
+        phrase: 'unwind from academic pressure',
+        chinese: '從學業壓力中放鬆身心',
+        category: 'benefits',
+        example: 'The peaceful valley offers a great chance for students to unwind from academic pressure.'
+      },
+      {
+        num: 6,
+        phrase: 'horseback riding',
+        chinese: '騎馬',
+        category: 'activities',
+        example: 'Students who visit the Riding Club may try horseback riding under an instructor\'s guidance.'
+      },
+      {
+        num: 7,
+        phrase: 'harvest seasonal produce',
+        chinese: '採摘時令農作物／水果',
+        category: 'activities',
+        example: 'At the organic farm, classmates will be able to harvest seasonal produce such as strawberries.'
+      },
+      {
+        num: 8,
+        phrase: 'craft unique keepsakes',
+        chinese: '親手製作獨特的紀念品',
+        category: 'activities',
+        example: 'In the DIY workshop, students can craft unique keepsakes to take home.'
+      },
+      {
+        num: 9,
+        phrase: 'explore the lush greenery',
+        chinese: '探索翠綠茂盛的自然景色',
+        category: 'activities',
+        example: 'During the morning walk, our class will explore the lush greenery around the valley.'
+      },
+      {
+        num: 10,
+        phrase: 'feed the fish at the lakeside pavilion',
+        chinese: '在湖心亭餵魚',
+        category: 'activities',
+        example: 'After lunch, students can relax and feed the fish at the lakeside pavilion.'
+      },
+      {
+        num: 11,
+        phrase: 'punctuality is strictly required',
+        chinese: '必須嚴格守時',
+        category: 'rules',
+        example: 'As the coach will depart at 8:30 a.m. sharp, punctuality is strictly required.'
+      },
+      {
+        num: 12,
+        phrase: "at one's own expense",
+        chinese: '自費',
+        category: 'rules',
+        example: 'Students may purchase extra snacks or join optional workshops at their own expense.'
+      }
+    ];
+
+    function renderVocabCards(filter = 'all') {
+      const grid = document.getElementById('vocab-cards-grid');
+      const filtered = filter === 'all' ? VOCAB_LIST : VOCAB_LIST.filter(v => v.category === filter);
+
+      grid.innerHTML = filtered.map(v => `
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:border-indigo-300 transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <span class="inline-block px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 text-[11px] font-extrabold mb-1">#${v.num}</span>
+                <h4 class="font-extrabold text-base text-slate-900">${v.phrase}</h4>
+                <p class="text-xs font-semibold text-emerald-700 mt-0.5">${v.chinese}</p>
+              </div>
+              <button onclick="speakText('${v.phrase.replace(/'/g, "\\'")}')" class="p-2 rounded-xl bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-700 transition flex-shrink-0" title="Listen to pronunciation">
+                🔊
+              </button>
+            </div>
+            <div class="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <span class="font-bold text-slate-500 uppercase text-[10px] block mb-0.5">Sample Sentence:</span>
+              "${v.example}"
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterVocab(category) {
+      document.querySelectorAll('.vfilter-btn').forEach(btn => {
+        btn.className = 'vfilter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100';
+      });
+      document.getElementById(`vfilter-${category}`).className = 'vfilter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white';
+      renderVocabCards(category);
+    }
+
+    // Vocab Quick Match Quiz (6 questions)
+    const VOCAB_QUIZ = [
+      {
+        clue: 'To relax and take a break from schoolwork and exam stress (從學業壓力中放鬆身心)',
+        answer: 'unwind from academic pressure',
+        options: ['unwind from academic pressure', 'punctuality is strictly required', 'horseback riding']
+      },
+      {
+        clue: 'To pick ripe fruits or vegetables grown in the current season (採摘時令農作物)',
+        answer: 'harvest seasonal produce',
+        options: ['craft unique keepsakes', 'harvest seasonal produce', 'foster class bonding']
+      },
+      {
+        clue: 'Paid for by the student themselves rather than covered by the school fee (自費)',
+        answer: "at one's own expense",
+        options: ['immerse oneself in nature', "at one's own expense", 'gain hands-on experience']
+      },
+      {
+        clue: 'To make special handmade souvenirs in the DIY workshop (親手製作獨特的紀念品)',
+        answer: 'craft unique keepsakes',
+        options: ['explore the lush greenery', 'craft unique keepsakes', 'cultivate environmental awareness']
+      },
+      {
+        clue: 'Arriving strictly on time without being late is mandatory (必須嚴格守時)',
+        answer: 'punctuality is strictly required',
+        options: ['punctuality is strictly required', 'feed the fish at the lakeside pavilion', 'foster class bonding']
+      },
+      {
+        clue: 'To build stronger friendships and teamwork among classmates (促進班級凝聚力)',
+        answer: 'foster class bonding',
+        options: ['horseback riding', 'foster class bonding', 'harvest seasonal produce']
+      }
+    ];
+
+    function renderVocabQuiz() {
+      const container = document.getElementById('vocab-quiz-container');
+      const prog = document.getElementById('vocab-quiz-progress');
+
+      if (gameState.vocabQuizIndex >= VOCAB_QUIZ.length) {
+        prog.textContent = 'Completed! 6 / 6';
+        container.innerHTML = `
+          <div class="text-center py-4 space-y-2">
+            <div class="text-3xl">🏆</div>
+            <h4 class="font-extrabold text-base text-emerald-800">Vocab Vault Cleared!</h4>
+            <p class="text-xs sm:text-sm text-slate-600">You are ready to use these 12 expressions inside the 5 DSE sentence patterns in Stage 5!</p>
+            <button onclick="switchStage(5)" class="mt-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs sm:text-sm shadow">
+              Enter Pattern Dojo (Stage 5) ➔
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const q = VOCAB_QUIZ[gameState.vocabQuizIndex];
+      prog.textContent = `Question ${gameState.vocabQuizIndex + 1} / ${VOCAB_QUIZ.length}`;
+      container.innerHTML = `
+        <div class="space-y-3 animate-pop">
+          <p class="text-xs sm:text-sm font-bold text-slate-800">Meaning Clue: <span class="text-indigo-700">${q.clue}</span></p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            ${q.options.map(opt => `
+              <button onclick="answerVocabQuiz('${opt.replace(/'/g, "\\'")}')" class="p-3 rounded-xl bg-white hover:bg-indigo-50 border border-slate-300 hover:border-indigo-400 text-xs sm:text-sm font-extrabold text-slate-800 transition text-center shadow-sm">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function answerVocabQuiz(selected) {
+      const q = VOCAB_QUIZ[gameState.vocabQuizIndex];
+      if (selected === q.answer) {
+        gameState.vocabQuizIndex++;
+        gameState.streak++;
+        playTone('success');
+        addXP(15, 'Correct Vocabulary Match');
+        renderVocabQuiz();
+      } else {
+        gameState.streak = 0;
+        updateHUD();
+        playTone('error');
+        showToast('Try again! Check the vocabulary cards above for a hint.', 'info');
+      }
+    }
+
+    // =========================================================================
+    // 7. STAGE 5: THE 5 TARGET PATTERNS + 15 SENTENCE-ORDERING PUZZLES
+    // =========================================================================
+    const PATTERN_GUIDES = [
+      {
+        num: 1,
+        name: 'Not only..., but also... (Inversion)',
+        formula: 'Not only + [Aux Verb: will / can / does] + [Subject] + [Base Verb]..., but + [Subject] + also + [Verb]...',
+        whyDSE: 'Starting a sentence with "Not only" forces subject-auxiliary inversion, showing high grammatical range in DSE Paper 2.',
+        trap: '⚠️ Common F.4 Trap: Do NOT write "Not only students can..." — you MUST invert the auxiliary verb: "Not only can students..."!',
+        model: 'Not only will this trip cultivate environmental awareness, but it will also foster class bonding.'
+      },
+      {
+        num: 2,
+        name: 'Participle Phrases',
+        formula: '[V-ing / V-ed Phrase] + , + [Main Subject] + [Main Verb]...',
+        whyDSE: 'Participle phrases combine two simple ideas into one sleek, sophisticated sentence without repeating the subject.',
+        trap: '⚠️ Common F.4 Trap: Make sure the subject after the comma is the one doing (V-ing) or receiving (V-ed) the action!',
+        model: 'Exploring the lush greenery, students can gain hands-on experience.'
+      },
+      {
+        num: 3,
+        name: 'It is + adjective + that',
+        formula: 'It is + [vital / important / essential / wonderful] + that + [Subject] + [Verb]...',
+        whyDSE: 'An impersonal "It" structure sounds formal, objective, and authoritative when stating rules or expectations to parents.',
+        trap: '⚠️ Common F.4 Trap: Always include "that" before the second clause ("It is vital that students arrive early...").',
+        model: 'It is vital that students arrive early as punctuality is strictly required.'
+      },
+      {
+        num: 4,
+        name: 'Should you have any... (Inversion)',
+        formula: 'Should you have any + [questions / enquiries / concerns] + ..., please + [Base Verb]...',
+        whyDSE: 'Replaces everyday "If you have any questions..." with formal conditional inversion — a signature closing move in DSE letters.',
+        trap: '⚠️ Common F.4 Trap: Never put "If" in front of "Should"! "Should" already replaces "If".',
+        model: 'Should you have any questions about horseback riding, please contact me.'
+      },
+      {
+        num: 5,
+        name: 'Provided that',
+        formula: '[Main Clause] + , provided that + [Condition Clause]',
+        whyDSE: '"Provided that" means "only if / on the condition that" and elevates rule-setting sentences far above basic "if".',
+        trap: '⚠️ Common F.4 Trap: Keep the condition clause in the present simple tense ("...provided that they stay safe").',
+        model: 'Students may feed the fish at the lakeside pavilion, provided that they stay safe.'
+      }
+    ];
+
+    function renderPatternGuideTabs() {
+      const tabs = document.getElementById('pattern-guide-tabs');
+      tabs.innerHTML = PATTERN_GUIDES.map(p => {
+        const active = p.num === gameState.activePatternGuide;
+        return `
+          <button onclick="selectPatternGuide(${p.num})" class="flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold transition ${active ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-indigo-50'}">
+            ${p.num}. ${p.name}
+          </button>
+        `;
+      }).join('');
+
+      const g = PATTERN_GUIDES.find(x => x.num === gameState.activePatternGuide);
+      document.getElementById('pattern-guide-body').innerHTML = `
+        <div class="animate-pop space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h4 class="text-base sm:text-lg font-extrabold text-indigo-900">Pattern ${g.num}: ${g.name}</h4>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">High-Scoring DSE Structure</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-900 text-amber-300 font-mono-code text-xs sm:text-sm overflow-x-auto">
+            ${g.formula}
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm">
+            <div class="p-3 rounded-xl bg-indigo-50/70 border border-indigo-100 text-slate-700">
+              <strong class="text-indigo-900">Why Use It:</strong> ${g.whyDSE}
+            </div>
+            <div class="p-3 rounded-xl bg-rose-50/70 border border-rose-100 text-slate-700">
+              ${g.trap}
+            </div>
+          </div>
+          <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-emerald-950">
+            <strong>EcoPark Model Sentence:</strong> "${g.model}"
+          </div>
+        </div>
+      `;
+    }
+
+    function selectPatternGuide(num) {
+      gameState.activePatternGuide = num;
+      renderPatternGuideTabs();
+    }
+
+    // 15 Short, Simple Sentence-Ordering Puzzles (3 per pattern, covering all 12 vocab phrases!)
+    const PUZZLES = [
+      // Pattern 1: Not only..., but also... (Inversion)
+      {
+        id: 1,
+        patternNum: 1,
+        patternName: '1. Not only..., but also... (Inversion)',
+        vocab: ['immerse oneself in nature', 'unwind from academic pressure'],
+        clue: 'Combine two benefits of the EcoPark trip using inversion ("Not only can students...").',
+        tiles: [
+          'Not only',
+          'can students',
+          'immerse themselves in nature,',
+          'but',
+          'they can also',
+          'unwind from academic pressure.'
+        ],
+        explanation: 'Notice the inversion after "Not only": auxiliary verb "can" comes BEFORE the subject "students" ("Not only can students...").'
+      },
+      {
+        id: 2,
+        patternNum: 1,
+        patternName: '1. Not only..., but also... (Inversion)',
+        vocab: ['cultivate environmental awareness', 'foster class bonding'],
+        clue: 'State that the trip will both build green habits and unite the class.',
+        tiles: [
+          'Not only',
+          'will this trip',
+          'cultivate environmental awareness,',
+          'but',
+          'it will also',
+          'foster class bonding.'
+        ],
+        explanation: 'After "Not only", we invert "will" before "this trip" ("Not only will this trip..."), followed by ", but it will also...".'
+      },
+      {
+        id: 3,
+        patternNum: 1,
+        patternName: '1. Not only..., but also... (Inversion)',
+        vocab: ['gain hands-on experience', 'explore the lush greenery'],
+        clue: 'Show that students will learn by doing and enjoy the green scenery.',
+        tiles: [
+          'Not only',
+          'will students',
+          'gain hands-on experience,',
+          'but',
+          'they will also',
+          'explore the lush greenery.'
+        ],
+        explanation: '"Not only will students..." puts the helping verb "will" before "students" for formal emphasis.'
+      },
+
+      // Pattern 2: Participle Phrases
+      {
+        id: 4,
+        patternNum: 2,
+        patternName: '2. Participle Phrases',
+        vocab: ['explore the lush greenery', 'gain hands-on experience'],
+        clue: 'Start with an -ing participle phrase to show what students do while exploring.',
+        tiles: [
+          'Exploring',
+          'the lush greenery,',
+          'students',
+          'can gain',
+          'hands-on experience.'
+        ],
+        explanation: '"Exploring the lush greenery," is a present participle phrase describing what "students" do in the main clause.'
+      },
+      {
+        id: 5,
+        patternNum: 2,
+        patternName: '2. Participle Phrases',
+        vocab: ['horseback riding'],
+        clue: 'Start with a past participle phrase ("Located in...") to introduce Tai Tong EcoPark.',
+        tiles: [
+          'Located in',
+          'Yuen Long,',
+          'Tai Tong EcoPark',
+          'offers',
+          'horseback riding.'
+        ],
+        explanation: '"Located in Yuen Long," is a past participle phrase describing "Tai Tong EcoPark" — just like the 2018 Sky100 sample!'
+      },
+      {
+        id: 6,
+        patternNum: 2,
+        patternName: '2. Participle Phrases',
+        vocab: ['craft unique keepsakes', 'foster class bonding'],
+        clue: 'Start with "Crafting..." to show how the DIY workshop brings classmates closer.',
+        tiles: [
+          'Crafting',
+          'unique keepsakes together,',
+          'classmates',
+          'will foster',
+          'class bonding.'
+        ],
+        explanation: 'The participle phrase "Crafting unique keepsakes together," smoothly connects the DIY activity to its social benefit.'
+      },
+
+      // Pattern 3: It is + adjective + that
+      {
+        id: 7,
+        patternNum: 3,
+        patternName: '3. It is + adjective + that',
+        vocab: ['punctuality is strictly required'],
+        clue: 'Use "It is vital that..." to remind students to arrive early.',
+        tiles: [
+          'It is vital',
+          'that',
+          'students arrive early',
+          'as',
+          'punctuality',
+          'is strictly required.'
+        ],
+        explanation: '"It is + adjective (vital) + that + clause" creates a formal, persuasive tone when giving instructions to parents.'
+      },
+      {
+        id: 8,
+        patternNum: 3,
+        patternName: '3. It is + adjective + that',
+        vocab: ['cultivate environmental awareness'],
+        clue: 'Use "It is important that..." to highlight green education for teens.',
+        tiles: [
+          'It is',
+          'important',
+          'that',
+          'teenagers cultivate',
+          'environmental awareness.'
+        ],
+        explanation: 'Clean and direct: "It is + important + that + subject (teenagers) + verb (cultivate)...".'
+      },
+      {
+        id: 9,
+        patternNum: 3,
+        patternName: '3. It is + adjective + that',
+        vocab: ['unwind from academic pressure'],
+        clue: 'Use "It is wonderful that..." to express joy that students can relax outdoors.',
+        tiles: [
+          'It is',
+          'wonderful',
+          'that',
+          'students can unwind',
+          'from academic pressure',
+          'in nature.'
+        ],
+        explanation: '"It is wonderful that..." expresses positive teacher warmth while maintaining formal sentence structure.'
+      },
+
+      // Pattern 4: Should you have any... (Inversion)
+      {
+        id: 10,
+        patternNum: 4,
+        patternName: '4. Should you have any... (Inversion)',
+        vocab: ['horseback riding'],
+        clue: 'Invite parents politely to contact you if they have questions about horseback riding.',
+        tiles: [
+          'Should you',
+          'have any questions',
+          'about horseback riding,',
+          'please',
+          'contact',
+          'me.'
+        ],
+        explanation: '"Should you have any..." replaces "If you have any..." using formal conditional inversion — ideal for your conclusion!'
+      },
+      {
+        id: 11,
+        patternNum: 4,
+        patternName: '4. Should you have any... (Inversion)',
+        vocab: ["at one's own expense"],
+        clue: 'Invite parents to email you if they have concerns about self-paid activities.',
+        tiles: [
+          'Should you',
+          'have any concerns',
+          'about activities',
+          'at your own expense,',
+          'please',
+          'email me.'
+        ],
+        explanation: 'Notice how "Should you have any concerns..." leads smoothly into the polite request ", please email me."'
+      },
+      {
+        id: 12,
+        patternNum: 4,
+        patternName: '4. Should you have any... (Inversion)',
+        vocab: ['harvest seasonal produce'],
+        clue: 'Invite parents to call the school if they have enquiries about fruit/crop picking.',
+        tiles: [
+          'Should you',
+          'have any enquiries',
+          'about harvesting',
+          'seasonal produce,',
+          'please',
+          'call the school.'
+        ],
+        explanation: 'Remember: after prepositions like "about", use the -ing gerund form ("about harvesting seasonal produce").'
+      },
+
+      // Pattern 5: Provided that
+      {
+        id: 13,
+        patternNum: 5,
+        patternName: '5. Provided that',
+        vocab: ['craft unique keepsakes', "at one's own expense"],
+        clue: 'State that students can join the DIY craft workshop on the condition they pay for it themselves.',
+        tiles: [
+          'Students can',
+          'craft unique keepsakes,',
+          'provided that',
+          'they join',
+          'at their',
+          'own expense.'
+        ],
+        explanation: '"Provided that" introduces the exact condition ("they join at their own expense") required for the main clause.'
+      },
+      {
+        id: 14,
+        patternNum: 5,
+        patternName: '5. Provided that',
+        vocab: ['feed the fish at the lakeside pavilion'],
+        clue: 'Allow students to feed the fish on the condition that they stay safe.',
+        tiles: [
+          'Students may',
+          'feed the fish',
+          'at the lakeside pavilion,',
+          'provided that',
+          'they stay',
+          'safe.'
+        ],
+        explanation: '"Provided that they stay safe" uses the present simple tense ("stay") after "provided that" to express a condition.'
+      },
+      {
+        id: 15,
+        patternNum: 5,
+        patternName: '5. Provided that',
+        vocab: ['horseback riding'],
+        clue: 'Allow students to try horseback riding on the condition that they sign the safety form.',
+        tiles: [
+          'Students may',
+          'try horseback riding,',
+          'provided that',
+          'they sign',
+          'the safety',
+          'form.'
+        ],
+        explanation: 'Great job! "Main clause + , provided that + present simple condition" is a clear, high-utility DSE pattern.'
+      }
+    ];
+
+    function getFilteredPuzzles() {
+      if (gameState.dojoFilter === 'all') return PUZZLES;
+      const pNum = parseInt(gameState.dojoFilter, 10);
+      return PUZZLES.filter(p => p.patternNum === pNum);
+    }
+
+    function changeDojoFilter(val) {
+      gameState.dojoFilter = val;
+      gameState.currentPuzzleIndex = 0;
+      // Also sync the pattern guide tab if a specific pattern is selected
+      if (val !== 'all') {
+        selectPatternGuide(parseInt(val, 10));
+      }
+      loadPuzzle(0);
+    }
+
+    function shuffleTiles(tiles) {
+      const items = tiles.map((text, idx) => ({ id: idx, text }));
+      if (items.length <= 1) return items;
+
+      let shuffled = [...items];
+      let attempts = 0;
+      do {
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        attempts++;
+      } while (
+        shuffled.map(x => x.text).join('|') === items.map(x => x.text).join('|') &&
+        attempts < 10
+      );
+      return shuffled;
+    }
+
+    function loadPuzzle(index) {
+      const list = getFilteredPuzzles();
+      if (index < 0) index = list.length - 1;
+      if (index >= list.length) index = 0;
+      gameState.currentPuzzleIndex = index;
+
+      const puzzle = list[index];
+      gameState.placedTileIds = [];
+      gameState.scrambledTiles = shuffleTiles(puzzle.tiles);
+
+      // Update header badges
+      document.getElementById('puzzle-number-badge').textContent = `Quest #${puzzle.id} (${index + 1}/${list.length})`;
+      document.getElementById('puzzle-pattern-badge').textContent = puzzle.patternName;
+      document.getElementById('puzzle-meaning-clue').textContent = puzzle.clue;
+
+      // Render Vocab Spotlight badges
+      const vocabContainer = document.getElementById('puzzle-vocab-badges');
+      vocabContainer.innerHTML = puzzle.vocab.map(v => `
+        <span class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">
+          📖 ${v}
+        </span>
+      `).join('');
+
+      // Hide feedback box
+      const fb = document.getElementById('puzzle-feedback');
+      fb.classList.add('hidden');
+
+      renderPuzzlePills();
+      renderTiles();
+    }
+
+    function renderPuzzlePills() {
+      const list = getFilteredPuzzles();
+      const container = document.getElementById('puzzle-pills');
+      container.innerHTML = list.map((p, idx) => {
+        const isCurrent = idx === gameState.currentPuzzleIndex;
+        const isSolved = gameState.solvedPuzzles.has(p.id);
+        let cls = 'w-7 h-7 rounded-lg text-xs font-extrabold transition flex items-center justify-center border ';
+        if (isCurrent) {
+          cls += 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-300';
+        } else if (isSolved) {
+          cls += 'bg-emerald-500 text-white border-emerald-500';
+        } else {
+          cls += 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200';
+        }
+        return `<button onclick="loadPuzzle(${idx})" class="${cls}" title="Quest #${p.id}">${isSolved && !isCurrent ? '✓' : p.id}</button>`;
+      }).join('');
+    }
+
+    function renderTiles() {
+      const list = getFilteredPuzzles();
+      const puzzle = list[gameState.currentPuzzleIndex];
+      const tray = document.getElementById('answer-tray');
+      const bank = document.getElementById('word-bank');
+      const counter = document.getElementById('tile-counter');
+
+      counter.textContent = `${gameState.placedTileIds.length} / ${puzzle.tiles.length} tiles placed`;
+
+      // Render Answer Tray
+      if (gameState.placedTileIds.length === 0) {
+        tray.innerHTML = `<span class="text-xs sm:text-sm text-slate-400 italic">Tap the scrambled words/phrases below to assemble your sentence here...</span>`;
+      } else {
+        tray.innerHTML = gameState.placedTileIds.map(tileId => {
+          const tileObj = gameState.scrambledTiles.find(t => t.id === tileId);
+          return `
+            <button onclick="removeTile(${tileObj.id})" class="word-tile animate-pop px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-sm border border-indigo-700">
+              ${tileObj.text}
+            </button>
+          `;
+        }).join('');
+      }
+
+      // Render Scrambled Word Bank
+      bank.innerHTML = gameState.scrambledTiles.map(tileObj => {
+        const isPlaced = gameState.placedTileIds.includes(tileObj.id);
+        if (isPlaced) {
+          return `
+            <span class="px-3.5 py-2.5 rounded-xl bg-slate-200/70 text-transparent border border-dashed border-slate-300 font-bold text-xs sm:text-sm select-none">
+              ${tileObj.text}
+            </span>
+          `;
+        }
+        return `
+          <button onclick="placeTile(${tileObj.id})" class="word-tile px-3.5 py-2.5 rounded-xl bg-white hover:bg-indigo-50 text-slate-800 hover:text-indigo-800 font-bold text-xs sm:text-sm shadow-sm border-2 border-slate-200 hover:border-indigo-400">
+            ${tileObj.text}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function placeTile(tileId) {
+      if (gameState.placedTileIds.includes(tileId)) return;
+      gameState.placedTileIds.push(tileId);
+      playTone('pop');
+      renderTiles();
+    }
+
+    function removeTile(tileId) {
+      gameState.placedTileIds = gameState.placedTileIds.filter(id => id !== tileId);
+      playTone('remove');
+      renderTiles();
+    }
+
+    function resetCurrentPuzzle() {
+      playTone('remove');
+      loadPuzzle(gameState.currentPuzzleIndex);
+    }
+
+    function useHint() {
+      const list = getFilteredPuzzles();
+      const puzzle = list[gameState.currentPuzzleIndex];
+
+      // Keep only the correct prefix that the user has already placed
+      const validPrefixIds = [];
+      for (let i = 0; i < gameState.placedTileIds.length; i++) {
+        const placedObj = gameState.scrambledTiles.find(t => t.id === gameState.placedTileIds[i]);
+        if (placedObj && placedObj.text === puzzle.tiles[i]) {
+          validPrefixIds.push(placedObj.id);
+        } else {
+          break;
+        }
+      }
+
+      const nextIndex = validPrefixIds.length;
+      if (nextIndex >= puzzle.tiles.length) {
+        showToast('All tiles are already in the right place! Click Check Sentence.', 'info');
+        return;
+      }
+
+      const targetText = puzzle.tiles[nextIndex];
+      const nextTileObj = gameState.scrambledTiles.find(
+        t => t.text === targetText && !validPrefixIds.includes(t.id)
+      );
+
+      if (nextTileObj) {
+        validPrefixIds.push(nextTileObj.id);
+        gameState.placedTileIds = validPrefixIds;
+        playTone('pop');
+        renderTiles();
+        showToast(`💡 Placed tile #${nextIndex + 1}: "${targetText}"`, 'info');
+      }
+    }
+
+    function checkPuzzleAnswer() {
+      const list = getFilteredPuzzles();
+      const puzzle = list[gameState.currentPuzzleIndex];
+      const fb = document.getElementById('puzzle-feedback');
+      const tray = document.getElementById('answer-tray');
+
+      if (gameState.placedTileIds.length < puzzle.tiles.length) {
+        playTone('error');
+        tray.classList.add('animate-shake');
+        setTimeout(() => tray.classList.remove('animate-shake'), 400);
+        showToast('Place all remaining word/phrase tiles before checking!', 'info');
+        return;
+      }
+
+      const userSentence = gameState.placedTileIds
+        .map(id => gameState.scrambledTiles.find(t => t.id === id).text)
+        .join(' ');
+      const correctSentence = puzzle.tiles.join(' ');
+
+      fb.classList.remove('hidden');
+
+      if (userSentence === correctSentence) {
+        playTone('success');
+        const firstTime = !gameState.solvedPuzzles.has(puzzle.id);
+        gameState.solvedPuzzles.add(puzzle.id);
+        gameState.streak++;
+
+        if (firstTime) {
+          const streakBonus = gameState.streak >= 3 ? 10 : 0;
+          addXP(25 + streakBonus, streakBonus > 0 ? `Quest #${puzzle.id} Solved (+10 Streak Bonus!)` : `Quest #${puzzle.id} Solved`);
+        } else {
+          updateHUD();
+        }
+
+        renderPuzzlePills();
+
+        const allDone = gameState.solvedPuzzles.size === PUZZLES.length;
+        fb.className = 'rounded-2xl p-4 sm:p-5 border bg-emerald-50 border-emerald-300 text-emerald-950 animate-pop space-y-2';
+        fb.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="font-extrabold text-base text-emerald-800 flex items-center gap-2">
+              <span>🎉 Spot On! Perfect Grammar &amp; Word Order!</span>
+            </div>
+            <button onclick="speakText('${correctSentence.replace(/'/g, "\\'")}')" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+              🔊 Listen
+            </button>
+          </div>
+          <p class="font-bold text-sm text-slate-900 bg-white/80 p-2.5 rounded-xl border border-emerald-200">"${correctSentence}"</p>
+          <p class="text-xs sm:text-sm text-emerald-900"><strong>Grammar Note:</strong> ${puzzle.explanation}</p>
+          <div class="pt-1 flex flex-wrap items-center justify-between gap-2">
+            ${allDone
+              ? '<span class="font-extrabold text-amber-700 text-xs sm:text-sm">🏆 INCREDIBLE! You have mastered all 15 DSE Pattern Quests!</span>'
+              : `<button onclick="nextPuzzle()" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs sm:text-sm shadow">Next Sentence Quest ➔</button>`
+            }
+          </div>
+        `;
+      } else {
+        playTone('error');
+        gameState.streak = 0;
+        updateHUD();
+        tray.classList.add('animate-shake');
+        setTimeout(() => tray.classList.remove('animate-shake'), 400);
+
+        // Find first mismatched position to give helpful guidance
+        let firstWrongPos = -1;
+        for (let i = 0; i < puzzle.tiles.length; i++) {
+          const placedText = gameState.scrambledTiles.find(t => t.id === gameState.placedTileIds[i]).text;
+          if (placedText !== puzzle.tiles[i]) {
+            firstWrongPos = i + 1;
+            break;
+          }
+        }
+
+        fb.className = 'rounded-2xl p-4 sm:p-5 border bg-rose-50 border-rose-300 text-rose-950 animate-pop space-y-1.5';
+        fb.innerHTML = `
+          <div class="font-extrabold text-sm sm:text-base text-rose-800">⚠️ Not quite right — check the word order!</div>
+          <p class="text-xs sm:text-sm text-rose-900">
+            Look closely around <strong>tile #${firstWrongPos}</strong>. Remember the formula for <strong>${puzzle.patternName}</strong> (check Step 1 above or tap <em>Next Tile Hint</em> if you need a boost!).
+          </p>
+        `;
+      }
+    }
+
+    function nextPuzzle() {
+      loadPuzzle(gameState.currentPuzzleIndex + 1);
+    }
+
+    function prevPuzzle() {
+      loadPuzzle(gameState.currentPuzzleIndex - 1);
+    }
+
+    // =========================================================================
+    // 8. INITIALIZE APP ON LOAD
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      updateHUD();
+      switchStage(1);
+      selectParagraph(0);
+      renderPatternSpotter();
+      renderVocabCards('all');
+      renderVocabQuiz();
+      renderPatternGuideTabs();
+      loadPuzzle(0);
+    });
+  </script>
+</body>
+</html>
